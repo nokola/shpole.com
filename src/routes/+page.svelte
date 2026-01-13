@@ -17,6 +17,7 @@
 
     interface DisplayRow {
         name: string;
+        primaryName: string | null; // For alt names, shows the PDC name
         slug: string;
         level: number | null;
         strength: number | null;
@@ -47,6 +48,7 @@
                 seenNames.add(primaryName.toLowerCase());
                 rows.push({
                     name: primaryName,
+                    primaryName: null,
                     slug: move.Slug,
                     level: move.PdcLevel,
                     strength: move.StrengthReq,
@@ -66,6 +68,7 @@
                         seenNames.add(altName.toLowerCase());
                         rows.push({
                             name: altName,
+                            primaryName: primaryName,
                             slug: move.Slug,
                             level: move.PdcLevel,
                             strength: move.StrengthReq,
@@ -131,8 +134,9 @@
                 {#each flattenedMoves() as row}
                     <tr class:secondary={!row.isPrimary}>
                         <td class="name-cell">
-                            <a href="/m/{row.slug}" class="move-link" class:secondary-link={!row.isPrimary}>
-                                {row.name}
+                            <a href="/m/{row.slug}" class="move-link">
+                                {row.name}{#if row.primaryName}
+                                    <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
                             </a>
                         </td>
                         <td class="level">{row.level ?? "–"}</td>
@@ -202,9 +206,9 @@
     }
 
     .move-link {
-        color: hsl(var(--shpole-primary));
+        color: hsl(var(--shpole-text));
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 800;
     }
 
     .move-link:hover {
@@ -226,13 +230,13 @@
         line-height: 1.4;
     }
 
-    .secondary td {
-        color: hsl(var(--shpole-text-muted));
+    .secondary .move-link {
+        font-weight: 400;
     }
 
-    .secondary-link {
-        color: hsl(var(--shpole-text-muted));
+    .primary-ref {
         font-weight: 400;
+        opacity: 0.8;
     }
 
     @media (max-width: 600px) {

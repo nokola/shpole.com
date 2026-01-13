@@ -219,7 +219,7 @@
     .back-link {
         display: inline-block;
         color: hsl(var(--shpole-text-muted));
-        text-decoration: none;
+        text-decoration: underline;
         font-size: 0.9rem;
         margin-bottom: 1.5rem;
     }
