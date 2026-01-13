@@ -123,11 +123,11 @@
         <table class="moves-table">
             <thead>
                 <tr>
-                    <th>PDC Name/Also Known As</th>
-                    <th>Level</th>
-                    <th>Strength</th>
-                    <th>Flexibility</th>
-                    <th>Technique</th>
+                    <th>Name</th>
+                    <th>Lvl</th>
+                    <th>Str</th>
+                    <th>Flex</th>
+                    <th>Tech</th>
                 </tr>
             </thead>
             <tbody>
@@ -187,17 +187,17 @@
 
     .moves-table th {
         text-align: left;
-        padding: 0.5rem 0.5rem;
+        padding: 0.25rem 0.35rem;
         font-weight: 600;
         color: hsl(var(--shpole-text-muted));
-        font-size: 0.75rem;
+        font-size: 0.7rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
+        letter-spacing: 0.03em;
         border-bottom: 1px solid hsl(var(--shpole-border));
     }
 
     .moves-table td {
-        padding: 0.35rem 0.5rem;
+        padding: 0.2rem 0.35rem;
         color: hsl(var(--shpole-text));
     }
 
