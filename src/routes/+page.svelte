@@ -30,6 +30,20 @@
     let loading = $state(true);
     let error = $state<string | null>(null);
 
+    // Sorting state
+    type SortColumn = "name" | "level" | "strength" | "flexibility" | "technique";
+    let sortColumn = $state<SortColumn>("name");
+    let sortDirection = $state<"asc" | "desc">("asc");
+
+    function toggleSort(column: SortColumn) {
+        if (sortColumn === column) {
+            sortDirection = sortDirection === "asc" ? "desc" : "asc";
+        } else {
+            sortColumn = column;
+            sortDirection = "asc";
+        }
+    }
+
     function renderStars(value: number | null): string {
         if (value === null) return "–";
         return "★".repeat(value) + "☆".repeat(5 - value);
@@ -81,8 +95,28 @@
             }
         }
 
-        // Sort alphabetically by name
-        rows.sort((a, b) => a.name.localeCompare(b.name));
+        // Sort based on selected column and direction
+        rows.sort((a, b) => {
+            let comparison = 0;
+            switch (sortColumn) {
+                case "name":
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case "level":
+                    comparison = (a.level ?? -1) - (b.level ?? -1);
+                    break;
+                case "strength":
+                    comparison = (a.strength ?? -1) - (b.strength ?? -1);
+                    break;
+                case "flexibility":
+                    comparison = (a.flexibility ?? -1) - (b.flexibility ?? -1);
+                    break;
+                case "technique":
+                    comparison = (a.technique ?? -1) - (b.technique ?? -1);
+                    break;
+            }
+            return sortDirection === "asc" ? comparison : -comparison;
+        });
         return rows;
     });
 
@@ -123,11 +157,31 @@
         <table class="moves-table">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>Lvl</th>
-                    <th>Str</th>
-                    <th>Flex</th>
-                    <th>Tech</th>
+                    <th class="sortable" onclick={() => toggleSort("name")}>
+                        Name {#if sortColumn === "name"}<span class="sort-arrow"
+                                >{sortDirection === "asc" ? "▲" : "▼"}</span
+                            >{/if}
+                    </th>
+                    <th class="sortable" onclick={() => toggleSort("level")}>
+                        Lvl {#if sortColumn === "level"}<span class="sort-arrow"
+                                >{sortDirection === "asc" ? "▲" : "▼"}</span
+                            >{/if}
+                    </th>
+                    <th class="sortable" onclick={() => toggleSort("strength")}>
+                        Str {#if sortColumn === "strength"}<span class="sort-arrow"
+                                >{sortDirection === "asc" ? "▲" : "▼"}</span
+                            >{/if}
+                    </th>
+                    <th class="sortable" onclick={() => toggleSort("flexibility")}>
+                        Flex {#if sortColumn === "flexibility"}<span class="sort-arrow"
+                                >{sortDirection === "asc" ? "▲" : "▼"}</span
+                            >{/if}
+                    </th>
+                    <th class="sortable" onclick={() => toggleSort("technique")}>
+                        Tech {#if sortColumn === "technique"}<span class="sort-arrow"
+                                >{sortDirection === "asc" ? "▲" : "▼"}</span
+                            >{/if}
+                    </th>
                 </tr>
             </thead>
             <tbody>
@@ -194,6 +248,21 @@
         text-transform: uppercase;
         letter-spacing: 0.03em;
         border-bottom: 1px solid hsl(var(--shpole-border));
+    }
+
+    .sortable {
+        cursor: pointer;
+        text-decoration: underline;
+        user-select: none;
+    }
+
+    .sortable:hover {
+        color: hsl(var(--shpole-text));
+    }
+
+    .sort-arrow {
+        font-size: 0.6rem;
+        margin-left: 0.15rem;
     }
 
     .moves-table td {
