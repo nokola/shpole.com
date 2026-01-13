@@ -46,7 +46,7 @@
 
     function renderStars(value: number | null): string {
         if (value === null) return "–";
-        return "★".repeat(value) + "☆".repeat(5 - value);
+        return `${value}★`;
     }
 
     // Flatten moves to display each name (PDC + alternatives) on its own row

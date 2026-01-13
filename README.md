@@ -36,3 +36,13 @@ npm run build
 You can preview the production build with `npm run preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+
+
+## Overwrite database
+
+```sh
+flyctl ssh console --app shpole
+rm /app/data/shpole.db
+exit
+flyctl ssh sftp put data/shpole.db  /app/data/shpole.db --app shpole
+```
