@@ -12,6 +12,17 @@
         FlexibilityReq: number | null;
         TechniqueReq: number | null;
         MoveTypeName: string | null;
+        AlsoKnownAs: string | null;
+    }
+
+    interface DisplayRow {
+        name: string;
+        slug: string;
+        level: number | null;
+        strength: number | null;
+        flexibility: number | null;
+        technique: number | null;
+        isPrimary: boolean;
     }
 
     let movesList = $state<Move[]>([]);
@@ -22,6 +33,55 @@
         if (value === null) return "–";
         return "★".repeat(value) + "☆".repeat(5 - value);
     }
+
+    // Flatten moves to display each name (PDC + alternatives) on its own row
+    let flattenedMoves = $derived(() => {
+        const rows: DisplayRow[] = [];
+        const seenNames = new Set<string>();
+
+        for (const move of movesList) {
+            const primaryName = move.PdcName || move.Slug;
+
+            // Add primary name row
+            if (!seenNames.has(primaryName.toLowerCase())) {
+                seenNames.add(primaryName.toLowerCase());
+                rows.push({
+                    name: primaryName,
+                    slug: move.Slug,
+                    level: move.PdcLevel,
+                    strength: move.StrengthReq,
+                    flexibility: move.FlexibilityReq,
+                    technique: move.TechniqueReq,
+                    isPrimary: true,
+                });
+            }
+
+            // Add alternative name rows
+            if (move.AlsoKnownAs) {
+                const altNames = move.AlsoKnownAs.split(", ")
+                    .map((n) => n.trim())
+                    .filter((n) => n);
+                for (const altName of altNames) {
+                    if (!seenNames.has(altName.toLowerCase())) {
+                        seenNames.add(altName.toLowerCase());
+                        rows.push({
+                            name: altName,
+                            slug: move.Slug,
+                            level: move.PdcLevel,
+                            strength: move.StrengthReq,
+                            flexibility: move.FlexibilityReq,
+                            technique: move.TechniqueReq,
+                            isPrimary: false,
+                        });
+                    }
+                }
+            }
+        }
+
+        // Sort alphabetically by name
+        rows.sort((a, b) => a.name.localeCompare(b.name));
+        return rows;
+    });
 
     onMount(async () => {
         try {
@@ -60,7 +120,7 @@
         <table class="moves-table">
             <thead>
                 <tr>
-                    <th>Name</th>
+                    <th>PDC Name/Also Known As</th>
                     <th>Level</th>
                     <th>Strength</th>
                     <th>Flexibility</th>
@@ -68,17 +128,17 @@
                 </tr>
             </thead>
             <tbody>
-                {#each movesList as move}
-                    <tr>
-                        <td>
-                            <a href="/m/{move.Slug}" class="move-link">
-                                {move.PdcName || move.Slug}
+                {#each flattenedMoves() as row}
+                    <tr class:secondary={!row.isPrimary}>
+                        <td class="name-cell">
+                            <a href="/m/{row.slug}" class="move-link" class:secondary-link={!row.isPrimary}>
+                                {row.name}
                             </a>
                         </td>
-                        <td class="level">{move.PdcLevel ?? "–"}</td>
-                        <td class="stars">{renderStars(move.StrengthReq)}</td>
-                        <td class="stars">{renderStars(move.FlexibilityReq)}</td>
-                        <td class="stars">{renderStars(move.TechniqueReq)}</td>
+                        <td class="level">{row.level ?? "–"}</td>
+                        <td class="stars">{renderStars(row.strength)}</td>
+                        <td class="stars">{renderStars(row.flexibility)}</td>
+                        <td class="stars">{renderStars(row.technique)}</td>
                     </tr>
                 {/each}
             </tbody>
@@ -102,11 +162,6 @@
         font-weight: 700;
         margin: 0 0 0.5rem 0;
         color: hsl(var(--shpole-text));
-    }
-
-    .subtitle {
-        color: hsl(var(--shpole-text-muted));
-        margin: 0;
     }
 
     .loading,
@@ -165,6 +220,19 @@
         font-size: 0.85rem;
         letter-spacing: 0.05em;
         color: hsl(var(--shpole-primary));
+    }
+
+    .name-cell {
+        line-height: 1.4;
+    }
+
+    .secondary td {
+        color: hsl(var(--shpole-text-muted));
+    }
+
+    .secondary-link {
+        color: hsl(var(--shpole-text-muted));
+        font-weight: 400;
     }
 
     @media (max-width: 600px) {

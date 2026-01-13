@@ -89,6 +89,7 @@ export interface Move {
     FlexibilityReq: number | null;
     TechniqueReq: number | null;
     MoveTypeName: string | null;
+    AlsoKnownAs: string | null;
 }
 
 export interface MoveDetail {

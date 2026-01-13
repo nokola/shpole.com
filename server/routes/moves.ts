@@ -13,6 +13,7 @@ interface MoveRow {
     FlexibilityReq: number | null;
     TechniqueReq: number | null;
     MoveTypeName: string | null;
+    AlsoKnownAs: string | null;
     Info: string | null;
     ThumbnailUrl: string | null;
     Status: number;
@@ -45,7 +46,13 @@ router.get('/', (req, res) => {
                 m.StrengthReq,
                 m.FlexibilityReq,
                 m.TechniqueReq,
-                mt.Name as MoveTypeName
+                mt.Name as MoveTypeName,
+                (
+                    SELECT GROUP_CONCAT(mn2.MoveName, ', ')
+                    FROM Move_Name m_n2
+                    JOIN MoveNames mn2 ON m_n2.NameId = mn2.Id
+                    WHERE m_n2.MoveId = m.Id AND mn2.MoveName != m.PdcName
+                ) as AlsoKnownAs
             FROM Moves m
             LEFT JOIN MoveTypes mt ON m.MoveTypeId = mt.Id
             LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
