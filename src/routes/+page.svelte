@@ -224,6 +224,7 @@
         font-size: 0.8rem;
         letter-spacing: 0.02em;
         color: hsl(var(--shpole-primary));
+        text-align: center;
     }
 
     .name-cell {
