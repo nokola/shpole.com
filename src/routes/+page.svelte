@@ -187,17 +187,17 @@
 
     .moves-table th {
         text-align: left;
-        padding: 0.75rem 1rem;
+        padding: 0.5rem 0.5rem;
         font-weight: 600;
         color: hsl(var(--shpole-text-muted));
-        font-size: 0.8rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
         border-bottom: 1px solid hsl(var(--shpole-border));
     }
 
     .moves-table td {
-        padding: 0.75rem 1rem;
+        padding: 0.35rem 0.5rem;
         color: hsl(var(--shpole-text));
     }
 
@@ -221,13 +221,13 @@
     }
 
     .stars {
-        font-size: 0.85rem;
-        letter-spacing: 0.05em;
+        font-size: 0.8rem;
+        letter-spacing: 0.02em;
         color: hsl(var(--shpole-primary));
     }
 
     .name-cell {
-        line-height: 1.4;
+        line-height: 1.3;
     }
 
     .secondary .move-link {
@@ -237,12 +237,5 @@
     .primary-ref {
         font-weight: 400;
         opacity: 0.8;
-    }
-
-    @media (max-width: 600px) {
-        .moves-table th:nth-child(n + 3),
-        .moves-table td:nth-child(n + 3) {
-            display: none;
-        }
     }
 </style>
