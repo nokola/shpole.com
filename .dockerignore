@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+npm-debug.log
+
+# Build output
+.svelte-kit
+
+# Development
+.git
+.gitignore
+.vscode
+*.md
+
+# Temp files
+temp
+*.log
+
+# SQLite database (will be created fresh in container)
+data/*.db
+data/*.db-*
+
+# OS files
+.DS_Store
+Thumbs.db
