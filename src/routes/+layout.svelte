@@ -58,10 +58,10 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <title>Shpole - Save & Organize Pole Dancing Videos</title>
+  <title>Shpole - Pole Dance Move Database</title>
   <meta
     name="description"
-    content="The fastest way to save, categorize, and annotate pole dancing videos from Instagram, YouTube, and more."
+    content="A comprehensive database of pole dance moves with levels, requirements, and tutorials."
   />
 </svelte:head>
 
@@ -83,7 +83,7 @@
           <!-- User Avatar Dropdown -->
           <div class="relative">
             <button
-              class="w-9 h-9 rounded-full bg-linear-to-br from-[hsl(var(--shpole-primary))] to-[hsl(var(--shpole-secondary))] flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:ring-2 hover:ring-[hsl(var(--shpole-primary))] hover:ring-offset-2 hover:ring-offset-[hsl(var(--shpole-bg))] transition-all"
+              class="w-9 h-9 rounded-full bg-linear-to-br from-[hsl(var(--shpole-primary))] to-[hsl(var(--shpole-secondary))] flex items-center justify-center text-white font-bold text-sm cursor-pointer hover:ring-2 hover:ring-[hsl(var(--shpole-primary))] hover:ring-offset-2 hover:ring-offset-[hsl(var(--shpole-bg))]"
               onclick={toggleUserMenu}
               aria-label="User menu"
               aria-expanded={userMenuOpen}
@@ -114,7 +114,7 @@
                   <!-- My Collections -->
                   <a
                     href={profilePath}
-                    class="w-full px-4 py-2 flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))] transition-colors"
+                    class="w-full px-4 py-2 flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))]"
                     onclick={closeUserMenu}
                   >
                     <svg
@@ -135,7 +135,7 @@
 
                   <!-- Theme Toggle -->
                   <button
-                    class="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))] transition-colors"
+                    class="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))]"
                     onclick={() => {
                       themeStore.toggle();
                     }}
@@ -190,7 +190,7 @@
 
                   <!-- Logout -->
                   <button
-                    class="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))] text-red-400 transition-colors"
+                    class="w-full px-4 py-2 text-left flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))] text-red-400"
                     onclick={logout}
                   >
                     <svg

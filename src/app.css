@@ -79,7 +79,6 @@ body {
   background-color: hsl(var(--shpole-bg));
   color: hsl(var(--shpole-text));
   min-height: 100vh;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Typography */
@@ -124,7 +123,6 @@ h1, h2, h3, h4, h5, h6 {
 a {
   color: hsl(var(--shpole-primary));
   text-decoration: none;
-  transition: all 0.15s ease;
 }
 
 a:hover {
@@ -153,7 +151,6 @@ a:focus-visible {
   border-radius: 4px;
   font-weight: 600;
   font-size: 0.9rem;
-  transition: all 0.1s ease;
   cursor: pointer;
   text-decoration: none !important;
   /* Windows 2000 raised bevel - theme colors */
@@ -285,7 +282,6 @@ a:focus-visible {
   border: 1px solid transparent;
   background: transparent;
   color: hsl(var(--shpole-text-muted));
-  transition: all 0.15s ease;
 }
 
 .action-btn:hover {
@@ -317,7 +313,6 @@ a:focus-visible {
   cursor: pointer;
   border: 1px solid hsl(var(--shpole-border));
   background: hsl(var(--shpole-bg-secondary));
-  transition: all 0.15s ease;
 }
 
 .status-btn:hover {
@@ -345,7 +340,6 @@ a:focus-visible {
   border: 1px solid hsl(var(--shpole-border));
   border-radius: 1rem;
   padding: 1.5rem;
-  transition: all 0.2s ease;
 }
 
 /* Non-clickable cards have subtle hover (feature cards) */
@@ -382,7 +376,6 @@ a.card:focus-visible,
   background: hsl(var(--shpole-surface));
   color: hsl(var(--shpole-text));
   font-size: 1rem;
-  transition: all 0.2s ease;
 }
 
 .input:focus {
@@ -448,29 +441,7 @@ a.card:focus-visible,
   -webkit-backdrop-filter: blur(10px);
 }
 
-/* Animations */
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideIn {
-  from { opacity: 0; transform: translateX(-20px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-.animate-fade-in {
-  animation: fadeIn 0.3s ease forwards;
-}
-
-.animate-slide-in {
-  animation: slideIn 0.3s ease forwards;
-}
+/* Animations removed */
 
 /* Modal overlay */
 .modal-overlay {
@@ -492,7 +463,6 @@ a.card:focus-visible,
   width: 90%;
   max-height: 90vh;
   overflow-y: auto;
-  animation: fadeIn 0.2s ease;
 }
 
 /* Video thumbnail */
@@ -530,11 +500,6 @@ a.card:focus-visible,
   border: 3px solid hsl(var(--shpole-border));
   border-top-color: hsl(var(--shpole-primary));
   border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to { transform: rotate(360deg); }
 }
 
 /* Toast notification */
@@ -547,7 +512,6 @@ a.card:focus-visible,
   background: hsl(var(--shpole-surface));
   border: 1px solid hsl(var(--shpole-border));
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideIn 0.3s ease;
   z-index: 100;
 }
 

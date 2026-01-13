@@ -46,7 +46,6 @@
 <div class="moves-page">
     <header class="page-header">
         <h1>Pole Dance Moves</h1>
-        <p class="subtitle">Browse the move database</p>
     </header>
 
     {#if loading}

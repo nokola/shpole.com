@@ -72,6 +72,9 @@
     });
 
     let displayName = $derived(move?.PdcName || move?.Slug || "Move");
+
+    // Filter out the main display name from "Also Known As" to avoid duplication
+    let alternateNames = $derived(names.filter((n) => n.MoveName !== displayName));
 </script>
 
 <svelte:head>
@@ -94,11 +97,11 @@
             {/if}
         </header>
 
-        {#if names.length > 0}
+        {#if alternateNames.length > 0}
             <section class="section">
                 <h2>Also Known As</h2>
                 <ul class="names-list">
-                    {#each names as name}
+                    {#each alternateNames as name}
                         <li>
                             {name.MoveName}
                             {#if name.Source}
