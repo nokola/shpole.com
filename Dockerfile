@@ -24,9 +24,6 @@ RUN npx tsc --project tsconfig.server.json
 # Copy non-TS assets that tsc doesn't copy
 RUN cp server/db/shpole_schema.sql dist/server/db/
 
-# Copy local SQLite database OVERWRITING the server one
-# RUN cp server/db/shpole.db /app/data/shpole.db
-
 # Production stage
 FROM node:20-alpine AS production
 
