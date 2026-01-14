@@ -40,7 +40,7 @@
 <div class="min-h-screen flex justify-center py-3 px-4">
     <div class="w-full max-w-md">
         <div class="text-center mb-4">
-            <h1 class="text-2xl font-bold gradient-text">Sign In</h1>
+            <h1 class="text-2xl font-bold">Sign In</h1>
         </div>
 
         <div class="card">
