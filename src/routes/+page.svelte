@@ -17,7 +17,7 @@
 
     interface DisplayRow {
         name: string;
-        primaryName: string | null; // For alt names, shows the PDC name
+        primaryName: string; // For alt names, shows the PDC name
         slug: string;
         level: number | null;
         strength: number | null;
@@ -73,7 +73,7 @@
                 seenNames.add(primaryName.toLowerCase());
                 rows.push({
                     name: primaryName,
-                    primaryName: null,
+                    primaryName: primaryName,
                     slug: move.Slug,
                     level: move.PdcLevel,
                     strength: move.StrengthReq,
@@ -111,7 +111,7 @@
             let comparison = 0;
             switch (sortColumn) {
                 case "name":
-                    comparison = a.name.localeCompare(b.name);
+                    comparison = a.primaryName.localeCompare(b.primaryName);
                     break;
                 case "level":
                     comparison = (a.level ?? -1) - (b.level ?? -1);
@@ -204,19 +204,17 @@
 </svelte:head>
 
 <div class="moves-page px-2">
-    <header class="pl-1 pb-4 text-center">
+    <header class="pl-1 pb-4">
         <h1>Pole Moves</h1>
         <div>
             <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
                 LVL = 1..6 (Intro to Advanced)
                 <br />
                 STR/FLEX/TECH = 1..5 (Beginner to Expert)
-                <br />
-                <b>NAME</b> = Primary Name, ALT = Alternative Name
             </p>
         </div>
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
-            {useFlattenedMoves ? "📝 Flattened View" : "📋 Grouped View"}
+            {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
     </header>
 
@@ -288,17 +286,23 @@
                         >
                             <td class="leading-5 text-md">
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
-                                    {row.name}{#if row.primaryName}
-                                        <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
+                                    {#if row.isPrimary}
+                                        {row.name}
+                                    {:else}
+                                        <span class="text-[hsl(var(--shpole-text-muted))]">{row.name}</span>
+                                    {/if}
                                 </a>
                             </td>
-                            <td class="level">{row.level ?? "–"}</td>
-                            <td class="stars-combined"
-                                >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
-                                >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
-                                    >/</span
-                                >{renderStars(row.technique)}</td
-                            >
+                            <td class="level">{(row.isPrimary ? row.level : "") ?? "–"}</td>
+                            <td class="stars-combined">
+                                {#if row.isPrimary}
+                                    {renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]"
+                                        >/</span
+                                    >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
+                                        >/</span
+                                    >{renderStars(row.technique)}
+                                {/if}
+                            </td>
                         </tr>
                     {/each}
                 {:else}
@@ -308,11 +312,11 @@
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
                                     >{row.name}</a
                                 >
-                                {#if row.altNames.length > 0}
+                                <!-- {#if row.altNames.length > 0}
                                     <div class="alt-names">
                                         {row.altNames.join(", ")}
                                     </div>
-                                {/if}
+                                {/if} -->
                             </td>
                             <td class="level">{row.level ?? "–"}</td>
                             <td class="stars-combined"
@@ -469,11 +473,11 @@
     }
 
     .primary-ref {
-        font-weight: 400;
-        opacity: 0.8;
+        font-weight: 800;
     }
 
     .alt-names {
+        font-size: 0.75rem;
         font-weight: 400;
         color: hsl(var(--shpole-text-muted));
         margin-top: 0.1rem;
