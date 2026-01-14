@@ -68,14 +68,14 @@
 <!-- Navigation -->
 <nav>
   <div class="max-w-4xl px-4 mx-auto py-4">
-    <div class="flex justify-between h-10">
-      <!-- Centered full-width logo -->
-      <a href="/" class="flex grow justify-center pointer-events-auto">
+    <div class="relative h-10">
+      <!-- Centered logo (absolute to center on full screen) -->
+      <a href="/" class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
         <img src="/shpole100.png" alt="Shpole" />
       </a>
 
-      <!-- Navigation Links -->
-      <div class="flex items-center">
+      <!-- Navigation Links (positioned on the right) -->
+      <div class="absolute right-0 top-1/2 -translate-y-1/2 flex items-center">
         {#if authenticated}
           <!-- User Avatar Dropdown -->
           <div class="relative">

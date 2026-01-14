@@ -26,6 +26,16 @@
         isPrimary: boolean;
     }
 
+    interface GroupedRow {
+        name: string;
+        altNames: string[];
+        slug: string;
+        level: number | null;
+        strength: number | null;
+        flexibility: number | null;
+        technique: number | null;
+    }
+
     let movesList = $state<Move[]>([]);
     let loading = $state(true);
     let error = $state<string | null>(null);
@@ -49,6 +59,7 @@
         return `${value}★`;
     }
 
+    let useFlattenedMoves = $state(false);
     // Flatten moves to display each name (PDC + alternatives) on its own row
     let flattenedMoves = $derived(() => {
         const rows: DisplayRow[] = [];
@@ -120,6 +131,54 @@
         return rows;
     });
 
+    // Grouped moves: primary moves with alt names in the same cell
+    let groupedMoves = $derived(() => {
+        const rows: GroupedRow[] = [];
+
+        for (const move of movesList) {
+            const primaryName = move.PdcName || move.Slug;
+            const altNames = move.AlsoKnownAs
+                ? move.AlsoKnownAs.split(", ")
+                      .map((n) => n.trim())
+                      .filter((n) => n && n.toLowerCase() !== primaryName.toLowerCase())
+                : [];
+
+            rows.push({
+                name: primaryName,
+                altNames,
+                slug: move.Slug,
+                level: move.PdcLevel,
+                strength: move.StrengthReq,
+                flexibility: move.FlexibilityReq,
+                technique: move.TechniqueReq,
+            });
+        }
+
+        // Sort based on selected column and direction
+        rows.sort((a, b) => {
+            let comparison = 0;
+            switch (sortColumn) {
+                case "name":
+                    comparison = a.name.localeCompare(b.name);
+                    break;
+                case "level":
+                    comparison = (a.level ?? -1) - (b.level ?? -1);
+                    break;
+                case "strength":
+                    comparison = (a.strength ?? -1) - (b.strength ?? -1);
+                    break;
+                case "flexibility":
+                    comparison = (a.flexibility ?? -1) - (b.flexibility ?? -1);
+                    break;
+                case "technique":
+                    comparison = (a.technique ?? -1) - (b.technique ?? -1);
+                    break;
+            }
+            return sortDirection === "asc" ? comparison : -comparison;
+        });
+        return rows;
+    });
+
     onMount(async () => {
         try {
             const data = await movesApi.list();
@@ -133,7 +192,7 @@
 </script>
 
 <svelte:head>
-    <title>Shpole - Pole Dance Move Database</title>
+    <title>Shpole - Pole Dance Tutorials Database</title>
     <meta
         name="description"
         content="A comprehensive database of pole dance moves with levels, requirements, and tutorials."
@@ -141,15 +200,20 @@
 </svelte:head>
 
 <div class="moves-page px-2">
-    <header class="pl-1 pb-4">
-        <h1 class="text-[hsl(var(--shpole-text-muted))]">Pole Dance Moves</h1>
+    <header class="pl-1 pb-4 text-center">
+        <h1>Pole Moves</h1>
         <div>
             <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
                 LVL = 1..6 (Intro to Advanced)
                 <br />
                 STR/FLEX/TECH = 1..5 (Beginner to Expert)
+                <br />
+                <b>NAME</b> = Primary Name, ALT = Alternative Name
             </p>
         </div>
+        <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
+            {useFlattenedMoves ? "📝 Flattened View" : "📋 Grouped View"}
+        </button>
     </header>
 
     {#if loading}
@@ -211,22 +275,45 @@
                 </tr>
             </thead>
             <tbody>
-                {#each flattenedMoves() as row}
-                    <tr class:secondary={!row.isPrimary}>
-                        <td class="leading-5 text-md">
-                            <a href="/m/{row.slug}" class="move-link">
-                                {row.name}{#if row.primaryName}
-                                    <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
-                            </a>
-                        </td>
-                        <td class="level">{row.level ?? "–"}</td>
-                        <td class="stars-combined"
-                            >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
-                            >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
-                            >{renderStars(row.technique)}</td
-                        >
-                    </tr>
-                {/each}
+                {#if useFlattenedMoves}
+                    {#each flattenedMoves() as row}
+                        <tr class:secondary={!row.isPrimary}>
+                            <td class="leading-5 text-sm">
+                                <a href="/m/{row.slug}" class="move-link">
+                                    {row.name}{#if row.primaryName}
+                                        <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
+                                </a>
+                            </td>
+                            <td class="level">{row.level ?? "–"}</td>
+                            <td class="stars-combined"
+                                >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                                >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
+                                    >/</span
+                                >{renderStars(row.technique)}</td
+                            >
+                        </tr>
+                    {/each}
+                {:else}
+                    {#each groupedMoves() as row}
+                        <tr>
+                            <td class="leading-5 text-sm">
+                                <a href="/m/{row.slug}" class="move-link">{row.name}</a>
+                                {#if row.altNames.length > 0}
+                                    <div class="alt-names">
+                                        {row.altNames.join(", ")}
+                                    </div>
+                                {/if}
+                            </td>
+                            <td class="level">{row.level ?? "–"}</td>
+                            <td class="stars-combined"
+                                >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                                >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
+                                    >/</span
+                                >{renderStars(row.technique)}</td
+                            >
+                        </tr>
+                    {/each}
+                {/if}
             </tbody>
         </table>
     {/if}
@@ -364,5 +451,30 @@
     .primary-ref {
         font-weight: 400;
         opacity: 0.8;
+    }
+
+    .alt-names {
+        font-size: 0.75rem;
+        font-weight: 400;
+        color: hsl(var(--shpole-text-muted));
+        margin-top: 0.1rem;
+    }
+
+    .view-toggle {
+        margin-top: 0.75rem;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        color: hsl(var(--shpole-text));
+        background: hsl(var(--shpole-surface));
+        border: 1px solid hsl(var(--shpole-border));
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+    }
+
+    .view-toggle:hover {
+        background: hsl(var(--shpole-bg-secondary));
+        border-color: hsl(var(--shpole-primary));
     }
 </style>
