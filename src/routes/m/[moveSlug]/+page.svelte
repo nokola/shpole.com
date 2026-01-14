@@ -52,7 +52,7 @@
 
     function renderStars(value: number | null): string {
         if (value === null) return "–";
-        return "★".repeat(value) + "☆".repeat(5 - value);
+        return `${value}★`;
     }
 
     onMount(async () => {
