@@ -37,11 +37,10 @@
     }
 </script>
 
-<div class="min-h-screen flex items-center justify-center py-12 px-4">
+<div class="min-h-screen flex justify-center py-3 px-4">
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
-            <p class="text-[hsl(var(--shpole-text-muted))]">Sign in</p>
+            <h1 class="text-3xl font-bold gradient-text mb-2">Sign In</h1>
         </div>
 
         <div class="card">

@@ -215,8 +215,7 @@
             {/if}
           </div>
         {:else}
-          <a href="/login" class="btn btn-ghost btn-small">Login</a>
-          <a href="/register" class="btn btn-primary btn-small">Get Started</a>
+          <a href="/login" class="btn btn-primary btn-small">Sign In/Join</a>
         {/if}
       </div>
     </div>

@@ -122,7 +122,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Regular links - look like links, NOT buttons */
 a {
   color: hsl(var(--shpole-primary));
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 a:hover {
@@ -339,7 +339,7 @@ a:focus-visible {
   background: hsl(var(--shpole-surface));
   border: 1px solid hsl(var(--shpole-border));
   border-radius: 1rem;
-  padding: 1.5rem;
+  padding: 1rem;
 }
 
 /* Non-clickable cards have subtle hover (feature cards) */
