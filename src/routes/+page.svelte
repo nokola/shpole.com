@@ -386,11 +386,6 @@
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
                                     >{row.name}</a
                                 >
-                                <!-- {#if row.altNames.length > 0}
-                                    <div class="alt-names">
-                                        {row.altNames.join(", ")}
-                                    </div>
-                                {/if} -->
                             </td>
                             <td class="level">{row.level ?? "–"}</td>
                             <td class="stars-combined"
@@ -544,17 +539,6 @@
 
     .secondary .move-link {
         font-weight: 400;
-    }
-
-    .primary-ref {
-        font-weight: 800;
-    }
-
-    .alt-names {
-        font-size: 0.75rem;
-        font-weight: 400;
-        color: hsl(var(--shpole-text-muted));
-        margin-top: 0.1rem;
     }
 
     .view-toggle {
