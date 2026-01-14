@@ -60,12 +60,51 @@
     }
 
     let useFlattenedMoves = $state(false);
+
+    // Level filter state
+    const levelLabels: Record<number, string> = {
+        1: "Intro",
+        2: "Beginner",
+        3: "Intermediate",
+        4: "Advanced",
+        5: "Expert",
+        6: "Master",
+    };
+    let selectedLevels = $state<Set<number>>(new Set([1, 2, 3, 4, 5, 6]));
+    let levelDropdownOpen = $state(false);
+
+    function toggleLevel(level: number) {
+        const newSet = new Set(selectedLevels);
+        if (newSet.has(level)) {
+            newSet.delete(level);
+        } else {
+            newSet.add(level);
+        }
+        selectedLevels = newSet;
+    }
+
+    function getLevelButtonLabel(): string {
+        if (selectedLevels.size === 6) {
+            return "Level 123456";
+        }
+        if (selectedLevels.size === 0) {
+            return "Level (none)";
+        }
+        return "Level " + Array.from(selectedLevels).sort().join("");
+    }
+
     // Flatten moves to display each name (PDC + alternatives) on its own row
     let flattenedMoves = $derived(() => {
         const rows: DisplayRow[] = [];
         const seenNames = new Set<string>();
 
-        for (const move of movesList) {
+        // Filter by selected levels
+        const filteredMoves = movesList.filter((move) => {
+            if (move.PdcLevel === null) return selectedLevels.size === 6; // Show null levels only if all selected
+            return selectedLevels.has(move.PdcLevel);
+        });
+
+        for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
 
             // Add primary name row
@@ -135,7 +174,13 @@
     let groupedMoves = $derived(() => {
         const rows: GroupedRow[] = [];
 
-        for (const move of movesList) {
+        // Filter by selected levels
+        const filteredMoves = movesList.filter((move) => {
+            if (move.PdcLevel === null) return selectedLevels.size === 6; // Show null levels only if all selected
+            return selectedLevels.has(move.PdcLevel);
+        });
+
+        for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
             const altNames = move.AlsoKnownAs
                 ? move.AlsoKnownAs.split(", ")
@@ -196,7 +241,7 @@
 </script>
 
 <svelte:head>
-    <title>Shpole - Pole Dance Tutorials Database</title>
+    <title>Shpole - Pole Dance Moves Database</title>
     <meta
         name="description"
         content="A comprehensive database of pole dance moves with levels, requirements, and tutorials."
@@ -205,17 +250,43 @@
 
 <div class="moves-page px-2">
     <header class="pl-1 pb-4">
-        <h1>Pole Moves</h1>
+        <h1>{movesList.length > 0 ? movesList.length : "335"} Pole Moves</h1>
         <div>
             <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
-                LVL = 1..6 (Intro to Advanced)
-                <br />
                 STR/FLEX/TECH = 1..5 (Beginner to Expert)
+                <!-- keyword search e.g. Sit -->
             </p>
         </div>
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
+        <div class="level-filter-wrapper">
+            <button
+                class="view-toggle level-filter-btn"
+                class:has-filter={selectedLevels.size < 6}
+                onclick={() => (levelDropdownOpen = !levelDropdownOpen)}
+            >
+                🎯 {getLevelButtonLabel()}
+            </button>
+            {#if levelDropdownOpen}
+                <!-- svelte-ignore a11y_click_events_have_key_events -->
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div class="level-dropdown-backdrop" onclick={() => (levelDropdownOpen = false)}></div>
+                <div class="level-dropdown">
+                    {#each [1, 2, 3, 4, 5, 6] as level}
+                        <button
+                            type="button"
+                            class="level-option"
+                            class:active={selectedLevels.has(level)}
+                            onclick={() => toggleLevel(level)}
+                        >
+                            <span class="level-number">{level}</span>
+                            <span class="level-label">{levelLabels[level]}</span>
+                        </button>
+                    {/each}
+                </div>
+            {/if}
+        </div>
     </header>
 
     {#if loading}
@@ -499,5 +570,95 @@
     .view-toggle:hover {
         background: hsl(var(--shpole-bg-secondary));
         border-color: hsl(var(--shpole-primary));
+    }
+
+    /* Level filter styles */
+    .level-filter-wrapper {
+        position: relative;
+        display: inline-block;
+        margin-left: 0.5rem;
+    }
+
+    .level-filter-btn.has-filter {
+        background: hsl(var(--shpole-primary) / 0.15);
+        border-color: hsl(var(--shpole-primary));
+    }
+
+    .level-dropdown-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 99;
+    }
+
+    .level-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        z-index: 100;
+        min-width: 160px;
+        background: hsl(var(--shpole-surface));
+        border: 1px solid hsl(var(--shpole-border));
+        border-radius: 8px;
+        box-shadow: 0 4px 12px hsl(0 0% 0% / 0.2);
+        padding: 0.35rem;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .level-option {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 0.5rem 0.75rem;
+        background: transparent;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.12s ease;
+        text-align: left;
+    }
+
+    .level-option:hover {
+        background: hsl(var(--shpole-bg-secondary));
+    }
+
+    .level-option.active {
+        background: hsl(var(--shpole-primary) / 0.2);
+    }
+
+    .level-option.active:hover {
+        background: hsl(var(--shpole-primary) / 0.3);
+    }
+
+    .level-number {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.5rem;
+        height: 1.5rem;
+        font-weight: 700;
+        font-size: 0.85rem;
+        border-radius: 4px;
+        background: hsl(var(--shpole-bg-secondary));
+        color: hsl(var(--shpole-text-muted));
+    }
+
+    .level-option.active .level-number {
+        background: hsl(var(--shpole-primary));
+        color: hsl(var(--shpole-bg));
+    }
+
+    .level-label {
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: hsl(var(--shpole-text));
+    }
+
+    .level-option.active .level-label {
+        color: hsl(var(--shpole-primary));
     }
 </style>
