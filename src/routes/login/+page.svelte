@@ -39,20 +39,20 @@
 
 <div class="min-h-screen flex justify-center py-3 px-4">
     <div class="w-full max-w-md">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold gradient-text mb-2">Sign In</h1>
+        <div class="text-center mb-4">
+            <h1 class="text-2xl font-bold gradient-text">Sign In</h1>
         </div>
 
         <div class="card">
-            <form onsubmit={handleLogin} class="space-y-6">
+            <form onsubmit={handleLogin} class="space-y-3">
                 {#if error}
-                    <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500">
+                    <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
                         {error}
                     </div>
                 {/if}
 
-                <div>
-                    <label for="email" class="label">Email</label>
+                <div class="form-row">
+                    <label for="email" class="label-inline">Email</label>
                     <input
                         type="email"
                         id="email"
@@ -63,8 +63,8 @@
                     />
                 </div>
 
-                <div>
-                    <label for="password" class="label">Password</label>
+                <div class="form-row">
+                    <label for="password" class="label-inline">Password</label>
                     <input
                         type="password"
                         id="password"
@@ -84,8 +84,8 @@
                 </button>
             </form>
 
-            <div class="mt-6 text-center">
-                <p class="text-[hsl(var(--shpole-text-muted))]">
+            <div class="mt-4 text-center">
+                <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
                     Don't have an account?
                     <a href="/register" class="font-medium">Sign up</a>
                 </p>
@@ -93,3 +93,23 @@
         </div>
     </div>
 </div>
+
+<style>
+    .form-row {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .label-inline {
+        min-width: 5rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: hsl(var(--shpole-text));
+        flex-shrink: 0;
+    }
+
+    .form-row .input {
+        flex: 1;
+    }
+</style>
