@@ -41,7 +41,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold gradient-text mb-2">Welcome Back</h1>
-            <p class="text-[hsl(var(--shpole-text-muted))]">Sign in to continue your pole journey</p>
+            <p class="text-[hsl(var(--shpole-text-muted))]">Sign in</p>
         </div>
 
         <div class="card">

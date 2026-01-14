@@ -47,7 +47,7 @@
     <div class="w-full max-w-md">
         <div class="text-center mb-8">
             <h1 class="text-3xl font-bold gradient-text mb-2">Join Shpole</h1>
-            <p class="text-[hsl(var(--shpole-text-muted))]">Start organizing your pole dance inspiration</p>
+            <p class="text-[hsl(var(--shpole-text-muted))]">1 step to free learning</p>
         </div>
 
         <div class="card">
