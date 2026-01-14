@@ -141,8 +141,15 @@
 </svelte:head>
 
 <div class="moves-page">
-    <header class="page-header">
-        <h1>Pole Dance Moves</h1>
+    <header class="pl-1 pb-2">
+        <h1 class="text-[hsl(var(--shpole-text-muted))]">Pole Dance Moves</h1>
+        <div>
+            <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
+                LVL = 1..6 (Intro to Advanced)
+                <br />
+                Tap column headers to sort.
+            </p>
+        </div>
     </header>
 
     {#if loading}
@@ -187,7 +194,7 @@
             <tbody>
                 {#each flattenedMoves() as row}
                     <tr class:secondary={!row.isPrimary}>
-                        <td class="name-cell">
+                        <td class="leading-5 text-md">
                             <a href="/m/{row.slug}" class="move-link">
                                 {row.name}{#if row.primaryName}
                                     <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
@@ -208,18 +215,7 @@
     .moves-page {
         max-width: 900px;
         margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    .page-header {
-        margin-bottom: 2rem;
-    }
-
-    .page-header h1 {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem 0;
-        color: hsl(var(--shpole-text));
+        padding: 1rem 1rem;
     }
 
     .loading,

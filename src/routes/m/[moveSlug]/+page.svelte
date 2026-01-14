@@ -266,7 +266,6 @@
     .section h2 {
         font-size: 0.85rem;
         font-weight: 600;
-        text-transform: uppercase;
         letter-spacing: 0.05em;
         color: hsl(var(--shpole-text-muted));
         margin: 0 0 0.75rem 0;

@@ -66,19 +66,16 @@
 </svelte:head>
 
 <!-- Navigation -->
-<nav class="fixed top-0 left-0 right-0 z-40 glass border-b border-[hsl(var(--shpole-border))]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6">
-    <div class="flex items-center justify-between h-16">
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-2">
-        <div class="w-8 h-8 rounded-lg flex items-center justify-center">
-          <span class="text-white font-bold text-2xl">💃</span>
-        </div>
-        <span class="font-bold text-xl gradient-text">Shpole</span>
+<nav>
+  <div class="max-w-4xl px-4 mx-auto py-4">
+    <div class="flex justify-between h-10">
+      <!-- Centered full-width logo -->
+      <a href="/" class="flex grow-1 justify-center pointer-events-auto">
+        <img src="/shpole100.png" alt="Shpole" />
       </a>
 
       <!-- Navigation Links -->
-      <div class="flex items-center gap-4">
+      <div class="flex items-center">
         {#if authenticated}
           <!-- User Avatar Dropdown -->
           <div class="relative">
@@ -227,7 +224,7 @@
 </nav>
 
 <!-- Main Content -->
-<main class="pt-16 min-h-screen">
+<main class="min-h-screen">
   {@render children()}
 </main>
 
