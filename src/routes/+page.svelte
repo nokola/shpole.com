@@ -174,20 +174,24 @@
                                 >{sortDirection === "asc" ? "▲" : "▼"}</span
                             >{/if}
                     </th>
-                    <th class="sortable" onclick={() => toggleSort("strength")}>
-                        Str {#if sortColumn === "strength"}<span class="sort-arrow"
-                                >{sortDirection === "asc" ? "▲" : "▼"}</span
-                            >{/if}
-                    </th>
-                    <th class="sortable" onclick={() => toggleSort("flexibility")}>
-                        Flex {#if sortColumn === "flexibility"}<span class="sort-arrow"
-                                >{sortDirection === "asc" ? "▲" : "▼"}</span
-                            >{/if}
-                    </th>
-                    <th class="sortable" onclick={() => toggleSort("technique")}>
-                        Tech {#if sortColumn === "technique"}<span class="sort-arrow"
-                                >{sortDirection === "asc" ? "▲" : "▼"}</span
-                            >{/if}
+                    <th class="combined-header">
+                        <div class="combined-header-inner">
+                            <button type="button" class="sortable-btn" onclick={() => toggleSort("strength")}>
+                                Str{#if sortColumn === "strength"}<span class="sort-arrow"
+                                        >{sortDirection === "asc" ? "▲" : "▼"}</span
+                                    >{/if}/
+                            </button>
+                            <button type="button" class="sortable-btn" onclick={() => toggleSort("flexibility")}>
+                                Flex{#if sortColumn === "flexibility"}<span class="sort-arrow"
+                                        >{sortDirection === "asc" ? "▲" : "▼"}</span
+                                    >{/if}/
+                            </button>
+                            <button type="button" class="sortable-btn" onclick={() => toggleSort("technique")}>
+                                Tech{#if sortColumn === "technique"}<span class="sort-arrow"
+                                        >{sortDirection === "asc" ? "▲" : "▼"}</span
+                                    >{/if}
+                            </button>
+                        </div>
                     </th>
                 </tr>
             </thead>
@@ -201,9 +205,11 @@
                             </a>
                         </td>
                         <td class="level">{row.level ?? "–"}</td>
-                        <td class="stars">{renderStars(row.strength)}</td>
-                        <td class="stars">{renderStars(row.flexibility)}</td>
-                        <td class="stars">{renderStars(row.technique)}</td>
+                        <td class="stars-combined"
+                            >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                            >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                            >{renderStars(row.technique)}</td
+                        >
                     </tr>
                 {/each}
             </tbody>
@@ -285,11 +291,42 @@
         text-align: center;
     }
 
-    .stars {
+    .stars-combined {
         font-size: 0.8rem;
         letter-spacing: 0.02em;
         color: hsl(var(--shpole-primary));
         text-align: center;
+        white-space: nowrap;
+    }
+
+    .combined-header {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .combined-header-inner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .sortable-btn {
+        background: none;
+        border: none;
+        padding: 0;
+        font: inherit;
+        color: hsl(var(--shpole-text-muted));
+        cursor: pointer;
+        text-decoration: underline;
+        text-transform: uppercase;
+        font-size: 0.7rem;
+        font-weight: 600;
+        letter-spacing: 0.03em;
+    }
+
+    .sortable-btn:hover {
+        color: hsl(var(--shpole-text));
     }
 
     .secondary .move-link {
