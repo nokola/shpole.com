@@ -70,7 +70,7 @@
         5: "Expert",
         6: "Master",
     };
-    let selectedLevels = $state<Set<number>>(new Set([1, 2, 3, 4, 5, 6]));
+    let selectedLevels = $state<Set<number>>(new Set());
     let levelDropdownOpen = $state(false);
 
     function toggleLevel(level: number) {
@@ -84,11 +84,8 @@
     }
 
     function getLevelButtonLabel(): string {
-        if (selectedLevels.size === 6) {
-            return "Level 123456";
-        }
         if (selectedLevels.size === 0) {
-            return "Level (none)";
+            return "Level 123456"; // Empty = all levels
         }
         return "Level " + Array.from(selectedLevels).sort().join("");
     }
@@ -98,11 +95,14 @@
         const rows: DisplayRow[] = [];
         const seenNames = new Set<string>();
 
-        // Filter by selected levels
-        const filteredMoves = movesList.filter((move) => {
-            if (move.PdcLevel === null) return selectedLevels.size === 6; // Show null levels only if all selected
-            return selectedLevels.has(move.PdcLevel);
-        });
+        // Filter by selected levels (empty set = show all)
+        const filteredMoves =
+            selectedLevels.size === 0
+                ? movesList
+                : movesList.filter((move) => {
+                      if (move.PdcLevel === null) return false; // Hide null levels when filtering
+                      return selectedLevels.has(move.PdcLevel);
+                  });
 
         for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
@@ -174,11 +174,14 @@
     let groupedMoves = $derived(() => {
         const rows: GroupedRow[] = [];
 
-        // Filter by selected levels
-        const filteredMoves = movesList.filter((move) => {
-            if (move.PdcLevel === null) return selectedLevels.size === 6; // Show null levels only if all selected
-            return selectedLevels.has(move.PdcLevel);
-        });
+        // Filter by selected levels (empty set = show all)
+        const filteredMoves =
+            selectedLevels.size === 0
+                ? movesList
+                : movesList.filter((move) => {
+                      if (move.PdcLevel === null) return false; // Hide null levels when filtering
+                      return selectedLevels.has(move.PdcLevel);
+                  });
 
         for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
@@ -263,7 +266,7 @@
         <div class="level-filter-wrapper">
             <button
                 class="view-toggle level-filter-btn"
-                class:has-filter={selectedLevels.size < 6}
+                class:has-filter={selectedLevels.size > 0}
                 onclick={() => (levelDropdownOpen = !levelDropdownOpen)}
             >
                 🎯 {getLevelButtonLabel()}
