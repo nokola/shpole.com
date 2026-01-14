@@ -140,14 +140,14 @@
     />
 </svelte:head>
 
-<div class="moves-page">
-    <header class="pl-1 pb-2">
+<div class="moves-page px-2">
+    <header class="pl-1 pb-4">
         <h1 class="text-[hsl(var(--shpole-text-muted))]">Pole Dance Moves</h1>
         <div>
             <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
                 LVL = 1..6 (Intro to Advanced)
                 <br />
-                Tap column headers to sort.
+                STR/FLEX/TECH = 1..5 (Beginner to Expert)
             </p>
         </div>
     </header>
@@ -234,9 +234,8 @@
 
 <style>
     .moves-page {
-        max-width: 900px;
+        max-width: 880px;
         margin: 0 auto;
-        padding: 1rem 1rem;
     }
 
     .loading,
