@@ -215,7 +215,70 @@
             {/if}
           </div>
         {:else}
-          <a href="/login" class="btn btn-primary btn-small">Sign In/Join</a>
+          <!-- Guest Menu Dropdown -->
+          <div class="relative">
+            <button
+              class="w-9 h-9 rounded-full bg-[hsl(var(--shpole-surface))] border border-[hsl(var(--shpole-border))] flex items-center justify-center text-xl cursor-pointer hover:ring-2 hover:ring-[hsl(var(--shpole-primary))] hover:ring-offset-2 hover:ring-offset-[hsl(var(--shpole-bg))]"
+              onclick={toggleUserMenu}
+              aria-label="Guest menu"
+              aria-expanded={userMenuOpen}
+            >
+              🥳
+            </button>
+
+            {#if userMenuOpen}
+              <!-- Backdrop to close menu when clicking outside -->
+              <button
+                class="fixed inset-0 z-40 bg-transparent cursor-default"
+                onclick={closeUserMenu}
+                aria-label="Close menu"
+              ></button>
+
+              <!-- Dropdown Menu -->
+              <div
+                class="absolute right-0 top-12 z-50 w-48 rounded-lg border border-[hsl(var(--shpole-border))] bg-[hsl(var(--shpole-surface))] shadow-xl overflow-hidden"
+              >
+                <div class="py-2">
+                  <!-- Sign In -->
+                  <a
+                    href="/login"
+                    class="w-full px-4 py-2 flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))]"
+                    onclick={closeUserMenu}
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="18"
+                      height="18"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    >
+                      <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" /><polyline points="10 17 15 12 10 7" /><line
+                        x1="15"
+                        y1="12"
+                        x2="3"
+                        y2="12"
+                      />
+                    </svg>
+                    <span>Sign In</span>
+                  </a>
+
+                  <!-- Join -->
+                  <a
+                    href="/register"
+                    class="w-full px-4 py-2 flex items-center gap-3 hover:bg-[hsl(var(--shpole-bg-secondary))] text-[hsl(var(--shpole-primary))]"
+                    onclick={closeUserMenu}
+                  >
+                    <span class="text-lg">🥳</span>
+                    <span class="font-medium">Join🥳</span>
+                  </a>
+                </div>
+              </div>
+            {/if}
+          </div>
         {/if}
       </div>
     </div>
