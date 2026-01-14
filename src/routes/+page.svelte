@@ -164,29 +164,44 @@
         <table class="moves-table">
             <thead>
                 <tr>
-                    <th class="sortable" onclick={() => toggleSort("name")}>
+                    <th class="sortable" class:active={sortColumn === "name"} onclick={() => toggleSort("name")}>
                         Name {#if sortColumn === "name"}<span class="sort-arrow"
                                 >{sortDirection === "asc" ? "▲" : "▼"}</span
                             >{/if}
                     </th>
-                    <th class="sortable" onclick={() => toggleSort("level")}>
+                    <th class="sortable" class:active={sortColumn === "level"} onclick={() => toggleSort("level")}>
                         Lvl {#if sortColumn === "level"}<span class="sort-arrow"
                                 >{sortDirection === "asc" ? "▲" : "▼"}</span
                             >{/if}
                     </th>
                     <th class="combined-header">
                         <div class="combined-header-inner">
-                            <button type="button" class="sortable-btn" onclick={() => toggleSort("strength")}>
+                            <button
+                                type="button"
+                                class="sortable-btn"
+                                class:active={sortColumn === "strength"}
+                                onclick={() => toggleSort("strength")}
+                            >
                                 Str{#if sortColumn === "strength"}<span class="sort-arrow"
                                         >{sortDirection === "asc" ? "▲" : "▼"}</span
                                     >{/if}/
                             </button>
-                            <button type="button" class="sortable-btn" onclick={() => toggleSort("flexibility")}>
+                            <button
+                                type="button"
+                                class="sortable-btn"
+                                class:active={sortColumn === "flexibility"}
+                                onclick={() => toggleSort("flexibility")}
+                            >
                                 Flex{#if sortColumn === "flexibility"}<span class="sort-arrow"
                                         >{sortDirection === "asc" ? "▲" : "▼"}</span
                                     >{/if}/
                             </button>
-                            <button type="button" class="sortable-btn" onclick={() => toggleSort("technique")}>
+                            <button
+                                type="button"
+                                class="sortable-btn"
+                                class:active={sortColumn === "technique"}
+                                onclick={() => toggleSort("technique")}
+                            >
                                 Tech{#if sortColumn === "technique"}<span class="sort-arrow"
                                         >{sortDirection === "asc" ? "▲" : "▼"}</span
                                     >{/if}
@@ -262,6 +277,12 @@
         color: hsl(var(--shpole-text));
     }
 
+    .sortable.active {
+        background: hsl(var(--shpole-primary) / 0.2);
+        color: hsl(var(--shpole-primary));
+        border-radius: 4px;
+    }
+
     .sort-arrow {
         font-size: 0.6rem;
         margin-left: 0.15rem;
@@ -327,6 +348,14 @@
 
     .sortable-btn:hover {
         color: hsl(var(--shpole-text));
+    }
+
+    .sortable-btn.active {
+        background: hsl(var(--shpole-primary) / 0.25);
+        color: hsl(var(--shpole-primary));
+        padding: 1px 4px;
+        border-radius: 3px;
+        text-decoration: none;
     }
 
     .secondary .move-link {
