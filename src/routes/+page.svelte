@@ -189,6 +189,10 @@
             loading = false;
         }
     });
+
+    function navigateToMove(slug: string) {
+        window.location.href = `/m/${slug}`;
+    }
 </script>
 
 <svelte:head>
@@ -277,9 +281,13 @@
             <tbody>
                 {#if useFlattenedMoves}
                     {#each flattenedMoves() as row}
-                        <tr class:secondary={!row.isPrimary}>
-                            <td class="leading-5 text-sm">
-                                <a href="/m/{row.slug}" class="move-link">
+                        <tr
+                            class="clickable-row"
+                            class:secondary={!row.isPrimary}
+                            onclick={() => navigateToMove(row.slug)}
+                        >
+                            <td class="leading-5 text-md">
+                                <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
                                     {row.name}{#if row.primaryName}
                                         <span class="primary-ref">&nbsp;({row.primaryName})</span>{/if}
                                 </a>
@@ -295,9 +303,11 @@
                     {/each}
                 {:else}
                     {#each groupedMoves() as row}
-                        <tr>
-                            <td class="leading-5 text-sm">
-                                <a href="/m/{row.slug}" class="move-link">{row.name}</a>
+                        <tr class="clickable-row" onclick={() => navigateToMove(row.slug)}>
+                            <td class="leading-5 text-md">
+                                <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
+                                    >{row.name}</a
+                                >
                                 {#if row.altNames.length > 0}
                                     <div class="alt-names">
                                         {row.altNames.join(", ")}
@@ -347,7 +357,6 @@
         padding: 0.25rem 0.35rem;
         font-weight: 600;
         color: hsl(var(--shpole-text-muted));
-        font-size: 0.7rem;
         text-transform: uppercase;
         letter-spacing: 0.03em;
         border-bottom: 1px solid hsl(var(--shpole-border));
@@ -377,6 +386,18 @@
     .moves-table td {
         padding: 0.2rem 0.35rem;
         color: hsl(var(--shpole-text));
+    }
+
+    .moves-table tbody tr {
+        border-bottom: 1px solid hsl(var(--shpole-border) / 0.5);
+    }
+
+    .moves-table tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .clickable-row {
+        cursor: pointer;
     }
 
     .moves-table tbody tr:hover {
@@ -427,7 +448,6 @@
         cursor: pointer;
         text-decoration: underline;
         text-transform: uppercase;
-        font-size: 0.7rem;
         font-weight: 600;
         letter-spacing: 0.03em;
     }
@@ -454,7 +474,6 @@
     }
 
     .alt-names {
-        font-size: 0.75rem;
         font-weight: 400;
         color: hsl(var(--shpole-text-muted));
         margin-top: 0.1rem;
