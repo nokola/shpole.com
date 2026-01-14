@@ -292,10 +292,6 @@
         text-align: center;
     }
 
-    .name-cell {
-        line-height: 1.3;
-    }
-
     .secondary .move-link {
         font-weight: 400;
     }

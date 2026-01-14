@@ -70,7 +70,7 @@
   <div class="max-w-4xl px-4 mx-auto py-4">
     <div class="flex justify-between h-10">
       <!-- Centered full-width logo -->
-      <a href="/" class="flex grow-1 justify-center pointer-events-auto">
+      <a href="/" class="flex grow justify-center pointer-events-auto">
         <img src="/shpole100.png" alt="Shpole" />
       </a>
 
