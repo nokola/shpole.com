@@ -91,19 +91,69 @@
         return "Level " + Array.from(selectedLevels).sort().join("");
     }
 
+    // STR/FLEX/TECH filter state
+    let selectedStrength = $state<Set<number>>(new Set());
+    let selectedFlexibility = $state<Set<number>>(new Set());
+    let selectedTechnique = $state<Set<number>>(new Set());
+    let statsDropdownOpen = $state(false);
+
+    function toggleStat(stat: "strength" | "flexibility" | "technique", value: number) {
+        const sets = {
+            strength: selectedStrength,
+            flexibility: selectedFlexibility,
+            technique: selectedTechnique,
+        };
+        const current = sets[stat];
+        const newSet = new Set(current);
+        if (newSet.has(value)) {
+            newSet.delete(value);
+        } else {
+            newSet.add(value);
+        }
+        if (stat === "strength") selectedStrength = newSet;
+        else if (stat === "flexibility") selectedFlexibility = newSet;
+        else selectedTechnique = newSet;
+    }
+
+    function hasStatsFilter(): boolean {
+        return selectedStrength.size > 0 || selectedFlexibility.size > 0 || selectedTechnique.size > 0;
+    }
+
+    function getStatsButtonLabel(): string {
+        if (!hasStatsFilter()) {
+            return "STR/FLEX/TECH";
+        }
+        const parts: string[] = [];
+        if (selectedStrength.size > 0) parts.push(`S ${Array.from(selectedStrength).sort().join("")}`);
+        if (selectedFlexibility.size > 0) parts.push(`F ${Array.from(selectedFlexibility).sort().join("")}`);
+        if (selectedTechnique.size > 0) parts.push(`T ${Array.from(selectedTechnique).sort().join("")}`);
+        return parts.join("/");
+    }
+
+    function matchesStatFilter(value: number | null, selected: Set<number>): boolean {
+        if (selected.size === 0) return true; // No filter = show all
+        if (value === null) return false; // Hide null when filtering
+        return selected.has(value);
+    }
+
     // Flatten moves to display each name (PDC + alternatives) on its own row
     let flattenedMoves = $derived(() => {
         const rows: DisplayRow[] = [];
         const seenNames = new Set<string>();
 
-        // Filter by selected levels (empty set = show all)
-        const filteredMoves =
-            selectedLevels.size === 0
-                ? movesList
-                : movesList.filter((move) => {
-                      if (move.PdcLevel === null) return false; // Hide null levels when filtering
-                      return selectedLevels.has(move.PdcLevel);
-                  });
+        // Filter by selected levels and stats (empty set = show all)
+        const filteredMoves = movesList.filter((move) => {
+            // Level filter
+            if (selectedLevels.size > 0) {
+                if (move.PdcLevel === null) return false;
+                if (!selectedLevels.has(move.PdcLevel)) return false;
+            }
+            // Stats filters
+            if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
+            if (!matchesStatFilter(move.FlexibilityReq, selectedFlexibility)) return false;
+            if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
+            return true;
+        });
 
         for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
@@ -175,14 +225,19 @@
     let groupedMoves = $derived(() => {
         const rows: GroupedRow[] = [];
 
-        // Filter by selected levels (empty set = show all)
-        const filteredMoves =
-            selectedLevels.size === 0
-                ? movesList
-                : movesList.filter((move) => {
-                      if (move.PdcLevel === null) return false; // Hide null levels when filtering
-                      return selectedLevels.has(move.PdcLevel);
-                  });
+        // Filter by selected levels and stats (empty set = show all)
+        const filteredMoves = movesList.filter((move) => {
+            // Level filter
+            if (selectedLevels.size > 0) {
+                if (move.PdcLevel === null) return false;
+                if (!selectedLevels.has(move.PdcLevel)) return false;
+            }
+            // Stats filters
+            if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
+            if (!matchesStatFilter(move.FlexibilityReq, selectedFlexibility)) return false;
+            if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
+            return true;
+        });
 
         for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
@@ -255,12 +310,6 @@
 <div class="moves-page px-2">
     <header class="pl-1 pb-4">
         <h1>{movesList.length > 0 ? movesList.length : "335"} Pole Moves</h1>
-        <div>
-            <p class="text-sm text-[hsl(var(--shpole-text-muted))]">
-                STR/FLEX/TECH = 1..5 (Beginner to Expert)
-                <!-- keyword search e.g. Sit -->
-            </p>
-        </div>
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
@@ -282,6 +331,55 @@
                         <span class="level-label">{levelLabels[level]}</span>
                     </button>
                 {/each}
+            </div>
+        </Dropdown>
+        <br />
+        <Dropdown bind:open={statsDropdownOpen}>
+            {#snippet trigger()}
+                <button class="view-toggle stats-filter-btn" class:has-filter={hasStatsFilter()}>
+                    💪 {getStatsButtonLabel()}
+                </button>
+            {/snippet}
+            <div class="stats-dropdown">
+                <div class="stat-row">
+                    <span class="stat-label"><strong>STR</strong>ength</span>
+                    <div class="star-buttons">
+                        {#each [1, 2, 3, 4, 5] as star}
+                            <button
+                                type="button"
+                                class="star-btn"
+                                class:active={selectedStrength.has(star)}
+                                onclick={() => toggleStat("strength", star)}>★</button
+                            >
+                        {/each}
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label"><strong>FLEX</strong>ibility</span>
+                    <div class="star-buttons">
+                        {#each [1, 2, 3, 4, 5] as star}
+                            <button
+                                type="button"
+                                class="star-btn"
+                                class:active={selectedFlexibility.has(star)}
+                                onclick={() => toggleStat("flexibility", star)}>★</button
+                            >
+                        {/each}
+                    </div>
+                </div>
+                <div class="stat-row">
+                    <span class="stat-label"><strong>TECH</strong>nical</span>
+                    <div class="star-buttons">
+                        {#each [1, 2, 3, 4, 5] as star}
+                            <button
+                                type="button"
+                                class="star-btn"
+                                class:active={selectedTechnique.has(star)}
+                                onclick={() => toggleStat("technique", star)}>★</button
+                            >
+                        {/each}
+                    </div>
+                </div>
             </div>
         </Dropdown>
     </header>
@@ -483,7 +581,6 @@
 
     .level {
         font-weight: 600;
-        text-align: center;
     }
 
     .stars-combined {
@@ -620,5 +717,61 @@
 
     .level-option.active .level-label {
         color: hsl(var(--shpole-primary));
+    }
+
+    .stats-filter-btn.has-filter {
+        background: hsl(var(--shpole-primary) / 0.15);
+        border-color: hsl(var(--shpole-primary));
+    }
+
+    .stats-dropdown {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        min-width: 200px;
+    }
+
+    .stat-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.25rem 0;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: hsl(var(--shpole-text));
+        min-width: 90px;
+    }
+
+    .stat-label strong {
+        color: hsl(var(--shpole-primary));
+    }
+
+    .star-buttons {
+        display: flex;
+        gap: 2px;
+    }
+
+    .star-btn {
+        background: transparent;
+        border: none;
+        padding: 0.25rem;
+        font-size: 1rem;
+        color: hsl(var(--shpole-text-muted));
+        cursor: pointer;
+        transition: all 0.12s ease;
+        border-radius: 4px;
+    }
+
+    .star-btn:hover {
+        color: hsl(var(--shpole-primary));
+        background: hsl(var(--shpole-bg-secondary));
+    }
+
+    .star-btn.active {
+        color: hsl(var(--shpole-primary));
+        background: hsl(var(--shpole-primary) / 0.2);
     }
 </style>
