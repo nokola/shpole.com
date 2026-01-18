@@ -436,7 +436,7 @@
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
         <button class="view-toggle" class:has-filter={!showDrafts} onclick={() => (showDrafts = !showDrafts)}>
-            {showDrafts ? "Showing Drafts🚧" : "Excluding Drafts"}
+            {showDrafts ? "Drafts🚧" : "No Drafts"}
         </button>
         <div class="search-box-wrapper w-full pr-0.5">
             <input
