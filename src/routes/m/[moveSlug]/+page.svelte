@@ -140,118 +140,82 @@
 
             <div class="h-px bg-linear-to-r from-[hsl(var(--shpole-border))] to-transparent my-2"></div>
 
-            <!-- Stats Section (Badges on One Row) -->
-            <section class="overflow-x-auto">
-                <h2 class="text-sm font-bold text-[hsl(var(--shpole-text-muted))] pb-4">
-                    Strength, Flexibility, Technique Requirements
-                </h2>
-                <div class="flex flex-row items-center gap-6 md:gap-12 min-w-max">
+            <!-- Stats Section -->
+            <section>
+                <div class="flex flex-row flex-wrap items-start gap-12 md:gap-20">
                     <!-- Strength -->
-                    <div class="shrink-0">
-                        {#if move.move.StrengthReq && move.move.StrengthReq >= 1 && move.move.StrengthReq <= 3}
-                            <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/strong{move.move.StrengthReq}.png"
-                                    alt="Strength"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
-                                <span
-                                    class="font-black text-sm md:text-base tracking-widest uppercase"
-                                    style="color: {move.move.StrengthReq === 1
-                                        ? '#fde047'
-                                        : move.move.StrengthReq === 2
-                                          ? '#f87171'
-                                          : '#60a5fa'}"
-                                >
-                                    {move.move.StrengthReq === 1
-                                        ? "STURDY"
-                                        : move.move.StrengthReq === 2
-                                          ? "MIGHTY"
-                                          : "HEROIC"}
-                                </span>
-                                <span class="text-xs">{renderStat(move.move.StrengthReq, "💪")}</span>
-                            </div>
-                        {:else}
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">⚔️</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.StrengthReq, "💪")}</span
-                                >
-                            </div>
+                    <div class="flex flex-col gap-1">
+                        <span
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
+                            >Strength</span
+                        >
+                        {#if move.move.StrengthReq && move.move.StrengthReq >= 1}
+                            <span
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
+                                style="color: {move.move.StrengthReq === 1
+                                    ? '#fde047'
+                                    : move.move.StrengthReq === 2
+                                      ? '#f87171'
+                                      : '#60a5fa'}"
+                            >
+                                {move.move.StrengthReq === 1
+                                    ? "STURDY"
+                                    : move.move.StrengthReq === 2
+                                      ? "MIGHTY"
+                                      : "HEROIC"}
+                            </span>
                         {/if}
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.StrengthReq, "💪")}</span>
                     </div>
 
                     <!-- Flexibility -->
-                    <div class="shrink-0">
-                        {#if move.move.FlexibilityReq && move.move.FlexibilityReq >= 1 && move.move.FlexibilityReq <= 3}
-                            <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/flex{move.move.FlexibilityReq}.png"
-                                    alt="Flexibility"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
-                                <span
-                                    class="font-black text-sm md:text-base tracking-widest uppercase"
-                                    style="color: {move.move.FlexibilityReq === 1
-                                        ? '#86efac'
-                                        : move.move.FlexibilityReq === 2
-                                          ? '#38bdf8'
-                                          : '#fbbf24'}"
-                                >
-                                    {move.move.FlexibilityReq === 1
-                                        ? "SUPPLE"
-                                        : move.move.FlexibilityReq === 2
-                                          ? "FLUID"
-                                          : "SERPENTINE"}
-                                </span>
-                                <span class="text-xs">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
-                            </div>
-                        {:else}
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">🌿</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.FlexibilityReq, "🥨")}</span
-                                >
-                            </div>
+                    <div class="flex flex-col gap-1">
+                        <span
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
+                            >Flexibility</span
+                        >
+                        {#if move.move.FlexibilityReq && move.move.FlexibilityReq >= 1}
+                            <span
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
+                                style="color: {move.move.FlexibilityReq === 1
+                                    ? '#86efac'
+                                    : move.move.FlexibilityReq === 2
+                                      ? '#38bdf8'
+                                      : '#fbbf24'}"
+                            >
+                                {move.move.FlexibilityReq === 1
+                                    ? "SUPPLE"
+                                    : move.move.FlexibilityReq === 2
+                                      ? "FLUID"
+                                      : "SERPENTINE"}
+                            </span>
                         {/if}
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
                     </div>
 
                     <!-- Technique -->
-                    <div class="shrink-0">
-                        {#if move.move.TechniqueReq && move.move.TechniqueReq >= 1 && move.move.TechniqueReq <= 3}
-                            <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/tech{move.move.TechniqueReq}.png"
-                                    alt="Technique"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
-                                <span
-                                    class="font-black text-sm md:text-base tracking-widest uppercase"
-                                    style="color: {move.move.TechniqueReq === 1
-                                        ? '#93c5fd'
-                                        : move.move.TechniqueReq === 2
-                                          ? '#cbd5e1'
-                                          : '#f59e0b'}"
-                                >
-                                    {move.move.TechniqueReq === 1
-                                        ? "APPRENTICE"
-                                        : move.move.TechniqueReq === 2
-                                          ? "Adept"
-                                          : "VIRTUOSO"}
-                                </span>
-                                <span class="text-xs">{renderStat(move.move.TechniqueReq, "🎯")}</span>
-                            </div>
-                        {:else}
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">⚙️</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.TechniqueReq, "🎯")}</span
-                                >
-                            </div>
+                    <div class="flex flex-col gap-1">
+                        <span
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
+                            >Technique</span
+                        >
+                        {#if move.move.TechniqueReq && move.move.TechniqueReq >= 1}
+                            <span
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
+                                style="color: {move.move.TechniqueReq === 1
+                                    ? '#93c5fd'
+                                    : move.move.TechniqueReq === 2
+                                      ? '#cbd5e1'
+                                      : '#f59e0b'}"
+                            >
+                                {move.move.TechniqueReq === 1
+                                    ? "APPRENTICE"
+                                    : move.move.TechniqueReq === 2
+                                      ? "Adept"
+                                      : "VIRTUOSO"}
+                            </span>
                         {/if}
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.TechniqueReq, "🎯")}</span>
                     </div>
                 </div>
             </section>
