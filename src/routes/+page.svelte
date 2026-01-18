@@ -56,12 +56,11 @@
 
     // Level filter state
     const levelLabels: Record<number, string> = {
-        1: "Intro",
-        2: "Beginner",
-        3: "Intermediate",
-        4: "Advanced",
-        5: "Expert",
-        6: "Master",
+        1: "Beginner",
+        2: "Intermediate",
+        3: "Advanced",
+        4: "Expert",
+        5: "Master",
     };
     let selectedLevels = $state<Set<number>>(new Set());
     let levelDropdownOpen = $state(false);
@@ -78,7 +77,7 @@
 
     function getLevelButtonLabel(): string {
         if (selectedLevels.size === 0) {
-            return "Level 123456"; // Empty = all levels
+            return "Level 12345"; // Empty = all levels
         }
         return "Level " + Array.from(selectedLevels).sort().join("");
     }
@@ -474,7 +473,7 @@
                     </button>
                 {/snippet}
                 <div class="level-dropdown">
-                    {#each [1, 2, 3, 4, 5, 6] as level}
+                    {#each [1, 2, 3, 4, 5] as level}
                         <button
                             type="button"
                             class="level-option"
