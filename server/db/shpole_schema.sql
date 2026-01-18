@@ -143,7 +143,7 @@ CREATE TABLE IF NOT EXISTS Move_Name (
     Source TEXT CHECK (Source IN ('pdc', 'ipsf', 'posa', 'online')),
     AuthorId INTEGER REFERENCES Principals(Id),
     CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(MoveId, NameId)
+    UNIQUE(MoveId, NameId, Source)
 );
 
 CREATE TABLE IF NOT EXISTS Move_Prerequisite (
