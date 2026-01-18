@@ -35,6 +35,10 @@
     let loading = $state(true);
     let error = $state<string | null>(null);
 
+    // Collapsible states
+    let showCodes = $state(false);
+    let showRelated = $state(false);
+
     function renderStat(value: number | null, emoji: string): string {
         if (value === null || value === 0) return "–";
         return emoji.repeat(value);
@@ -76,355 +80,370 @@
     <meta name="description" content="Details about the {displayName} pole dance move" />
 </svelte:head>
 
-<div class="move-page">
+<div class="max-w-[800px] mx-auto py-12 px-6 text-[hsl(var(--shpole-text))]">
     {#if loading}
-        <div class="loading">Loading...</div>
+        <div class="text-center py-16 text-[hsl(var(--shpole-text-muted))] text-xl">Loading...</div>
     {:else if error}
-        <div class="error">{error}</div>
+        <div class="text-center py-16 text-[hsl(0,70%,60%)] text-xl">{error}</div>
     {:else if move}
-        <a href="/" class="back-link">← Back to moves</a>
+        <div class="flex flex-col gap-6">
+            <a
+                href="/"
+                class="inline-block text-[hsl(var(--shpole-text-muted))] no-underline text-sm font-medium transition-colors hover:text-[hsl(var(--shpole-primary))]"
+                >← Back to moves</a
+            >
 
-        <header class="move-header">
-            <div class="header-main">
-                <h1>{displayName}</h1>
-                {#if move.move.MoveTypeName}
-                    <span class="move-type">{move.move.MoveTypeName}</span>
-                {/if}
-            </div>
-            {#if canEdit}
-                <a href="/m/{move.move.Slug}/edit" class="edit-link">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="18"
-                        height="18"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        class="feather feather-edit-2"
-                        ><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg
+            <!-- Header Section -->
+            <header class="flex flex-col md:flex-row justify-between items-start gap-8">
+                <div class="flex-1">
+                    <h1 class="text-4xl md:text-5xl font-extrabold mb-4 leading-tight tracking-tight">{displayName}</h1>
+                    <div class="flex gap-3 items-center">
+                        {#if move.move.MoveTypeName}
+                            <span
+                                class="px-3 py-1 bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-lg text-sm font-bold text-[hsl(var(--shpole-primary))] uppercase tracking-wider"
+                                >{move.move.MoveTypeName}</span
+                            >
+                        {/if}
+                        <span class="text-lg font-bold text-[hsl(var(--shpole-text-muted))]"
+                            >Level {move.move.ShpoleLevel ?? "–"}</span
+                        >
+                    </div>
+                </div>
+                {#if canEdit}
+                    <a
+                        href="/m/{move.move.Slug}/edit"
+                        class="flex items-center gap-2 bg-[hsl(var(--shpole-bg-secondary))] px-5 py-2.5 rounded-xl text-sm font-bold border border-[hsl(var(--shpole-border))] no-underline transition-all hover:bg-[hsl(var(--shpole-primary))] hover:text-white hover:border-transparent hover:-translate-y-0.5"
                     >
-                    <span>Edit Move</span>
-                </a>
+                        <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            stroke-width="2.5"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            ><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg
+                        >
+                        <span>Edit</span>
+                    </a>
+                {/if}
+            </header>
+
+            {#if alternateNames.length > 0}
+                <div class="text-[0.95rem] leading-relaxed">
+                    <span class="text-[hsl(var(--shpole-text-muted))] font-medium mr-2">Also known as:</span>
+                    <span class="font-normal">{alternateNames.map((n) => n.MoveName).join(", ")}</span>
+                </div>
             {/if}
-        </header>
 
-        {#if alternateNames.length > 0}
-            <section class="section">
-                <h2>Also Known As</h2>
-                <ul class="names-list">
-                    {#each alternateNames as name}
-                        <li>
-                            {name.MoveName}
-                            {#if name.Source}
-                                <span class="source">({name.Source})</span>
-                            {/if}
-                        </li>
-                    {/each}
-                </ul>
+            <div class="h-px bg-linear-to-r from-[hsl(var(--shpole-border))] to-transparent my-2"></div>
+
+            <!-- Stats Section (Badges on One Row) -->
+            <section class="overflow-x-auto">
+                <h2 class="text-sm font-bold text-[hsl(var(--shpole-text-muted))] pb-4">
+                    Strength, Flexibility, Technique Requirements
+                </h2>
+                <div class="flex flex-row items-center gap-6 md:gap-12 min-w-max">
+                    <!-- Strength -->
+                    <div class="shrink-0">
+                        {#if move.move.StrengthReq && move.move.StrengthReq >= 1 && move.move.StrengthReq <= 3}
+                            <div class="flex flex-col items-center gap-3 text-center">
+                                <img
+                                    src="/strong{move.move.StrengthReq}.png"
+                                    alt="Strength"
+                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
+                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
+                                />
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: {move.move.StrengthReq === 1
+                                        ? '#fde047'
+                                        : move.move.StrengthReq === 2
+                                          ? '#f87171'
+                                          : '#60a5fa'}"
+                                >
+                                    {move.move.StrengthReq === 1
+                                        ? "STURDY"
+                                        : move.move.StrengthReq === 2
+                                          ? "MIGHTY"
+                                          : "HEROIC"}
+                                </span>
+                                <span class="text-xs">{renderStat(move.move.StrengthReq, "💪")}</span>
+                            </div>
+                        {:else}
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-3xl">⚔️</span>
+                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
+                                    >{renderStat(move.move.StrengthReq, "💪")}</span
+                                >
+                            </div>
+                        {/if}
+                    </div>
+
+                    <!-- Flexibility -->
+                    <div class="shrink-0">
+                        {#if move.move.FlexibilityReq && move.move.FlexibilityReq >= 1 && move.move.FlexibilityReq <= 3}
+                            <div class="flex flex-col items-center gap-3 text-center">
+                                <img
+                                    src="/flex{move.move.FlexibilityReq}.png"
+                                    alt="Flexibility"
+                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
+                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
+                                />
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: {move.move.FlexibilityReq === 1
+                                        ? '#86efac'
+                                        : move.move.FlexibilityReq === 2
+                                          ? '#38bdf8'
+                                          : '#fbbf24'}"
+                                >
+                                    {move.move.FlexibilityReq === 1
+                                        ? "SUPPLE"
+                                        : move.move.FlexibilityReq === 2
+                                          ? "FLUID"
+                                          : "SERPENTINE"}
+                                </span>
+                                <span class="text-xs">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
+                            </div>
+                        {:else}
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-3xl">🌿</span>
+                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
+                                    >{renderStat(move.move.FlexibilityReq, "🥨")}</span
+                                >
+                            </div>
+                        {/if}
+                    </div>
+
+                    <!-- Technique -->
+                    <div class="shrink-0">
+                        {#if move.move.TechniqueReq && move.move.TechniqueReq >= 1 && move.move.TechniqueReq <= 3}
+                            <div class="flex flex-col items-center gap-3 text-center">
+                                <img
+                                    src="/tech{move.move.TechniqueReq}.png"
+                                    alt="Technique"
+                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
+                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
+                                />
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: {move.move.TechniqueReq === 1
+                                        ? '#93c5fd'
+                                        : move.move.TechniqueReq === 2
+                                          ? '#cbd5e1'
+                                          : '#f59e0b'}"
+                                >
+                                    {move.move.TechniqueReq === 1
+                                        ? "APPRENTICE"
+                                        : move.move.TechniqueReq === 2
+                                          ? "Adept"
+                                          : "VIRTUOSO"}
+                                </span>
+                                <span class="text-xs">{renderStat(move.move.TechniqueReq, "🎯")}</span>
+                            </div>
+                        {:else}
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-3xl">⚙️</span>
+                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
+                                    >{renderStat(move.move.TechniqueReq, "🎯")}</span
+                                >
+                            </div>
+                        {/if}
+                    </div>
+                </div>
             </section>
-        {/if}
 
-        <section class="section">
-            <h2>Requirements</h2>
-            <div class="requirements">
-                <div class="req-item">
-                    <span class="req-label">Level</span>
-                    <span class="req-value">{move.move.ShpoleLevel ?? "–"}</span>
-                </div>
-                <div class="req-item">
-                    <span class="req-label">Strength</span>
-                    <span class="req-stars">{renderStat(move.move.StrengthReq, "💪")}</span>
-                </div>
-                <div class="req-item">
-                    <span class="req-label">Flexibility</span>
-                    <span class="req-stars">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
-                </div>
-                <div class="req-item">
-                    <span class="req-label">Technique</span>
-                    <span class="req-stars">{renderStat(move.move.TechniqueReq, "🎯")}</span>
-                </div>
-            </div>
-        </section>
+            <div class="h-px bg-linear-to-r from-[hsl(var(--shpole-border))] to-transparent my-2"></div>
 
-        {#if move.move.GripTypeId}
-            <section class="section">
-                <h2>Grip</h2>
-                <div class="grip-info">
-                    {#if move.move.GripSlug}
-                        <a href="/m/{move.move.GripSlug}">{move.move.GripName || "Link"}</a>
+            <!-- Learning / Info Block -->
+            <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-12 items-start">
+                <div class="flex flex-col gap-6">
+                    {#if move.move.GripTypeId}
+                        <div class="flex gap-4 text-[1.05rem]">
+                            <span class="text-[hsl(var(--shpole-text-muted))] font-semibold min-w-[120px]">Grip:</span>
+                            <div class="flex-1">
+                                {#if move.move.GripSlug}
+                                    <a
+                                        href="/m/{move.move.GripSlug}"
+                                        class="text-[hsl(var(--shpole-primary))] no-underline font-semibold hover:underline"
+                                        >{move.move.GripName || "Move Link"}</a
+                                    >
+                                {:else}
+                                    <span class="text-[hsl(var(--shpole-text-muted))] italic opacity-60"
+                                        >{move.move.GripName || "Reference missing"}</span
+                                    >
+                                {/if}
+                            </div>
+                        </div>
                     {:else}
-                        <span>{move.move.GripName || move.move.GripTypeId}</span>
+                        <div class="flex gap-4 text-[1.05rem]">
+                            <span class="text-[hsl(var(--shpole-text-muted))] font-semibold min-w-[120px]">Grip:</span>
+                            <span class="text-[hsl(var(--shpole-text-muted))] italic opacity-60">No grip specified</span
+                            >
+                        </div>
+                    {/if}
+
+                    <div class="flex gap-4 text-[1.05rem]">
+                        <span class="text-[hsl(var(--shpole-text-muted))] font-semibold min-w-[120px]"
+                            >Prerequisites:</span
+                        >
+                        <div class="flex-1">
+                            {#if prerequisites.length > 0}
+                                <div class="flex flex-wrap gap-x-4 gap-y-2">
+                                    {#each prerequisites as prereq}
+                                        <a
+                                            href="/m/{prereq.Slug}"
+                                            class="text-[hsl(var(--shpole-primary))] no-underline font-semibold hover:underline"
+                                            >{prereq.PdcName || prereq.Slug}</a
+                                        >
+                                    {/each}
+                                </div>
+                            {:else}
+                                <span class="text-[hsl(var(--shpole-text-muted))] italic opacity-60"
+                                    >No prerequisites listed</span
+                                >
+                            {/if}
+                        </div>
+                    </div>
+
+                    {#if move.move.Info}
+                        <div
+                            class="mt-8 p-6 bg-[hsl(var(--shpole-bg-secondary))] rounded-2xl border border-[hsl(var(--shpole-border))]"
+                        >
+                            <p class="text-lg leading-relaxed whitespace-pre-wrap m-0">{move.move.Info}</p>
+                        </div>
                     {/if}
                 </div>
-            </section>
-        {/if}
 
-        <section class="section">
-            <h2>Videos</h2>
-            <ul class="videos-list">
-                {#each videos as video}
-                    <li>
-                        <a href={video.Url} target="_blank" rel="noopener">{video.Url}</a>
-                        {#if video.Credit}
-                            <span class="credit">– {video.Credit}</span>
-                        {/if}
-                    </li>
-                {/each}
-            </ul>
-        </section>
-
-        <section class="section">
-            <h2>Description</h2>
-            <div class="info">{move.move.Info}</div>
-        </section>
-
-        <section class="section">
-            <h2>Prerequisites</h2>
-            <ul class="move-list">
-                {#each prerequisites as prereq}
-                    <li>
-                        <a href="/m/{prereq.Slug}">{prereq.PdcName || prereq.Slug}</a>
-                    </li>
-                {/each}
-            </ul>
-        </section>
-
-        <section class="section">
-            <h2>Related Moves</h2>
-            <ul class="move-list">
-                {#each relatedMoves as related}
-                    <li>
-                        <a href="/m/{related.Slug}">{related.PdcName || related.Slug}</a>
-                        <span class="relation-type">({related.RelationType.replace("_", " ")})</span>
-                    </li>
-                {/each}
-            </ul>
-        </section>
-
-        <section class="section">
-            <h2>Competition Codes</h2>
-            <div class="codes">
-                <div class="code-item">
-                    <span class="code-org">IPSF:</span>
-                    {move.move.IpsfCode}
-                    {#if move.move.IpsfName}– {move.move.IpsfName}{/if}
-                </div>
-                <div class="code-item">
-                    <span class="code-org">POSA:</span>
-                    {move.move.PosaCode}
-                    {#if move.move.PosaName}– {move.move.PosaName}{/if}
-                </div>
-                <div class="code-item">
-                    <span class="code-org">PDC Level:</span>
-                    {move.move.PdcLevel}
-                </div>
-                <div class="code-item">
-                    <span class="code-org">PSO Level:</span>
-                    {move.move.PsoLevel}
+                <!-- Video Actions -->
+                <div class="flex flex-col gap-3">
+                    {#if videos.length > 0}
+                        {#each videos as video}
+                            <a
+                                href={video.Url}
+                                target="_blank"
+                                rel="noopener"
+                                class="flex items-center gap-2 text-[hsl(var(--shpole-primary))] no-underline font-bold hover:underline py-2 group"
+                            >
+                                <span class="text-xl grayscale group-hover:grayscale-0 transition-all">🎬</span>
+                                <div class="flex flex-col leading-tight">
+                                    <span>Watch Tutorial</span>
+                                    {#if video.Credit}
+                                        <span class="text-xs font-normal text-[hsl(var(--shpole-text-muted))]"
+                                            >by {video.Credit}</span
+                                        >
+                                    {/if}
+                                </div>
+                            </a>
+                        {/each}
+                    {:else}
+                        <div class="flex items-center gap-2 py-4 text-[hsl(var(--shpole-text-muted))] opacity-60">
+                            <span class="text-xl">📹</span>
+                            <span class="text-sm italic">No tutorials yet</span>
+                        </div>
+                    {/if}
                 </div>
             </div>
-        </section>
+
+            <!-- Meta / Collapsible Sections -->
+            <div class="mt-8 flex flex-col gap-2">
+                <!-- Related Moves -->
+                <div class="border border-[hsl(var(--shpole-border))] rounded-xl overflow-hidden">
+                    <button
+                        class="w-full flex items-center gap-3 p-5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left transition-colors hover:bg-[hsl(var(--shpole-bg-secondary))]"
+                        onclick={() => (showRelated = !showRelated)}
+                    >
+                        <span class="text-xs transition-transform duration-200 {showRelated ? 'rotate-90' : ''}">▸</span
+                        >
+                        <span class="font-bold flex-1">Related Moves</span>
+                        {#if relatedMoves.length > 0}
+                            <span class="text-[hsl(var(--shpole-text-muted))] text-sm">({relatedMoves.length})</span>
+                        {/if}
+                    </button>
+                    {#if showRelated}
+                        <div
+                            class="px-5 pb-5 pt-0 border-t border-[hsl(var(--shpole-border))] bg-[hsl(var(--shpole-bg-secondary))]"
+                        >
+                            {#if relatedMoves.length > 0}
+                                <ul class="list-none p-0 mt-4 flex flex-col gap-3">
+                                    {#each relatedMoves as related}
+                                        <li class="text-lg">
+                                            <a
+                                                href="/m/{related.Slug}"
+                                                class="text-[hsl(var(--shpole-primary))] no-underline font-semibold hover:underline"
+                                                >{related.PdcName || related.Slug}</a
+                                            >
+                                            <span class="text-[hsl(var(--shpole-text-muted))] ml-3 text-sm"
+                                                >({related.RelationType.replace("_", " ")})</span
+                                            >
+                                        </li>
+                                    {/each}
+                                </ul>
+                            {:else}
+                                <p class="text-[hsl(var(--shpole-text-muted))] italic mt-4">
+                                    No related moves added yet.
+                                </p>
+                            {/if}
+                        </div>
+                    {/if}
+                </div>
+
+                <!-- Competition Codes -->
+                <div class="border border-[hsl(var(--shpole-border))] rounded-xl overflow-hidden">
+                    <button
+                        class="w-full flex items-center gap-3 p-5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left transition-colors hover:bg-[hsl(var(--shpole-bg-secondary))]"
+                        onclick={() => (showCodes = !showCodes)}
+                    >
+                        <span class="text-xs transition-transform duration-200 {showCodes ? 'rotate-90' : ''}">▸</span>
+                        <span class="font-bold flex-1">Competition Codes</span>
+                    </button>
+                    {#if showCodes}
+                        <div
+                            class="px-5 pb-5 pt-0 border-t border-[hsl(var(--shpole-border))] bg-[hsl(var(--shpole-bg-secondary))]"
+                        >
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mt-5">
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase"
+                                        >IPSF</span
+                                    >
+                                    <span class="text-lg font-bold">{move.move.IpsfCode || "—"}</span>
+                                    {#if move.move.IpsfName}<span class="text-xs text-[hsl(var(--shpole-text-muted))]"
+                                            >{move.move.IpsfName}</span
+                                        >{/if}
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase"
+                                        >POSA</span
+                                    >
+                                    <span class="text-lg font-bold">{move.move.PosaCode || "—"}</span>
+                                    {#if move.move.PosaName}<span class="text-xs text-[hsl(var(--shpole-text-muted))]"
+                                            >{move.move.PosaName}</span
+                                        >{/if}
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase"
+                                        >PDC</span
+                                    >
+                                    <span class="text-lg font-bold">{move.move.PdcLevel || "—"}</span>
+                                </div>
+                                <div class="flex flex-col gap-1">
+                                    <span
+                                        class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase"
+                                        >PSO</span
+                                    >
+                                    <span class="text-lg font-bold">{move.move.PsoLevel || "—"}</span>
+                                </div>
+                            </div>
+                        </div>
+                    {/if}
+                </div>
+            </div>
+        </div>
     {/if}
 </div>
-
-<style>
-    .move-page {
-        max-width: 700px;
-        margin: 0 auto;
-        padding: 2rem 1rem;
-    }
-
-    .back-link {
-        display: inline-block;
-        color: hsl(var(--shpole-text-muted));
-        text-decoration: underline;
-        font-size: 0.9rem;
-        margin-bottom: 1.5rem;
-    }
-
-    .back-link:hover {
-        color: hsl(var(--shpole-primary));
-    }
-
-    .loading,
-    .error {
-        text-align: center;
-        padding: 3rem;
-        color: hsl(var(--shpole-text-muted));
-    }
-
-    .error {
-        color: hsl(0, 70%, 60%);
-    }
-
-    .move-header {
-        margin-bottom: 2rem;
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
-    }
-
-    .move-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0 0 0.5rem 0;
-        color: hsl(var(--shpole-text));
-    }
-
-    .move-type {
-        display: inline-block;
-        background: hsl(var(--shpole-bg-secondary));
-        padding: 0.25rem 0.75rem;
-        border-radius: 1rem;
-        font-size: 0.85rem;
-        color: hsl(var(--shpole-text-muted));
-    }
-
-    .edit-link {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        background: hsl(var(--shpole-bg-secondary));
-        padding: 0.5rem 1rem;
-        border-radius: 0.5rem;
-        color: hsl(var(--shpole-text));
-        text-decoration: none;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border: 1px solid hsl(var(--shpole-border));
-    }
-
-    .edit-link:hover {
-        background: hsl(var(--shpole-primary));
-        color: white;
-        border-color: transparent;
-    }
-
-    @media (max-width: 600px) {
-        .move-header {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-    }
-
-    .section {
-        margin-bottom: 2rem;
-    }
-
-    .section h2 {
-        font-size: 0.85rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        color: hsl(var(--shpole-text-muted));
-        margin: 0 0 0.75rem 0;
-    }
-
-    .names-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .names-list li {
-        padding: 0.25rem 0;
-        color: hsl(var(--shpole-text));
-    }
-
-    .source {
-        color: hsl(var(--shpole-text-muted));
-        font-size: 0.85rem;
-    }
-
-    .requirements {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-        gap: 1rem;
-    }
-
-    .req-item {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-    }
-
-    .req-label {
-        font-size: 0.75rem;
-        color: hsl(var(--shpole-text-muted));
-        text-transform: uppercase;
-    }
-
-    .req-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: hsl(var(--shpole-text));
-    }
-
-    .req-stars {
-        font-size: 1.2rem;
-        letter-spacing: 0.1em;
-    }
-
-    .codes {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-    }
-
-    .code-item {
-        color: hsl(var(--shpole-text));
-    }
-
-    .code-org {
-        font-weight: 600;
-    }
-
-    .info {
-        color: hsl(var(--shpole-text));
-        line-height: 1.6;
-        white-space: pre-wrap;
-    }
-
-    .grip-info a {
-        color: hsl(var(--shpole-primary));
-        text-decoration: none;
-        font-weight: 500;
-    }
-
-    .grip-info a:hover {
-        text-decoration: underline;
-    }
-
-    .move-list,
-    .videos-list {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-    }
-
-    .move-list li,
-    .videos-list li {
-        padding: 0.5rem 0;
-    }
-
-    .move-list a,
-    .videos-list a {
-        color: hsl(var(--shpole-primary));
-        text-decoration: none;
-    }
-
-    .move-list a:hover,
-    .videos-list a:hover {
-        text-decoration: underline;
-    }
-
-    .relation-type,
-    .credit {
-        color: hsl(var(--shpole-text-muted));
-        font-size: 0.85rem;
-    }
-</style>
