@@ -14,7 +14,7 @@
     let moveData = $state<any>(null);
     let names = $state<Array<{ MoveName: string; Source: string }>>([]);
     let moveTypes = $state<Array<{ Id: number; Name: string }>>([]);
-    let allMoves = $state<Array<{ Id: number; PdcName: string }>>([]);
+    let allMoves = $state<Array<{ Id: number; PdcName: string | null; ShpoleName: string }>>([]);
 
     onMount(async () => {
         // Redirect if not authorized
@@ -108,14 +108,12 @@
                 <h2>Primary Information</h2>
                 <div class="grid-2">
                     <div class="field">
-                        <label for="pdcName">Official Name (PDC)</label>
-                        <input
-                            type="text"
-                            id="pdcName"
-                            bind:value={moveData.PdcName}
-                            required
-                            placeholder="e.g. Jade Split"
-                        />
+                        <label for="shpoleName">Official Name (Shpole)</label>
+                        <input type="text" id="shpoleName" bind:value={moveData.ShpoleName} placeholder="e.g. Jade" />
+                    </div>
+                    <div class="field">
+                        <label for="pdcName">PDC Name</label>
+                        <input type="text" id="pdcName" bind:value={moveData.PdcName} placeholder="e.g. Jade Split" />
                     </div>
                     <div class="field">
                         <label for="moveType">Move Type</label>
@@ -270,7 +268,7 @@
                             <option value={null}>None</option>
                             {#each allMoves as m}
                                 {#if m.Id !== moveData.Id}
-                                    <option value={m.Id}>{m.PdcName}</option>
+                                    <option value={m.Id}>{m.ShpoleName}</option>
                                 {/if}
                             {/each}
                         </select>

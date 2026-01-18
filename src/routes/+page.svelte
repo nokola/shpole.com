@@ -3,19 +3,7 @@
     import { authStore, isAuthenticated } from "$lib/stores";
     import { moves as movesApi } from "$lib/api";
     import Dropdown from "$lib/components/Dropdown.svelte";
-
-    interface Move {
-        Id: number;
-        Slug: string;
-        PdcName: string | null;
-        PdcLevel: number | null;
-        ShpoleLevel: number | null;
-        StrengthReq: number | null;
-        FlexibilityReq: number | null;
-        TechniqueReq: number | null;
-        MoveTypeName: string | null;
-        AlsoKnownAs: string | null;
-    }
+    import type { Move } from "$lib/api";
 
     interface DisplayRow {
         name: string;
@@ -114,7 +102,7 @@
     function moveMatchesSearch(move: Move, query: string): { matches: boolean; matchesAltOnly: boolean } {
         if (!query) return { matches: true, matchesAltOnly: false };
         const q = query.toLowerCase();
-        const primaryName = (move.PdcName || move.Slug).toLowerCase();
+        const primaryName = move.ShpoleName.toLowerCase();
         const primaryMatches = primaryName.includes(q);
 
         if (primaryMatches) return { matches: true, matchesAltOnly: false };
@@ -213,7 +201,7 @@
         });
 
         for (const move of filteredMoves) {
-            const primaryName = move.PdcName || move.Slug;
+            const primaryName = move.ShpoleName;
             const primaryMatches = !searchQuery || matchesSearch(primaryName, searchQuery);
 
             // Check if any alt name matches (to decide if we should also show primary)
@@ -321,7 +309,7 @@
         });
 
         for (const move of filteredMoves) {
-            const primaryName = move.PdcName || move.Slug;
+            const primaryName = move.ShpoleName;
             const altNames = move.AlsoKnownAs
                 ? move.AlsoKnownAs.split(", ")
                       .map((n) => n.trim())

@@ -8,6 +8,7 @@
         Id: number;
         Slug: string;
         PdcName: string | null;
+        ShpoleName: string;
         PdcLevel: number | null;
         ShpoleLevel: number | null;
         IpsfCode: string | null;
@@ -73,7 +74,7 @@
         }
     });
 
-    let displayName = $derived(move?.PdcName || move?.Slug || "Move");
+    let displayName = $derived(move?.ShpoleName || move?.Slug || "Move");
 
     // Filter out the main display name from "Also Known As" to avoid duplication
     let alternateNames = $derived(names.filter((n) => n.MoveName !== displayName));

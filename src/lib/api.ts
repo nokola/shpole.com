@@ -76,7 +76,7 @@ export const moves = {
         fetchAPI<{ types: Array<{ Id: number; Name: string }> }>('/moves/types'),
 
     getSimpleList: () =>
-        fetchAPI<{ moves: Array<{ Id: number; PdcName: string }> }>('/moves/simple-list')
+        fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string }> }>('/moves/simple-list')
 };
 
 // Contributors
@@ -98,6 +98,7 @@ export interface Move {
     Id: number;
     Slug: string;
     PdcName: string | null;
+    ShpoleName: string;
     PdcLevel: number | null;
     ShpoleLevel: number | null;
     StrengthReq: number | null;
@@ -112,6 +113,7 @@ export interface MoveDetail {
         Id: number;
         Slug: string;
         PdcName: string | null;
+        ShpoleName: string;
         PdcLevel: number | null;
         ShpoleLevel: number | null;
         IpsfCode: string | null;

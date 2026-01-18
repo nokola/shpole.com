@@ -8,6 +8,7 @@ interface MoveRow {
     Id: number;
     Slug: string;
     PdcName: string | null;
+    ShpoleName: string;
     PdcLevel: number | null;
     ShpoleLevel: number | null;
     StrengthReq: number | null;
@@ -46,6 +47,7 @@ router.get('/', (req, res) => {
                 m.Id,
                 mn.Slug,
                 m.PdcName,
+                m.ShpoleName,
                 m.PdcLevel,
                 m.ShpoleLevel,
                 m.StrengthReq,
@@ -56,14 +58,14 @@ router.get('/', (req, res) => {
                     SELECT GROUP_CONCAT(mn2.MoveName, ', ')
                     FROM Move_Name m_n2
                     JOIN MoveNames mn2 ON m_n2.NameId = mn2.Id
-                    WHERE m_n2.MoveId = m.Id AND mn2.MoveName != m.PdcName
+                    WHERE m_n2.MoveId = m.Id AND mn2.MoveName != m.ShpoleName
                 ) as AlsoKnownAs
             FROM Moves m
             LEFT JOIN MoveTypes mt ON m.MoveTypeId = mt.Id
             LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
             LEFT JOIN MoveNames mn ON m_n.NameId = mn.Id
             GROUP BY m.Id
-            ORDER BY m.ShpoleLevel ASC, m.PdcName ASC
+            ORDER BY m.ShpoleLevel ASC, m.ShpoleName ASC
         `).all() as MoveRow[];
 
         res.json({ moves });
@@ -87,7 +89,7 @@ router.get('/types', (req, res) => {
 // Get simple list of moves (for dropdowns)
 router.get('/simple-list', (req, res) => {
     try {
-        const moves = db.prepare('SELECT Id, PdcName FROM Moves ORDER BY PdcName ASC').all();
+        const moves = db.prepare('SELECT Id, PdcName, ShpoleName FROM Moves ORDER BY ShpoleName ASC').all();
         res.json({ moves });
     } catch (error) {
         console.error('Get simple list error:', error);
@@ -134,7 +136,7 @@ router.get('/:slug', (req, res) => {
 
         // Get prerequisites
         const prerequisites = db.prepare(`
-            SELECT pmn.Slug, pm.PdcName
+            SELECT pmn.Slug, pm.ShpoleName as PdcName
             FROM Move_Prerequisite mp
             JOIN Moves pm ON mp.PrereqId = pm.Id
             LEFT JOIN Move_Name pm_n ON pm.Id = pm_n.MoveId
@@ -145,7 +147,7 @@ router.get('/:slug', (req, res) => {
 
         // Get related moves
         const relatedMoves = db.prepare(`
-            SELECT rmn.Slug, rm.PdcName, mr.RelationType
+            SELECT rmn.Slug, rm.ShpoleName as PdcName, mr.RelationType
             FROM Move_Relation mr
             JOIN Moves rm ON mr.RelatedMoveId = rm.Id
             LEFT JOIN Move_Name rm_n ON rm.Id = rm_n.MoveId
@@ -186,7 +188,7 @@ router.put('/:id', authenticateToken, (req: AuthRequest, res) => {
 
     try {
         const {
-            PdcName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
+            PdcName, ShpoleName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
             PosaCode, PosaName, PosaValue, PosaCriteria,
             PsoLevel, ShpoleLevel, StrengthReq, FlexibilityReq, TechniqueReq,
             MoveTypeId, IsInvert, GripTypeId, Info, ThumbnailUrl, Status,
@@ -197,13 +199,13 @@ router.put('/:id', authenticateToken, (req: AuthRequest, res) => {
             // Update core move data
             db.prepare(`
                 UPDATE Moves SET
-                    PdcName = ?, PdcLevel = ?, IpsfCode = ?, IpsfName = ?, IpsfValue = ?, IpsfCriteria = ?, IpsfType = ?,
+                    PdcName = ?, ShpoleName = ?, PdcLevel = ?, IpsfCode = ?, IpsfName = ?, IpsfValue = ?, IpsfCriteria = ?, IpsfType = ?,
                     PosaCode = ?, PosaName = ?, PosaValue = ?, PosaCriteria = ?,
                     PsoLevel = ?, ShpoleLevel = ?, StrengthReq = ?, FlexibilityReq = ?, TechniqueReq = ?,
                     MoveTypeId = ?, IsInvert = ?, GripTypeId = ?, Info = ?, ThumbnailUrl = ?, Status = ?
                 WHERE Id = ?
             `).run(
-                PdcName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
+                PdcName, ShpoleName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
                 PosaCode, PosaName, PosaValue, PosaCriteria,
                 PsoLevel, ShpoleLevel, StrengthReq, FlexibilityReq, TechniqueReq,
                 MoveTypeId, IsInvert, GripTypeId, Info, ThumbnailUrl, Status,

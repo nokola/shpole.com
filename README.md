@@ -50,5 +50,5 @@ flyctl ssh sftp put data/shpole.db  /app/data/shpole.db --app shpole
 ## Copy database from production
 
 ```sh
-flyctl ssh sftp get /app/data/shpole.db data/shpole.db --app shpole
+rm data/shpole.db && flyctl ssh sftp get /app/data/shpole.db data/shpole.db --app shpole
 ```
