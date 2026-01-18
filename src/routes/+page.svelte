@@ -100,6 +100,7 @@
     // Search state
     let searchQuery = $state("");
     let searchForcesAltNames = $state(false); // True when search matches an alt name while in grouped mode
+    let searchInputEl: HTMLInputElement | null = $state(null);
 
     // Check if a search query matches a string (case-insensitive)
     function matchesSearch(text: string, query: string): boolean {
@@ -480,15 +481,39 @@
             </div>
         </Dropdown>
         <div class="search-box-wrapper">
-            <input type="text" class="search-input" placeholder="🔍 Search moves..." bind:value={searchQuery} />
+            <input
+                bind:this={searchInputEl}
+                type="text"
+                class="search-input"
+                placeholder="🔍 Search moves..."
+                bind:value={searchQuery}
+                onfocus={(e) => {
+                    // On mobile, scroll so search bar is at very top of viewport
+                    if (window.innerWidth < 768) {
+                        const inputEl = e.currentTarget;
+                        const rect = inputEl.getBoundingClientRect();
+                        const scrollTop = window.scrollY + rect.top - 10; // 10px padding from top
+                        window.scrollTo({ top: scrollTop, behavior: "instant" });
+                    }
+                }}
+            />
             {#if searchQuery}
                 <button class="search-clear" onclick={() => (searchQuery = "")}>✕</button>
             {/if}
         </div>
-        {#if searchForcesAltNames && !useFlattenedMoves}
-            <div class="search-mode-notice">Showing alt names (search matched alternative name)</div>
-        {/if}
     </header>
+
+    <!-- Floating search button for mobile -->
+    <button
+        class="floating-search-btn"
+        onclick={() => {
+            if (searchInputEl) {
+                searchInputEl.focus();
+            }
+        }}
+    >
+        🔍 Search
+    </button>
 
     {#if loading}
         <div class="loading">Loading moves...</div>
@@ -949,5 +974,41 @@
         color: hsl(0, 0%, 10%);
         padding: 0 1px;
         border-radius: 2px;
+    }
+
+    /* Floating search button - mobile-first (visible by default, hidden on desktop) */
+    .floating-search-btn {
+        position: fixed;
+        bottom: 1.5rem;
+        right: 1.5rem;
+        padding: 0.75rem 1.25rem;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: hsl(var(--shpole-bg));
+        background: hsl(var(--shpole-primary));
+        border: none;
+        border-radius: 50px;
+        cursor: pointer;
+        box-shadow: 0 4px 16px hsl(var(--shpole-primary) / 0.4);
+        z-index: 100;
+        transition:
+            transform 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .floating-search-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px hsl(var(--shpole-primary) / 0.5);
+    }
+
+    .floating-search-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Hide on desktop */
+    @media (min-width: 768px) {
+        .floating-search-btn {
+            display: none;
+        }
     }
 </style>
