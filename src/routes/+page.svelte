@@ -432,7 +432,7 @@
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
-        <div class="search-box-wrapper">
+        <div class="search-box-wrapper w-full pr-0.5">
             <input
                 bind:this={searchInputEl}
                 type="text"
@@ -946,7 +946,6 @@
         align-items: center;
         margin-top: 0.75rem;
         position: relative;
-        max-width: 300px;
     }
 
     .search-input {
