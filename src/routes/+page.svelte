@@ -9,6 +9,7 @@
         Slug: string;
         PdcName: string | null;
         PdcLevel: number | null;
+        ShpoleLevel: number | null;
         StrengthReq: number | null;
         FlexibilityReq: number | null;
         TechniqueReq: number | null;
@@ -199,8 +200,8 @@
         const filteredMoves = movesList.filter((move) => {
             // Level filter
             if (selectedLevels.size > 0) {
-                if (move.PdcLevel === null) return false;
-                if (!selectedLevels.has(move.PdcLevel)) return false;
+                if (move.ShpoleLevel === null) return false;
+                if (!selectedLevels.has(move.ShpoleLevel)) return false;
             }
             // Stats filters
             if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
@@ -240,7 +241,7 @@
                     name: primaryName,
                     primaryName: primaryName,
                     slug: move.Slug,
-                    level: move.PdcLevel,
+                    level: move.ShpoleLevel,
                     strength: move.StrengthReq,
                     flexibility: move.FlexibilityReq,
                     technique: move.TechniqueReq,
@@ -263,7 +264,7 @@
                             name: altName,
                             primaryName: primaryName,
                             slug: move.Slug,
-                            level: move.PdcLevel,
+                            level: move.ShpoleLevel,
                             strength: move.StrengthReq,
                             flexibility: move.FlexibilityReq,
                             technique: move.TechniqueReq,
@@ -307,8 +308,8 @@
         const filteredMoves = movesList.filter((move) => {
             // Level filter
             if (selectedLevels.size > 0) {
-                if (move.PdcLevel === null) return false;
-                if (!selectedLevels.has(move.PdcLevel)) return false;
+                if (move.ShpoleLevel === null) return false;
+                if (!selectedLevels.has(move.ShpoleLevel)) return false;
             }
             // Stats filters
             if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
@@ -331,7 +332,7 @@
                 name: primaryName,
                 altNames,
                 slug: move.Slug,
-                level: move.PdcLevel,
+                level: move.ShpoleLevel,
                 strength: move.StrengthReq,
                 flexibility: move.FlexibilityReq,
                 technique: move.TechniqueReq,

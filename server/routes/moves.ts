@@ -9,6 +9,7 @@ interface MoveRow {
     Slug: string;
     PdcName: string | null;
     PdcLevel: number | null;
+    ShpoleLevel: number | null;
     StrengthReq: number | null;
     FlexibilityReq: number | null;
     TechniqueReq: number | null;
@@ -43,6 +44,7 @@ router.get('/', (req, res) => {
                 mn.Slug,
                 m.PdcName,
                 m.PdcLevel,
+                m.ShpoleLevel,
                 m.StrengthReq,
                 m.FlexibilityReq,
                 m.TechniqueReq,
@@ -58,7 +60,7 @@ router.get('/', (req, res) => {
             LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
             LEFT JOIN MoveNames mn ON m_n.NameId = mn.Id
             GROUP BY m.Id
-            ORDER BY m.PdcLevel ASC, m.PdcName ASC
+            ORDER BY m.ShpoleLevel ASC, m.PdcName ASC
         `).all() as MoveRow[];
 
         res.json({ moves });

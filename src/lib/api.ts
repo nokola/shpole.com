@@ -85,6 +85,7 @@ export interface Move {
     Slug: string;
     PdcName: string | null;
     PdcLevel: number | null;
+    ShpoleLevel: number | null;
     StrengthReq: number | null;
     FlexibilityReq: number | null;
     TechniqueReq: number | null;
@@ -98,6 +99,7 @@ export interface MoveDetail {
         Slug: string;
         PdcName: string | null;
         PdcLevel: number | null;
+        ShpoleLevel: number | null;
         IpsfCode: string | null;
         IpsfName: string | null;
         PosaCode: string | null;

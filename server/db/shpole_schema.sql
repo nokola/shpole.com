@@ -37,6 +37,7 @@ INSERT OR IGNORE INTO MoveTypes (Name, Info) VALUES
     ('drop', NULL),
     ('climb', NULL),
     ('handstand', NULL),
+    ('floorwork', NULL),
     ('exercise', 'Used for some prereqs');
 
 CREATE TABLE IF NOT EXISTS ContactPoints (
@@ -80,12 +81,14 @@ CREATE TABLE IF NOT EXISTS Moves (
     PsoLevel INTEGER,
     
     -- General requirements (1-5 scale)
+    ShpoleLevel INTEGER CHECK (ShpoleLevel BETWEEN 1 AND 5),
     StrengthReq INTEGER CHECK (StrengthReq BETWEEN 1 AND 5),
     FlexibilityReq INTEGER CHECK (FlexibilityReq BETWEEN 1 AND 5),
     TechniqueReq INTEGER CHECK (TechniqueReq BETWEEN 1 AND 5),
     
     -- Classification
     MoveTypeId INTEGER REFERENCES MoveTypes(Id),
+    IsInvert INTEGER CHECK (IsInvert BETWEEN 0 AND 1),
     GripTypeId INTEGER REFERENCES Moves(Id), -- Self-reference to a grip-type move
     
     -- Content
@@ -93,7 +96,7 @@ CREATE TABLE IF NOT EXISTS Moves (
     ThumbnailUrl TEXT,
     
     -- Metadata
-    Status INTEGER DEFAULT 0 CHECK (Status IN (0, 1, 2)), -- 0=stub, 1=community, 2=verified
+    Status INTEGER DEFAULT 0, -- 0=stub, 1=community, 2=verified
     AuthorId INTEGER REFERENCES Principals(Id),
     CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );

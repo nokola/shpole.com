@@ -8,6 +8,7 @@
         Slug: string;
         PdcName: string | null;
         PdcLevel: number | null;
+        ShpoleLevel: number | null;
         IpsfCode: string | null;
         IpsfName: string | null;
         PosaCode: string | null;
@@ -118,7 +119,7 @@
             <div class="requirements">
                 <div class="req-item">
                     <span class="req-label">Level</span>
-                    <span class="req-value">{move.PdcLevel ?? "–"}</span>
+                    <span class="req-value">{move.ShpoleLevel ?? "–"}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Strength</span>
