@@ -12,6 +12,13 @@ export interface AuthRequest extends Request {
     };
 }
 
+type User = {
+    id: number;
+    email: string;
+    username: string | null;
+    role: string;
+};
+
 export function authenticateToken(req: AuthRequest, res: Response, next: NextFunction) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
@@ -21,12 +28,7 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
     }
 
     try {
-        const decoded = jwt.verify(token, JWT_SECRET) as {
-            id: number;
-            email: string;
-            username: string | null;
-            role: string;
-        };
+        const decoded = jwt.verify(token, JWT_SECRET) as User;
         req.user = decoded;
         next();
     } catch (err) {
@@ -40,12 +42,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
 
     if (token) {
         try {
-            const decoded = jwt.verify(token, JWT_SECRET) as {
-                id: number;
-                email: string;
-                username: string | null;
-                role: string;
-            };
+            const decoded = jwt.verify(token, JWT_SECRET) as User;
             req.user = decoded;
         } catch (err) {
             // Token invalid, but that's okay for optional auth
@@ -54,7 +51,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
     next();
 }
 
-export function generateToken(user: { id: number; email: string; username: string | null; role: string }) {
+export function generateToken(user: User) {
     return jwt.sign(
         { id: user.id, email: user.email, username: user.username, role: user.role },
         JWT_SECRET,
