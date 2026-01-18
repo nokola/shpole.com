@@ -198,7 +198,7 @@
             // Search filter
             const { matches } = moveMatchesSearch(move, searchQuery);
             if (!matches) return false;
-            if (!showDrafts && move.Status === 0) return false;
+            if (!searchQuery && !showDrafts && move.Status === 0) return false;
             return true;
         });
 
@@ -310,7 +310,7 @@
             // Search filter
             const { matches } = moveMatchesSearch(move, searchQuery);
             if (!matches) return false;
-            if (!showDrafts && move.Status === 0) return false;
+            if (!searchQuery && !showDrafts && move.Status === 0) return false;
             return true;
         });
 
@@ -392,6 +392,12 @@
 
     function navigateToMove(slug: string) {
         window.location.href = `/m/${slug}`;
+    }
+
+    function splitDrafts<T extends { status: number }>(rows: T[]) {
+        const main = rows.filter((r) => r.status !== 0);
+        const drafts = rows.filter((r) => r.status === 0);
+        return { main, drafts };
     }
 
     // Highlight matching text within a string
@@ -544,6 +550,48 @@
             <p>No moves in the database yet.</p>
         </div>
     {:else}
+        {#snippet flattenedRowSnippet(row: DisplayRow)}
+            <tr class="clickable-row" class:secondary={!row.isPrimary} onclick={() => navigateToMove(row.slug)}>
+                <td class="leading-5 text-md">
+                    <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
+                        {#if row.isPrimary}
+                            {@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
+                                🚧{/if}
+                        {:else}
+                            <span class="text-[hsl(var(--shpole-text-muted))]"
+                                >{@html highlightMatch(row.name, searchQuery)}</span
+                            >
+                        {/if}
+                    </a>
+                </td>
+                <td class="level">{(row.isPrimary ? row.level : "") ?? "–"}</td>
+                <td class="stars-combined">
+                    {#if row.isPrimary}
+                        {renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                        >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
+                        >{renderStars(row.technique)}
+                    {/if}
+                </td>
+            </tr>
+        {/snippet}
+
+        {#snippet groupedRowSnippet(row: GroupedRow)}
+            <tr class="clickable-row" onclick={() => navigateToMove(row.slug)}>
+                <td class="leading-5 text-md">
+                    <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
+                        >{@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
+                            🚧{/if}</a
+                    >
+                </td>
+                <td class="level">{row.level ?? "–"}</td>
+                <td class="stars-combined"
+                    >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span>{renderStars(
+                        row.flexibility,
+                    )}<span class="text-[hsl(var(--shpole-text-muted))]">/</span>{renderStars(row.technique)}</td
+                >
+            </tr>
+        {/snippet}
+
         <table class="moves-table">
             <thead>
                 <tr>
@@ -595,54 +643,45 @@
             </thead>
             <tbody>
                 {#if effectiveUseFlattenedMoves}
-                    {#each flattenedMoves() as row}
-                        <tr
-                            class="clickable-row"
-                            class:secondary={!row.isPrimary}
-                            onclick={() => navigateToMove(row.slug)}
-                        >
-                            <td class="leading-5 text-md">
-                                <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
-                                    {#if row.isPrimary}
-                                        {@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
-                                            🚧{/if}
-                                    {:else}
-                                        <span class="text-[hsl(var(--shpole-text-muted))]"
-                                            >{@html highlightMatch(row.name, searchQuery)}</span
-                                        >
-                                    {/if}
-                                </a>
-                            </td>
-                            <td class="level">{(row.isPrimary ? row.level : "") ?? "–"}</td>
-                            <td class="stars-combined">
-                                {#if row.isPrimary}
-                                    {renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]"
-                                        >/</span
-                                    >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
-                                        >/</span
-                                    >{renderStars(row.technique)}
-                                {/if}
-                            </td>
-                        </tr>
-                    {/each}
+                    {@const moves = flattenedMoves()}
+                    {#if searchQuery}
+                        {@const { main, drafts } = splitDrafts(moves)}
+                        {#each main as row}
+                            {@render flattenedRowSnippet(row)}
+                        {/each}
+                        {#if drafts.length > 0}
+                            <tr>
+                                <td colspan="3"><div class="pt-4 italic">Drafts🚧</div></td>
+                            </tr>
+                            {#each drafts as row}
+                                {@render flattenedRowSnippet(row)}
+                            {/each}
+                        {/if}
+                    {:else}
+                        {#each moves as row}
+                            {@render flattenedRowSnippet(row)}
+                        {/each}
+                    {/if}
                 {:else}
-                    {#each groupedMoves() as row}
-                        <tr class="clickable-row" onclick={() => navigateToMove(row.slug)}>
-                            <td class="leading-5 text-md">
-                                <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
-                                    >{@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
-                                        🚧{/if}</a
-                                >
-                            </td>
-                            <td class="level">{row.level ?? "–"}</td>
-                            <td class="stars-combined"
-                                >{renderStars(row.strength)}<span class="text-[hsl(var(--shpole-text-muted))]">/</span
-                                >{renderStars(row.flexibility)}<span class="text-[hsl(var(--shpole-text-muted))]"
-                                    >/</span
-                                >{renderStars(row.technique)}</td
-                            >
-                        </tr>
-                    {/each}
+                    {@const moves = groupedMoves()}
+                    {#if searchQuery}
+                        {@const { main, drafts } = splitDrafts(moves)}
+                        {#each main as row}
+                            {@render groupedRowSnippet(row)}
+                        {/each}
+                        {#if drafts.length > 0}
+                            <tr>
+                                <td colspan="3"><div class="pt-4 italic">Drafts🚧</div></td>
+                            </tr>
+                            {#each drafts as row}
+                                {@render groupedRowSnippet(row)}
+                            {/each}
+                        {/if}
+                    {:else}
+                        {#each moves as row}
+                            {@render groupedRowSnippet(row)}
+                        {/each}
+                    {/if}
                 {/if}
             </tbody>
         </table>
