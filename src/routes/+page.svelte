@@ -211,10 +211,29 @@
 
         for (const move of filteredMoves) {
             const primaryName = move.PdcName || move.Slug;
+            const primaryMatches = !searchQuery || matchesSearch(primaryName, searchQuery);
 
-            // Add primary name row
-            if (!seenNames.has(primaryName.toLowerCase())) {
-                seenNames.add(primaryName.toLowerCase());
+            // Check if any alt name matches (to decide if we should also show primary)
+            let hasMatchingAlt = false;
+            const matchingAltNames: string[] = [];
+            if (move.AlsoKnownAs && searchQuery) {
+                const altNames = move.AlsoKnownAs.split(", ")
+                    .map((n) => n.trim())
+                    .filter((n) => n);
+                for (const altName of altNames) {
+                    if (matchesSearch(altName, searchQuery)) {
+                        hasMatchingAlt = true;
+                        matchingAltNames.push(altName);
+                    }
+                }
+            }
+
+            // Add primary name row if it matches OR if any alt name matches (for context)
+            // Use move slug as part of key to allow same name under different moves
+            const primaryKey = `${move.Slug}:${primaryName.toLowerCase()}`;
+            const shouldShowPrimary = primaryMatches || hasMatchingAlt;
+            if (shouldShowPrimary && !seenNames.has(primaryKey)) {
+                seenNames.add(primaryKey);
                 rows.push({
                     name: primaryName,
                     primaryName: primaryName,
@@ -227,14 +246,17 @@
                 });
             }
 
-            // Add alternative name rows
+            // Add alternative name rows (only if they match the search or no search)
+            // Use move slug as part of key so same alt name can appear under different moves
             if (move.AlsoKnownAs) {
                 const altNames = move.AlsoKnownAs.split(", ")
                     .map((n) => n.trim())
                     .filter((n) => n);
                 for (const altName of altNames) {
-                    if (!seenNames.has(altName.toLowerCase())) {
-                        seenNames.add(altName.toLowerCase());
+                    const altKey = `${move.Slug}:${altName.toLowerCase()}`;
+                    const altMatches = !searchQuery || matchesSearch(altName, searchQuery);
+                    if (altMatches && !seenNames.has(altKey)) {
+                        seenNames.add(altKey);
                         rows.push({
                             name: altName,
                             primaryName: primaryName,
