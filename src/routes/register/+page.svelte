@@ -4,6 +4,7 @@
     import { goto } from "$app/navigation";
 
     let email = $state("");
+    let username = $state("");
     let password = $state("");
     let confirmPassword = $state("");
     let loading = $state(false);
@@ -12,8 +13,16 @@
     async function handleRegister(e: Event) {
         e.preventDefault();
 
-        if (!email || !password) {
-            error = "Please enter both email and password";
+        if (!email || !password || !username) {
+            error = "Please enter email, username, and password";
+            return;
+        }
+
+        // GitHub username rules
+        const usernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+        if (!usernameRegex.test(username)) {
+            error =
+                "Username must be alphanumeric and can contain single hyphens, but cannot start/end with a hyphen (max 39 chars)";
             return;
         }
 
@@ -31,7 +40,7 @@
         error = "";
 
         try {
-            const { user, token } = await auth.register(email, password);
+            const { user, token } = await auth.register(email, password, username);
             authStore.login(user, token);
             toastStore.show("Account created!", "success");
             goto("/");
@@ -65,6 +74,18 @@
                         class="input"
                         placeholder="you@example.com"
                         bind:value={email}
+                        disabled={loading}
+                    />
+                </div>
+
+                <div class="form-row">
+                    <label for="username" class="label-inline">Username</label>
+                    <input
+                        type="text"
+                        id="username"
+                        class="input"
+                        placeholder="Choose a username"
+                        bind:value={username}
                         disabled={loading}
                     />
                 </div>

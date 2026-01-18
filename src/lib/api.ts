@@ -34,7 +34,7 @@ async function fetchAPI<T>(endpoint: string, options: FetchOptions = {}): Promis
 
 // Auth
 export const auth = {
-    register: (email: string, password: string, username?: string) =>
+    register: (email: string, password: string, username: string) =>
         fetchAPI<{ user: User; token: string }>('/auth/register', {
             method: 'POST',
             body: JSON.stringify({ email, password, username })

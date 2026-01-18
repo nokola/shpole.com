@@ -10,18 +10,31 @@ router.post('/register', async (req, res) => {
     try {
         const { email, password, username } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Email and password are required' });
+        if (!email || !password || !username) {
+            return res.status(400).json({ error: 'Email, password, and username are required' });
+        }
+
+        // Validate username (GitHub rules: alphanumeric/hyphens, no start/end hyphen, no consecutive hyphens, max 39 chars)
+        const usernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+        if (!usernameRegex.test(username)) {
+            return res.status(400).json({
+                error: 'Username can only contain alphanumeric characters and single hyphens, and cannot start or end with a hyphen'
+            });
         }
 
         if (password.length < 6) {
             return res.status(400).json({ error: 'Password must be at least 6 characters' });
         }
 
-        // Check if email already exists
-        const existingUser = db.prepare('SELECT Id FROM Principals WHERE Email = ?').get(email);
-        if (existingUser) {
+        // Check if email or username already exists
+        const existingEmail = db.prepare('SELECT Id FROM Principals WHERE Email = ?').get(email);
+        if (existingEmail) {
             return res.status(400).json({ error: 'Email already registered' });
+        }
+
+        const existingUsername = db.prepare('SELECT Id FROM Principals WHERE UserName = ?').get(username);
+        if (existingUsername) {
+            return res.status(400).json({ error: 'Username already taken' });
         }
 
         // Hash password
@@ -30,7 +43,7 @@ router.post('/register', async (req, res) => {
         // Create user
         const result = db.prepare(
             'INSERT INTO Principals (Email, PasswordHash, UserName) VALUES (?, ?, ?)'
-        ).run(email, passwordHash, username || null);
+        ).run(email, passwordHash, username);
 
         const user = {
             id: result.lastInsertRowid as number,
@@ -100,10 +113,11 @@ router.post('/setup-username', authenticateToken, (req: AuthRequest, res) => {
             return res.status(400).json({ error: 'Username is required' });
         }
 
-        // Validate username format (alphanumeric, underscores, 3-30 chars)
-        if (!/^[a-zA-Z0-9_]{3,30}$/.test(username)) {
+        // Validate username (GitHub rules: alphanumeric/hyphens, no start/end hyphen, no consecutive hyphens, max 39 chars)
+        const usernameRegex = /^[a-z\d](?:[a-z\d]|-(?=[a-z\d])){0,38}$/i;
+        if (!usernameRegex.test(username)) {
             return res.status(400).json({
-                error: 'Username must be 3-30 characters and contain only letters, numbers, and underscores'
+                error: 'Username can only contain alphanumeric characters and single hyphens, and cannot start or end with a hyphen'
             });
         }
 
