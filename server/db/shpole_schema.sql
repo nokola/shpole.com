@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS Moves (
     ThumbnailUrl TEXT,
     
     -- Metadata
-    Status INTEGER DEFAULT 0, -- 0=stub, 1=community, 2=verified
+    Status INTEGER DEFAULT 0, -- 0=draft, 1=reviewing, 2=verified
     AuthorId INTEGER REFERENCES Principals(Id),
     CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );

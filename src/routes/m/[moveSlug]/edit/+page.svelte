@@ -291,9 +291,9 @@
                 <div class="field">
                     <label for="status">Verification Status</label>
                     <select id="status" bind:value={moveData.Status}>
-                        <option value={0}>0 - Stub / Draft</option>
-                        <option value={1}>1 - Community Verified</option>
-                        <option value={2}>2 - Official / Verified</option>
+                        <option value={0}>Draft</option>
+                        <option value={1}>Reviewing</option>
+                        <option value={2}>Verified</option>
                     </select>
                 </div>
             </section>

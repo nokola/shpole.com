@@ -16,9 +16,9 @@ interface MoveRow {
     TechniqueReq: number | null;
     MoveTypeName: string | null;
     AlsoKnownAs: string | null;
+    Status: number;
     Info: string | null;
     ThumbnailUrl: string | null;
-    Status: number;
 }
 
 interface MoveDetailRow extends MoveRow {
@@ -53,6 +53,7 @@ router.get('/', (req, res) => {
                 m.StrengthReq,
                 m.FlexibilityReq,
                 m.TechniqueReq,
+                m.Status,
                 mt.Name as MoveTypeName,
                 (
                     SELECT GROUP_CONCAT(mn2.MoveName, ', ')

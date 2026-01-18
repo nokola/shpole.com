@@ -106,6 +106,7 @@ export interface Move {
     TechniqueReq: number | null;
     MoveTypeName: string | null;
     AlsoKnownAs: string | null;
+    Status: number;
 }
 
 export interface MoveDetail {
