@@ -45,7 +45,6 @@ router.get('/', (req, res) => {
         const moves = db.prepare(`
             SELECT 
                 m.Id,
-                mn.Slug,
                 m.PdcName,
                 m.ShpoleName,
                 m.PdcLevel,
@@ -60,11 +59,17 @@ router.get('/', (req, res) => {
                     FROM Move_Name m_n2
                     JOIN MoveNames mn2 ON m_n2.NameId = mn2.Id
                     WHERE m_n2.MoveId = m.Id AND mn2.MoveName != m.ShpoleName
-                ) as AlsoKnownAs
+                ) as AlsoKnownAs,
+                (
+                    SELECT mn3.Slug
+                    FROM Move_Name m_n3
+                    JOIN MoveNames mn3 ON m_n3.NameId = mn3.Id
+                    WHERE m_n3.MoveId = m.Id
+                    ORDER BY CASE WHEN m_n3.Source = 'online' THEN 0 ELSE 1 END, m_n3.Id ASC
+                    LIMIT 1
+                ) as Slug
             FROM Moves m
             LEFT JOIN MoveTypes mt ON m.MoveTypeId = mt.Id
-            LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
-            LEFT JOIN MoveNames mn ON m_n.NameId = mn.Id
             GROUP BY m.Id
             ORDER BY m.ShpoleLevel ASC, m.ShpoleName ASC
         `).all() as MoveRow[];
@@ -107,12 +112,15 @@ router.get('/:slug', (req, res) => {
             SELECT 
                 m.*,
                 mt.Name as MoveTypeName,
-                mn.Slug
+                mn.Slug,
+                m_n.Source
             FROM Moves m
             LEFT JOIN MoveTypes mt ON m.MoveTypeId = mt.Id
             LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
             LEFT JOIN MoveNames mn ON m_n.NameId = mn.Id
             WHERE mn.Slug = ?
+            ORDER BY CASE WHEN m_n.Source = 'online' THEN 0 ELSE 1 END, m_n.Id ASC
+            LIMIT 1
         `).get(slug) as MoveDetailRow | undefined;
 
         if (!move) {
