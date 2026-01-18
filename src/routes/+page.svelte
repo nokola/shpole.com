@@ -533,7 +533,7 @@
     </header>
 
     <!-- Floating search button for mobile -->
-    <button
+    <!-- <button
         class="floating-search-btn"
         onclick={() => {
             if (searchInputEl) {
@@ -542,7 +542,7 @@
         }}
     >
         🔍 Search
-    </button>
+    </button> -->
 
     {#if loading}
         <div class="loading">Loading moves...</div>
