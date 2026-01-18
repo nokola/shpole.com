@@ -97,6 +97,58 @@
     let selectedTechnique = $state<Set<number>>(new Set());
     let statsDropdownOpen = $state(false);
 
+    // Search state
+    let searchQuery = $state("");
+    let searchForcesAltNames = $state(false); // True when search matches an alt name while in grouped mode
+
+    // Check if a search query matches a string (case-insensitive)
+    function matchesSearch(text: string, query: string): boolean {
+        if (!query) return true;
+        return text.toLowerCase().includes(query.toLowerCase());
+    }
+
+    // Check if search matches any name (primary or alt) for a move
+    function moveMatchesSearch(move: Move, query: string): { matches: boolean; matchesAltOnly: boolean } {
+        if (!query) return { matches: true, matchesAltOnly: false };
+        const q = query.toLowerCase();
+        const primaryName = (move.PdcName || move.Slug).toLowerCase();
+        const primaryMatches = primaryName.includes(q);
+
+        if (primaryMatches) return { matches: true, matchesAltOnly: false };
+
+        // Check alt names
+        if (move.AlsoKnownAs) {
+            const altNames = move.AlsoKnownAs.split(", ").map((n) => n.trim().toLowerCase());
+            for (const alt of altNames) {
+                if (alt.includes(q)) {
+                    return { matches: true, matchesAltOnly: true };
+                }
+            }
+        }
+        return { matches: false, matchesAltOnly: false };
+    }
+
+    // Reactively update whether we need to force alt names display due to search
+    $effect(() => {
+        if (!searchQuery) {
+            searchForcesAltNames = false;
+            return;
+        }
+        // Check if any matching move only matches via alt name
+        let hasAltOnlyMatch = false;
+        for (const move of movesList) {
+            const { matches, matchesAltOnly } = moveMatchesSearch(move, searchQuery);
+            if (matches && matchesAltOnly) {
+                hasAltOnlyMatch = true;
+                break;
+            }
+        }
+        searchForcesAltNames = hasAltOnlyMatch;
+    });
+
+    // Determine effective display mode (user choice or forced by search)
+    let effectiveUseFlattenedMoves = $derived(useFlattenedMoves || searchForcesAltNames);
+
     function toggleStat(stat: "strength" | "flexibility" | "technique", value: number) {
         const sets = {
             strength: selectedStrength,
@@ -141,7 +193,7 @@
         const rows: DisplayRow[] = [];
         const seenNames = new Set<string>();
 
-        // Filter by selected levels and stats (empty set = show all)
+        // Filter by selected levels, stats, AND search (empty set = show all)
         const filteredMoves = movesList.filter((move) => {
             // Level filter
             if (selectedLevels.size > 0) {
@@ -152,7 +204,9 @@
             if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
             if (!matchesStatFilter(move.FlexibilityReq, selectedFlexibility)) return false;
             if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
-            return true;
+            // Search filter
+            const { matches } = moveMatchesSearch(move, searchQuery);
+            return matches;
         });
 
         for (const move of filteredMoves) {
@@ -225,7 +279,7 @@
     let groupedMoves = $derived(() => {
         const rows: GroupedRow[] = [];
 
-        // Filter by selected levels and stats (empty set = show all)
+        // Filter by selected levels, stats, AND search (empty set = show all)
         const filteredMoves = movesList.filter((move) => {
             // Level filter
             if (selectedLevels.size > 0) {
@@ -236,7 +290,9 @@
             if (!matchesStatFilter(move.StrengthReq, selectedStrength)) return false;
             if (!matchesStatFilter(move.FlexibilityReq, selectedFlexibility)) return false;
             if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
-            return true;
+            // Search filter
+            const { matches } = moveMatchesSearch(move, searchQuery);
+            return matches;
         });
 
         for (const move of filteredMoves) {
@@ -296,6 +352,25 @@
 
     function navigateToMove(slug: string) {
         window.location.href = `/m/${slug}`;
+    }
+
+    // Highlight matching text within a string
+    function highlightMatch(text: string, query: string): string {
+        if (!query) return escapeHtml(text);
+        const lowerText = text.toLowerCase();
+        const lowerQuery = query.toLowerCase();
+        const idx = lowerText.indexOf(lowerQuery);
+        if (idx === -1) return escapeHtml(text);
+        const before = text.slice(0, idx);
+        const match = text.slice(idx, idx + query.length);
+        const after = text.slice(idx + query.length);
+        return (
+            escapeHtml(before) + '<mark class="search-highlight">' + escapeHtml(match) + "</mark>" + escapeHtml(after)
+        );
+    }
+
+    function escapeHtml(str: string): string {
+        return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
     }
 </script>
 
@@ -382,6 +457,15 @@
                 </div>
             </div>
         </Dropdown>
+        <div class="search-box-wrapper">
+            <input type="text" class="search-input" placeholder="🔍 Search moves..." bind:value={searchQuery} />
+            {#if searchQuery}
+                <button class="search-clear" onclick={() => (searchQuery = "")}>✕</button>
+            {/if}
+        </div>
+        {#if searchForcesAltNames && !useFlattenedMoves}
+            <div class="search-mode-notice">Showing alt names (search matched alternative name)</div>
+        {/if}
     </header>
 
     {#if loading}
@@ -443,7 +527,7 @@
                 </tr>
             </thead>
             <tbody>
-                {#if useFlattenedMoves}
+                {#if effectiveUseFlattenedMoves}
                     {#each flattenedMoves() as row}
                         <tr
                             class="clickable-row"
@@ -453,9 +537,11 @@
                             <td class="leading-5 text-md">
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
                                     {#if row.isPrimary}
-                                        {row.name}
+                                        {@html highlightMatch(row.name, searchQuery)}
                                     {:else}
-                                        <span class="text-[hsl(var(--shpole-text-muted))]">{row.name}</span>
+                                        <span class="text-[hsl(var(--shpole-text-muted))]"
+                                            >{@html highlightMatch(row.name, searchQuery)}</span
+                                        >
                                     {/if}
                                 </a>
                             </td>
@@ -476,7 +562,7 @@
                         <tr class="clickable-row" onclick={() => navigateToMove(row.slug)}>
                             <td class="leading-5 text-md">
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
-                                    >{row.name}</a
+                                    >{@html highlightMatch(row.name, searchQuery)}</a
                                 >
                             </td>
                             <td class="level">{row.level ?? "–"}</td>
@@ -773,5 +859,73 @@
     .star-btn.active {
         color: hsl(var(--shpole-primary));
         background: hsl(var(--shpole-primary) / 0.2);
+    }
+
+    /* Search box styles */
+    .search-box-wrapper {
+        display: flex;
+        align-items: center;
+        margin-top: 0.75rem;
+        position: relative;
+        max-width: 300px;
+    }
+
+    .search-input {
+        width: 100%;
+        padding: 0.5rem 2rem 0.5rem 0.75rem;
+        font-size: 0.9rem;
+        color: hsl(var(--shpole-text));
+        background: hsl(var(--shpole-surface));
+        border: 1px solid hsl(var(--shpole-border));
+        border-radius: 8px;
+        outline: none;
+        transition:
+            border-color 0.15s ease,
+            box-shadow 0.15s ease;
+    }
+
+    .search-input::placeholder {
+        color: hsl(var(--shpole-text-muted));
+    }
+
+    .search-input:focus {
+        border-color: hsl(var(--shpole-primary));
+        box-shadow: 0 0 0 2px hsl(var(--shpole-primary) / 0.2);
+    }
+
+    .search-clear {
+        position: absolute;
+        right: 0.5rem;
+        background: none;
+        border: none;
+        padding: 0.25rem;
+        font-size: 0.85rem;
+        color: hsl(var(--shpole-text-muted));
+        cursor: pointer;
+        border-radius: 4px;
+        line-height: 1;
+    }
+
+    .search-clear:hover {
+        color: hsl(var(--shpole-text));
+        background: hsl(var(--shpole-bg-secondary));
+    }
+
+    .search-mode-notice {
+        margin-top: 0.5rem;
+        padding: 0.35rem 0.6rem;
+        font-size: 0.75rem;
+        color: hsl(var(--shpole-primary));
+        background: hsl(var(--shpole-primary) / 0.1);
+        border-radius: 4px;
+        display: inline-block;
+    }
+
+    /* Search highlight */
+    :global(.search-highlight) {
+        background: hsl(50, 100%, 50%);
+        color: hsl(0, 0%, 10%);
+        padding: 0 1px;
+        border-radius: 2px;
     }
 </style>
