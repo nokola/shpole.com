@@ -52,7 +52,7 @@
     }
 
     let useFlattenedMoves = $state(false);
-    let showDrafts = $state(true);
+    let showDrafts = $state(false);
 
     // Level filter state
     const levelLabels: Record<number, string> = {
@@ -432,7 +432,7 @@
         >
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
-        <button class="view-toggle" class:has-filter={!showDrafts} onclick={() => (showDrafts = !showDrafts)}>
+        <button class="view-toggle" class:has-filter={showDrafts} onclick={() => (showDrafts = !showDrafts)}>
             {showDrafts ? "Drafts🚧" : "No Drafts"}
         </button>
         <div class="search-box-wrapper w-full pr-0.5">

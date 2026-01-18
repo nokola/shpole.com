@@ -35,9 +35,9 @@
     let loading = $state(true);
     let error = $state<string | null>(null);
 
-    function renderStars(value: number | null): string {
-        if (value === null) return "–";
-        return `${value}★`;
+    function renderStat(value: number | null, emoji: string): string {
+        if (value === null || value === 0) return "–";
+        return emoji.repeat(value);
     }
 
     async function loadMove(slug: string) {
@@ -136,15 +136,15 @@
                 </div>
                 <div class="req-item">
                     <span class="req-label">Strength</span>
-                    <span class="req-stars">{renderStars(move.move.StrengthReq)}</span>
+                    <span class="req-stars">{renderStat(move.move.StrengthReq, "💪")}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Flexibility</span>
-                    <span class="req-stars">{renderStars(move.move.FlexibilityReq)}</span>
+                    <span class="req-stars">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Technique</span>
-                    <span class="req-stars">{renderStars(move.move.TechniqueReq)}</span>
+                    <span class="req-stars">{renderStat(move.move.TechniqueReq, "🎯")}</span>
                 </div>
             </div>
         </section>
@@ -365,8 +365,7 @@
     }
 
     .req-stars {
-        color: hsl(var(--shpole-primary));
-        font-size: 1rem;
+        font-size: 1.2rem;
         letter-spacing: 0.1em;
     }
 
