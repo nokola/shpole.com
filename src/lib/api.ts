@@ -63,7 +63,20 @@ export const moves = {
         fetchAPI<{ moves: Move[] }>('/moves'),
 
     get: (slug: string) =>
-        fetchAPI<MoveDetail>(`/moves/${slug}`)
+        fetchAPI<MoveDetail>(`/moves/${slug}`),
+
+    update: (id: number, data: any, token: string) =>
+        fetchAPI<{ message: string }>(`/moves/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(data),
+            token
+        }),
+
+    getTypes: () =>
+        fetchAPI<{ types: Array<{ Id: number; Name: string }> }>('/moves/types'),
+
+    getSimpleList: () =>
+        fetchAPI<{ moves: Array<{ Id: number; PdcName: string }> }>('/moves/simple-list')
 };
 
 // Contributors
@@ -77,6 +90,7 @@ export interface User {
     id: number;
     email: string;
     username: string | null;
+    role: string;
     created_at?: string;
 }
 
@@ -102,12 +116,23 @@ export interface MoveDetail {
         ShpoleLevel: number | null;
         IpsfCode: string | null;
         IpsfName: string | null;
+        IpsfValue: number | null;
+        IpsfCriteria: string | null;
+        IpsfType: number | null;
         PosaCode: string | null;
         PosaName: string | null;
+        PosaValue: number | null;
+        PosaCriteria: string | null;
+        PsoLevel: number | null;
         StrengthReq: number | null;
         FlexibilityReq: number | null;
         TechniqueReq: number | null;
+        MoveTypeId: number | null;
+        IsInvert: number;
+        GripTypeId: number | null;
         Info: string | null;
+        ThumbnailUrl: string | null;
+        Status: number;
         MoveTypeName: string | null;
     };
     names: Array<{

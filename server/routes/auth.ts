@@ -48,13 +48,14 @@ router.post('/register', async (req, res) => {
         const user = {
             id: result.lastInsertRowid as number,
             email,
-            username: username || null
+            username: username || null,
+            role: 'user' // Default role
         };
 
         const token = generateToken(user);
 
         res.status(201).json({
-            user: { id: user.id, email: user.email, username: user.username },
+            user: { id: user.id, email: user.email, username: user.username, role: user.role },
             token
         });
     } catch (error) {
@@ -74,8 +75,8 @@ router.post('/login', async (req, res) => {
 
         // Find user
         const user = db.prepare(
-            'SELECT Id, Email, UserName, PasswordHash FROM Principals WHERE Email = ?'
-        ).get(email) as { Id: number; Email: string; UserName: string | null; PasswordHash: string } | undefined;
+            'SELECT Id, Email, UserName, PasswordHash, Role FROM Principals WHERE Email = ?'
+        ).get(email) as { Id: number; Email: string; UserName: string | null; PasswordHash: string; Role: string } | undefined;
 
         if (!user) {
             return res.status(401).json({ error: 'Invalid email or password' });
@@ -90,11 +91,12 @@ router.post('/login', async (req, res) => {
         const token = generateToken({
             id: user.Id,
             email: user.Email,
-            username: user.UserName
+            username: user.UserName,
+            role: user.Role
         });
 
         res.json({
-            user: { id: user.Id, email: user.Email, username: user.UserName },
+            user: { id: user.Id, email: user.Email, username: user.UserName, role: user.Role },
             token
         });
     } catch (error) {
@@ -133,11 +135,12 @@ router.post('/setup-username', authenticateToken, (req: AuthRequest, res) => {
         const token = generateToken({
             id: userId,
             email: req.user!.email,
-            username
+            username,
+            role: req.user!.role
         });
 
         res.json({
-            user: { id: userId, email: req.user!.email, username },
+            user: { id: userId, email: req.user!.email, username, role: req.user!.role },
             token
         });
     } catch (error) {
@@ -150,8 +153,8 @@ router.post('/setup-username', authenticateToken, (req: AuthRequest, res) => {
 router.get('/me', authenticateToken, (req: AuthRequest, res) => {
     try {
         const user = db.prepare(
-            'SELECT Id, Email, UserName, CreatedDate FROM Principals WHERE Id = ?'
-        ).get(req.user!.id) as { Id: number; Email: string; UserName: string | null; CreatedDate: string } | undefined;
+            'SELECT Id, Email, UserName, CreatedDate, Role FROM Principals WHERE Id = ?'
+        ).get(req.user!.id) as { Id: number; Email: string; UserName: string | null; CreatedDate: string; Role: string } | undefined;
 
         if (!user) {
             return res.status(404).json({ error: 'User not found' });
@@ -162,6 +165,7 @@ router.get('/me', authenticateToken, (req: AuthRequest, res) => {
                 id: user.Id,
                 email: user.Email,
                 username: user.UserName,
+                role: user.Role,
                 created_at: user.CreatedDate
             }
         });

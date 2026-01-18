@@ -25,12 +25,15 @@ interface MoveDetailRow extends MoveRow {
     IpsfName: string | null;
     IpsfValue: number | null;
     IpsfCriteria: string | null;
+    IpsfType: number | null;
     PosaCode: string | null;
     PosaName: string | null;
     PosaValue: number | null;
     PosaCriteria: string | null;
     PsoLevel: number | null;
     GripTypeId: number | null;
+    IsInvert: number;
+    MoveTypeId: number | null;
     AuthorId: number | null;
     CreatedDate: string;
 }
@@ -66,6 +69,28 @@ router.get('/', (req, res) => {
         res.json({ moves });
     } catch (error) {
         console.error('Get moves error:', error);
+        res.status(500).json({ error: 'Failed to get moves' });
+    }
+});
+
+// Get all move types
+router.get('/types', (req, res) => {
+    try {
+        const types = db.prepare('SELECT Id, Name FROM MoveTypes ORDER BY Name ASC').all();
+        res.json({ types });
+    } catch (error) {
+        console.error('Get move types error:', error);
+        res.status(500).json({ error: 'Failed to get move types' });
+    }
+});
+
+// Get simple list of moves (for dropdowns)
+router.get('/simple-list', (req, res) => {
+    try {
+        const moves = db.prepare('SELECT Id, PdcName FROM Moves ORDER BY PdcName ASC').all();
+        res.json({ moves });
+    } catch (error) {
+        console.error('Get simple list error:', error);
         res.status(500).json({ error: 'Failed to get moves' });
     }
 });
@@ -147,6 +172,84 @@ router.get('/:slug', (req, res) => {
     } catch (error) {
         console.error('Get move error:', error);
         res.status(500).json({ error: 'Failed to get move' });
+    }
+});
+
+// Update move
+router.put('/:id', authenticateToken, (req: AuthRequest, res) => {
+    const { id } = req.params;
+    const user = req.user!;
+
+    if (user.role !== 'moderator' && user.role !== 'admin') {
+        return res.status(403).json({ error: 'Permission denied' });
+    }
+
+    try {
+        const {
+            PdcName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
+            PosaCode, PosaName, PosaValue, PosaCriteria,
+            PsoLevel, ShpoleLevel, StrengthReq, FlexibilityReq, TechniqueReq,
+            MoveTypeId, IsInvert, GripTypeId, Info, ThumbnailUrl, Status,
+            names // Array of { MoveName, Source }
+        } = req.body;
+
+        db.transaction(() => {
+            // Update core move data
+            db.prepare(`
+                UPDATE Moves SET
+                    PdcName = ?, PdcLevel = ?, IpsfCode = ?, IpsfName = ?, IpsfValue = ?, IpsfCriteria = ?, IpsfType = ?,
+                    PosaCode = ?, PosaName = ?, PosaValue = ?, PosaCriteria = ?,
+                    PsoLevel = ?, ShpoleLevel = ?, StrengthReq = ?, FlexibilityReq = ?, TechniqueReq = ?,
+                    MoveTypeId = ?, IsInvert = ?, GripTypeId = ?, Info = ?, ThumbnailUrl = ?, Status = ?
+                WHERE Id = ?
+            `).run(
+                PdcName, PdcLevel, IpsfCode, IpsfName, IpsfValue, IpsfCriteria, IpsfType,
+                PosaCode, PosaName, PosaValue, PosaCriteria,
+                PsoLevel, ShpoleLevel, StrengthReq, FlexibilityReq, TechniqueReq,
+                MoveTypeId, IsInvert, GripTypeId, Info, ThumbnailUrl, Status,
+                id
+            );
+
+            // Sync names
+            if (names && Array.isArray(names)) {
+                // Delete existing relationships
+                db.prepare('DELETE FROM Move_Name WHERE MoveId = ?').run(id);
+
+                for (const n of names) {
+                    if (!n.MoveName) continue;
+
+                    // Ensure MoveName exists in MoveNames
+                    let nameId: number | bigint;
+                    const existingName = db.prepare('SELECT Id FROM MoveNames WHERE MoveName = ?').get(n.MoveName) as { Id: number } | undefined;
+
+                    if (existingName) {
+                        nameId = existingName.Id;
+                    } else {
+                        const slug = n.MoveName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                        try {
+                            const result = db.prepare('INSERT INTO MoveNames (MoveName, Slug, AuthorId) VALUES (?, ?, ?)').run(n.MoveName, slug, user.id);
+                            nameId = result.lastInsertRowid;
+                        } catch (e) {
+                            // If slug or name somehow exists but wasn't found (e.g. race condition), try to find it again
+                            const secondTry = db.prepare('SELECT Id FROM MoveNames WHERE MoveName = ?').get(n.MoveName) as { Id: number } | undefined;
+                            if (secondTry) {
+                                nameId = secondTry.Id;
+                            } else {
+                                throw e;
+                            }
+                        }
+                    }
+
+                    // Add relationship
+                    db.prepare('INSERT INTO Move_Name (MoveId, NameId, Source, AuthorId) VALUES (?, ?, ?, ?)').run(id, nameId, n.Source || 'online', user.id);
+                }
+            }
+        })();
+
+        res.json({ message: 'Move updated successfully' });
+    } catch (error) {
+        console.error('Update move error:', error);
+        res.status(500).json({ error: 'Failed to update move' });
     }
 });
 

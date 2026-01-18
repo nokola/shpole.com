@@ -2,6 +2,7 @@
     import { page } from "$app/state";
     import { onMount } from "svelte";
     import { moves as movesApi } from "$lib/api";
+    import { currentUser } from "$lib/stores";
 
     interface MoveDetail {
         Id: number;
@@ -76,6 +77,8 @@
 
     // Filter out the main display name from "Also Known As" to avoid duplication
     let alternateNames = $derived(names.filter((n) => n.MoveName !== displayName));
+
+    let canEdit = $derived($currentUser?.role === "moderator" || $currentUser?.role === "admin");
 </script>
 
 <svelte:head>
@@ -92,9 +95,29 @@
         <a href="/" class="back-link">← Back to moves</a>
 
         <header class="move-header">
-            <h1>{displayName}</h1>
-            {#if move.MoveTypeName}
-                <span class="move-type">{move.MoveTypeName}</span>
+            <div class="header-main">
+                <h1>{displayName}</h1>
+                {#if move.MoveTypeName}
+                    <span class="move-type">{move.MoveTypeName}</span>
+                {/if}
+            </div>
+            {#if canEdit}
+                <a href="/m/{move.Slug}/edit" class="edit-link">
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="feather feather-edit-2"
+                        ><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg
+                    >
+                    <span>Edit Move</span>
+                </a>
             {/if}
         </header>
 
@@ -242,6 +265,10 @@
 
     .move-header {
         margin-bottom: 2rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
     }
 
     .move-header h1 {
@@ -258,6 +285,34 @@
         border-radius: 1rem;
         font-size: 0.85rem;
         color: hsl(var(--shpole-text-muted));
+    }
+
+    .edit-link {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: hsl(var(--shpole-bg-secondary));
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        color: hsl(var(--shpole-text));
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        border: 1px solid hsl(var(--shpole-border));
+    }
+
+    .edit-link:hover {
+        background: hsl(var(--shpole-primary));
+        color: white;
+        border-color: transparent;
+    }
+
+    @media (max-width: 600px) {
+        .move-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
     }
 
     .section {

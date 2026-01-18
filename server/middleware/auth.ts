@@ -8,6 +8,7 @@ export interface AuthRequest extends Request {
         id: number;
         email: string;
         username: string | null;
+        role: string;
     };
 }
 
@@ -24,6 +25,7 @@ export function authenticateToken(req: AuthRequest, res: Response, next: NextFun
             id: number;
             email: string;
             username: string | null;
+            role: string;
         };
         req.user = decoded;
         next();
@@ -42,6 +44,7 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
                 id: number;
                 email: string;
                 username: string | null;
+                role: string;
             };
             req.user = decoded;
         } catch (err) {
@@ -51,9 +54,9 @@ export function optionalAuth(req: AuthRequest, res: Response, next: NextFunction
     next();
 }
 
-export function generateToken(user: { id: number; email: string; username: string | null }) {
+export function generateToken(user: { id: number; email: string; username: string | null; role: string }) {
     return jwt.sign(
-        { id: user.id, email: user.email, username: user.username },
+        { id: user.id, email: user.email, username: user.username, role: user.role },
         JWT_SECRET,
         { expiresIn: '7d' }
     );

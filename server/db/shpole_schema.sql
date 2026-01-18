@@ -64,25 +64,27 @@ CREATE TABLE IF NOT EXISTS MoveNames (
 
 CREATE TABLE IF NOT EXISTS Moves (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
-    
-    -- PDC (Pole Dance Community) data
+
+    ShpoleName TEXT,
+
+    -- PDC (Pole Dance Community) data, if any
     PdcName TEXT,
     PdcLevel INTEGER CHECK (PdcLevel BETWEEN 1 AND 6),
     
-    -- IPSF (International Pole Sports Federation) data
+    -- IPSF (International Pole Sports Federation) data, if any
     IpsfCode TEXT,
     IpsfName TEXT,
     IpsfValue REAL CHECK (IpsfValue BETWEEN 0 AND 1),
     IpsfCriteria TEXT,
     IpsfType INTEGER, -- 0 = flexibility, 1 = strength, etc.
     
-    -- POSA data
+    -- POSA data, if any
     PosaCode TEXT,
     PosaName TEXT,
     PosaValue REAL CHECK (PosaValue BETWEEN 0 AND 1),
     PosaCriteria TEXT,
     
-    -- PSO data
+    -- PSO data, if any
     PsoLevel INTEGER,
     
     -- General requirements (1-5 scale)
