@@ -142,6 +142,19 @@
             </div>
         </section>
 
+        {#if move.move.GripTypeId}
+            <section class="section">
+                <h2>Grip</h2>
+                <div class="grip-info">
+                    {#if move.move.GripSlug}
+                        <a href="/m/{move.move.GripSlug}">{move.move.GripName || "Link"}</a>
+                    {:else}
+                        <span>{move.move.GripName || move.move.GripTypeId}</span>
+                    {/if}
+                </div>
+            </section>
+        {/if}
+
         <section class="section">
             <h2>Videos</h2>
             <ul class="videos-list">
@@ -368,6 +381,16 @@
         color: hsl(var(--shpole-text));
         line-height: 1.6;
         white-space: pre-wrap;
+    }
+
+    .grip-info a {
+        color: hsl(var(--shpole-primary));
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .grip-info a:hover {
+        text-decoration: underline;
     }
 
     .move-list,

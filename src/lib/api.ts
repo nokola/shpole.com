@@ -76,7 +76,7 @@ export const moves = {
         fetchAPI<{ types: Array<{ Id: number; Name: string }> }>('/moves/types'),
 
     getSimpleList: () =>
-        fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string }> }>('/moves/simple-list'),
+        fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string; MoveTypeId: number | null }> }>('/moves/simple-list'),
 
     create: (data: { ShpoleName: string; ShpoleLevel?: number; videoUrl: string }, token: string) =>
         fetchAPI<{ message: string }>('/moves', {
@@ -140,6 +140,8 @@ export interface MoveDetail {
         MoveTypeId: number | null;
         IsInvert: number;
         GripTypeId: number | null;
+        GripName: string | null;
+        GripSlug: string | null;
         Info: string | null;
         ThumbnailUrl: string | null;
         Status: number;

@@ -14,7 +14,11 @@
     let moveData = $state<any>(null);
     let names = $state<Array<{ MoveName: string; Source: string }>>([]);
     let moveTypes = $state<Array<{ Id: number; Name: string }>>([]);
-    let allMoves = $state<Array<{ Id: number; PdcName: string | null; ShpoleName: string }>>([]);
+    let allMoves = $state<Array<{ Id: number; PdcName: string | null; ShpoleName: string; MoveTypeId: number | null }>>(
+        [],
+    );
+
+    let gripTypeId = $derived(moveTypes.find((t) => t.Name.toLowerCase() === "grip")?.Id);
 
     onMount(async () => {
         // Redirect if not authorized
@@ -275,7 +279,7 @@
                         <select id="gripType" bind:value={moveData.GripTypeId}>
                             <option value={null}>None</option>
                             {#each allMoves as m}
-                                {#if m.Id !== moveData.Id}
+                                {#if m.Id !== moveData.Id && m.MoveTypeId === gripTypeId}
                                     <option value={m.Id}>{m.ShpoleName}</option>
                                 {/if}
                             {/each}

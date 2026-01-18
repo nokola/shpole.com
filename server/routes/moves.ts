@@ -33,6 +33,8 @@ interface MoveDetailRow extends MoveRow {
     PosaCriteria: string | null;
     PsoLevel: number | null;
     GripTypeId: number | null;
+    GripName?: string | null;
+    GripSlug?: string | null;
     IsInvert: number;
     MoveTypeId: number | null;
     AuthorId: number | null;
@@ -95,7 +97,7 @@ router.get('/types', (req, res) => {
 // Get simple list of moves (for dropdowns)
 router.get('/simple-list', (req, res) => {
     try {
-        const moves = db.prepare('SELECT Id, PdcName, ShpoleName FROM Moves ORDER BY ShpoleName ASC').all();
+        const moves = db.prepare('SELECT Id, PdcName, ShpoleName, MoveTypeId FROM Moves ORDER BY ShpoleName ASC').all();
         res.json({ moves });
     } catch (error) {
         console.error('Get simple list error:', error);
@@ -113,11 +115,21 @@ router.get('/:slug', (req, res) => {
                 m.*,
                 mt.Name as MoveTypeName,
                 mn.Slug,
-                m_n.Source
+                m_n.Source,
+                gm.ShpoleName as GripName,
+                (
+                    SELECT mn_g.Slug 
+                    FROM Move_Name m_n_g 
+                    JOIN MoveNames mn_g ON m_n_g.NameId = mn_g.Id 
+                    WHERE m_n_g.MoveId = m.GripTypeId 
+                    ORDER BY CASE WHEN m_n_g.Source = 'online' THEN 0 ELSE 1 END 
+                    LIMIT 1
+                ) as GripSlug
             FROM Moves m
             LEFT JOIN MoveTypes mt ON m.MoveTypeId = mt.Id
             LEFT JOIN Move_Name m_n ON m.Id = m_n.MoveId
             LEFT JOIN MoveNames mn ON m_n.NameId = mn.Id
+            LEFT JOIN Moves gm ON m.GripTypeId = gm.Id
             WHERE mn.Slug = ?
             ORDER BY CASE WHEN m_n.Source = 'online' THEN 0 ELSE 1 END, m_n.Id ASC
             LIMIT 1
