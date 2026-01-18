@@ -40,9 +40,9 @@
         return `${value}★`;
     }
 
-    onMount(async () => {
+    async function loadMove(slug: string) {
+        loading = true;
         try {
-            const slug = (page.params as { moveSlug: string }).moveSlug;
             const data = await movesApi.get(slug);
             move = data;
             names = data.names || [];
@@ -53,6 +53,13 @@
             error = e instanceof Error ? e.message : "Failed to load move";
         } finally {
             loading = false;
+        }
+    }
+
+    $effect(() => {
+        const slug = (page.params as { moveSlug: string }).moveSlug;
+        if (slug) {
+            loadMove(slug);
         }
     });
 
