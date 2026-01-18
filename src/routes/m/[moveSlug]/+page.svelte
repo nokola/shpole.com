@@ -1,26 +1,8 @@
 <script lang="ts">
     import { page } from "$app/state";
     import { onMount } from "svelte";
-    import { moves as movesApi } from "$lib/api";
+    import { moves as movesApi, type MoveDetail } from "$lib/api";
     import { currentUser } from "$lib/stores";
-
-    interface MoveDetail {
-        Id: number;
-        Slug: string;
-        PdcName: string | null;
-        ShpoleName: string;
-        PdcLevel: number | null;
-        ShpoleLevel: number | null;
-        IpsfCode: string | null;
-        IpsfName: string | null;
-        PosaCode: string | null;
-        PosaName: string | null;
-        StrengthReq: number | null;
-        FlexibilityReq: number | null;
-        TechniqueReq: number | null;
-        Info: string | null;
-        MoveTypeName: string | null;
-    }
 
     interface MoveName {
         MoveName: string;
@@ -62,7 +44,7 @@
         try {
             const slug = (page.params as { moveSlug: string }).moveSlug;
             const data = await movesApi.get(slug);
-            move = data.move;
+            move = data;
             names = data.names || [];
             videos = data.videos || [];
             prerequisites = data.prerequisites || [];
@@ -74,7 +56,7 @@
         }
     });
 
-    let displayName = $derived(move?.ShpoleName || move?.Slug || "Move");
+    let displayName = $derived(move?.move.ShpoleName || move?.move.Slug || "Move");
 
     // Filter out the main display name from "Also Known As" to avoid duplication
     let alternateNames = $derived(names.filter((n) => n.MoveName !== displayName));
@@ -98,12 +80,12 @@
         <header class="move-header">
             <div class="header-main">
                 <h1>{displayName}</h1>
-                {#if move.MoveTypeName}
-                    <span class="move-type">{move.MoveTypeName}</span>
+                {#if move.move.MoveTypeName}
+                    <span class="move-type">{move.move.MoveTypeName}</span>
                 {/if}
             </div>
             {#if canEdit}
-                <a href="/m/{move.Slug}/edit" class="edit-link">
+                <a href="/m/{move.move.Slug}/edit" class="edit-link">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         width="18"
@@ -143,94 +125,88 @@
             <div class="requirements">
                 <div class="req-item">
                     <span class="req-label">Level</span>
-                    <span class="req-value">{move.ShpoleLevel ?? "–"}</span>
+                    <span class="req-value">{move.move.ShpoleLevel ?? "–"}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Strength</span>
-                    <span class="req-stars">{renderStars(move.StrengthReq)}</span>
+                    <span class="req-stars">{renderStars(move.move.StrengthReq)}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Flexibility</span>
-                    <span class="req-stars">{renderStars(move.FlexibilityReq)}</span>
+                    <span class="req-stars">{renderStars(move.move.FlexibilityReq)}</span>
                 </div>
                 <div class="req-item">
                     <span class="req-label">Technique</span>
-                    <span class="req-stars">{renderStars(move.TechniqueReq)}</span>
+                    <span class="req-stars">{renderStars(move.move.TechniqueReq)}</span>
                 </div>
             </div>
         </section>
 
-        {#if move.IpsfCode || move.PosaCode}
-            <section class="section">
-                <h2>Competition Codes</h2>
-                <div class="codes">
-                    {#if move.IpsfCode}
-                        <div class="code-item">
-                            <span class="code-org">IPSF:</span>
-                            {move.IpsfCode}
-                            {#if move.IpsfName}– {move.IpsfName}{/if}
-                        </div>
-                    {/if}
-                    {#if move.PosaCode}
-                        <div class="code-item">
-                            <span class="code-org">POSA:</span>
-                            {move.PosaCode}
-                            {#if move.PosaName}– {move.PosaName}{/if}
-                        </div>
-                    {/if}
+        <section class="section">
+            <h2>Videos</h2>
+            <ul class="videos-list">
+                {#each videos as video}
+                    <li>
+                        <a href={video.Url} target="_blank" rel="noopener">{video.Url}</a>
+                        {#if video.Credit}
+                            <span class="credit">– {video.Credit}</span>
+                        {/if}
+                    </li>
+                {/each}
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Description</h2>
+            <div class="info">{move.move.Info}</div>
+        </section>
+
+        <section class="section">
+            <h2>Prerequisites</h2>
+            <ul class="move-list">
+                {#each prerequisites as prereq}
+                    <li>
+                        <a href="/m/{prereq.Slug}">{prereq.PdcName || prereq.Slug}</a>
+                    </li>
+                {/each}
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Related Moves</h2>
+            <ul class="move-list">
+                {#each relatedMoves as related}
+                    <li>
+                        <a href="/m/{related.Slug}">{related.PdcName || related.Slug}</a>
+                        <span class="relation-type">({related.RelationType.replace("_", " ")})</span>
+                    </li>
+                {/each}
+            </ul>
+        </section>
+
+        <section class="section">
+            <h2>Competition Codes</h2>
+            <div class="codes">
+                <div class="code-item">
+                    <span class="code-org">IPSF:</span>
+                    {move.move.IpsfCode}
+                    {#if move.move.IpsfName}– {move.move.IpsfName}{/if}
                 </div>
-            </section>
-        {/if}
-
-        {#if move.Info}
-            <section class="section">
-                <h2>Description</h2>
-                <div class="info">{move.Info}</div>
-            </section>
-        {/if}
-
-        {#if prerequisites.length > 0}
-            <section class="section">
-                <h2>Prerequisites</h2>
-                <ul class="move-list">
-                    {#each prerequisites as prereq}
-                        <li>
-                            <a href="/m/{prereq.Slug}">{prereq.PdcName || prereq.Slug}</a>
-                        </li>
-                    {/each}
-                </ul>
-            </section>
-        {/if}
-
-        {#if relatedMoves.length > 0}
-            <section class="section">
-                <h2>Related Moves</h2>
-                <ul class="move-list">
-                    {#each relatedMoves as related}
-                        <li>
-                            <a href="/m/{related.Slug}">{related.PdcName || related.Slug}</a>
-                            <span class="relation-type">({related.RelationType.replace("_", " ")})</span>
-                        </li>
-                    {/each}
-                </ul>
-            </section>
-        {/if}
-
-        {#if videos.length > 0}
-            <section class="section">
-                <h2>Videos</h2>
-                <ul class="videos-list">
-                    {#each videos as video}
-                        <li>
-                            <a href={video.Url} target="_blank" rel="noopener">{video.Url}</a>
-                            {#if video.Credit}
-                                <span class="credit">– {video.Credit}</span>
-                            {/if}
-                        </li>
-                    {/each}
-                </ul>
-            </section>
-        {/if}
+                <div class="code-item">
+                    <span class="code-org">POSA:</span>
+                    {move.move.PosaCode}
+                    {#if move.move.PosaName}– {move.move.PosaName}{/if}
+                </div>
+                <div class="code-item">
+                    <span class="code-org">PDC Level:</span>
+                    {move.move.PdcLevel}
+                </div>
+                <div class="code-item">
+                    <span class="code-org">PSO Level:</span>
+                    {move.move.PsoLevel}
+                </div>
+            </div>
+        </section>
     {/if}
 </div>
 
