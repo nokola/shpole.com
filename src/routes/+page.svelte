@@ -101,24 +101,22 @@
     }
 
     // Check if search matches any name (primary or alt) for a move
-    function moveMatchesSearch(move: Move, query: string): { matches: boolean; matchesAltOnly: boolean } {
-        if (!query) return { matches: true, matchesAltOnly: false };
+    function moveMatchesSearch(move: Move, query: string): { matches: boolean; matchesAlt: boolean } {
+        if (!query) return { matches: true, matchesAlt: false };
         const q = query.toLowerCase();
-        const primaryName = move.ShpoleName.toLowerCase();
-        const primaryMatches = primaryName.includes(q);
+        const primaryMatches = move.ShpoleName.toLowerCase().includes(q);
 
-        if (primaryMatches) return { matches: true, matchesAltOnly: false };
-
-        // Check alt names
+        let matchesAlt = false;
         if (move.AlsoKnownAs) {
             const altNames = move.AlsoKnownAs.split(", ").map((n) => n.trim().toLowerCase());
             for (const alt of altNames) {
                 if (alt.includes(q)) {
-                    return { matches: true, matchesAltOnly: true };
+                    matchesAlt = true;
+                    break;
                 }
             }
         }
-        return { matches: false, matchesAltOnly: false };
+        return { matches: primaryMatches || matchesAlt, matchesAlt };
     }
 
     // Reactively update whether we need to force alt names display due to search
@@ -127,16 +125,16 @@
             searchForcesAltNames = false;
             return;
         }
-        // Check if any matching move only matches via alt name
-        let hasAltOnlyMatch = false;
+        // Force Detail/Flattened view if search matches ANY alias
+        let hasAltMatch = false;
         for (const move of movesList) {
-            const { matches, matchesAltOnly } = moveMatchesSearch(move, searchQuery);
-            if (matches && matchesAltOnly) {
-                hasAltOnlyMatch = true;
+            const m = moveMatchesSearch(move, searchQuery);
+            if (m.matches && m.matchesAlt) {
+                hasAltMatch = true;
                 break;
             }
         }
-        searchForcesAltNames = hasAltOnlyMatch;
+        searchForcesAltNames = hasAltMatch;
     });
 
     // Determine effective display mode (user choice or forced by search)
