@@ -79,7 +79,7 @@ export const moves = {
         fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string; MoveTypeId: number | null }> }>('/moves/simple-list'),
 
     create: (data: { ShpoleName: string; ShpoleLevel?: number; videoUrl: string }, token: string) =>
-        fetchAPI<{ message: string }>('/moves', {
+        fetchAPI<{ message: string, slug: string }>('/moves', {
             method: 'POST',
             body: JSON.stringify(data),
             token

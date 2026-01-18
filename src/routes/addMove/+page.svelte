@@ -9,6 +9,7 @@
     let loading = $state(false);
     let error = $state<string | null>(null);
     let success = $state(false);
+    let newMoveSlug = $state("");
 
     async function handleSubmit(e: SubmitEvent) {
         e.preventDefault();
@@ -24,7 +25,7 @@
             const token = $authStore.token;
             if (!token) throw new Error("Not signed in");
 
-            await movesApi.create(
+            const res = await movesApi.create(
                 {
                     ShpoleName: name,
                     ShpoleLevel: level ?? undefined,
@@ -33,6 +34,7 @@
                 token,
             );
 
+            newMoveSlug = res.slug;
             success = true;
         } catch (e) {
             error = e instanceof Error ? e.message : "Failed to add move";
@@ -63,7 +65,8 @@
                     notified when it's verified.
                 </p>
                 <div class="mt-8">
-                    <a href="/" class="back-home-btn">Back to Home</a>
+                    <a href="/m/{newMoveSlug}" class="back-home-btn">View Move</a>
+                    <a href="/" class="back-home-link">Back to Home</a>
                 </div>
             </div>
         {:else}
@@ -271,5 +274,17 @@
         text-decoration: none;
         font-weight: 700;
         border-radius: 8px;
+        margin-right: 1rem;
+    }
+
+    .back-home-link {
+        display: inline-block;
+        color: hsl(var(--shpole-text-muted));
+        text-decoration: underline;
+        font-size: 0.9rem;
+    }
+
+    .back-home-link:hover {
+        color: hsl(var(--shpole-primary));
     }
 </style>

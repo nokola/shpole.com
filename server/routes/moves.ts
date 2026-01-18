@@ -331,7 +331,7 @@ router.post('/', authenticateToken, (req: AuthRequest, res) => {
             db.prepare('INSERT INTO Move_Video (MoveId, VideoId) VALUES (?, ?)').run(moveId, videoId);
         })();
 
-        res.status(201).json({ message: 'Move submitted successfully' });
+        res.status(201).json({ message: 'Move submitted successfully', slug });
     } catch (error) {
         console.error('Create move error:', error);
         res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to create move' });
