@@ -2,6 +2,7 @@
     import { onMount } from "svelte";
     import { authStore, isAuthenticated } from "$lib/stores";
     import { moves as movesApi } from "$lib/api";
+    import Dropdown from "$lib/components/Dropdown.svelte";
 
     interface Move {
         Id: number;
@@ -263,33 +264,26 @@
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
-        <div class="level-filter-wrapper">
-            <button
-                class="view-toggle level-filter-btn"
-                class:has-filter={selectedLevels.size > 0}
-                onclick={() => (levelDropdownOpen = !levelDropdownOpen)}
-            >
-                🎯 {getLevelButtonLabel()}
-            </button>
-            {#if levelDropdownOpen}
-                <!-- svelte-ignore a11y_click_events_have_key_events -->
-                <!-- svelte-ignore a11y_no_static_element_interactions -->
-                <div class="level-dropdown-backdrop" onclick={() => (levelDropdownOpen = false)}></div>
-                <div class="level-dropdown">
-                    {#each [1, 2, 3, 4, 5, 6] as level}
-                        <button
-                            type="button"
-                            class="level-option"
-                            class:active={selectedLevels.has(level)}
-                            onclick={() => toggleLevel(level)}
-                        >
-                            <span class="level-number">{level}</span>
-                            <span class="level-label">{levelLabels[level]}</span>
-                        </button>
-                    {/each}
-                </div>
-            {/if}
-        </div>
+        <Dropdown bind:open={levelDropdownOpen} class="level-filter-wrapper">
+            {#snippet trigger()}
+                <button class="view-toggle level-filter-btn" class:has-filter={selectedLevels.size > 0}>
+                    🎯 {getLevelButtonLabel()}
+                </button>
+            {/snippet}
+            <div class="level-dropdown">
+                {#each [1, 2, 3, 4, 5, 6] as level}
+                    <button
+                        type="button"
+                        class="level-option"
+                        class:active={selectedLevels.has(level)}
+                        onclick={() => toggleLevel(level)}
+                    >
+                        <span class="level-number">{level}</span>
+                        <span class="level-label">{levelLabels[level]}</span>
+                    </button>
+                {/each}
+            </div>
+        </Dropdown>
     </header>
 
     {#if loading}
@@ -560,9 +554,7 @@
     }
 
     /* Level filter styles */
-    .level-filter-wrapper {
-        position: relative;
-        display: inline-block;
+    :global(.level-filter-wrapper) {
         margin-left: 0.5rem;
     }
 
@@ -571,26 +563,7 @@
         border-color: hsl(var(--shpole-primary));
     }
 
-    .level-dropdown-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        z-index: 99;
-    }
-
     .level-dropdown {
-        position: absolute;
-        top: calc(100% + 4px);
-        left: 0;
-        z-index: 100;
-        min-width: 160px;
-        background: hsl(var(--shpole-surface));
-        border: 1px solid hsl(var(--shpole-border));
-        border-radius: 8px;
-        box-shadow: 0 4px 12px hsl(0 0% 0% / 0.2);
-        padding: 0.35rem;
         display: flex;
         flex-direction: column;
         gap: 2px;
