@@ -648,6 +648,12 @@
                 {/if}
             </tbody>
         </table>
+        {#if searchQuery}
+            <div class="text-center p-2 pt-4">
+                <p>Didn't find what you're looking for?</p>
+                <a href="/addMove" class="add-move-btn">Add New Move</a>
+            </div>
+        {/if}
     {/if}
 </div>
 
@@ -995,5 +1001,20 @@
         color: hsl(0, 0%, 10%);
         padding: 0 1px;
         border-radius: 2px;
+    }
+
+    .add-move-btn {
+        display: inline-block;
+        margin-top: 1rem;
+        padding: 0.6rem 1.2rem;
+        background: hsl(var(--shpole-primary));
+        color: hsl(var(--shpole-bg));
+        text-decoration: none;
+        font-weight: 700;
+        border-radius: 8px;
+    }
+
+    .add-move-btn:hover {
+        transform: scale(1.05);
     }
 </style>

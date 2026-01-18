@@ -256,4 +256,66 @@ router.put('/:id', authenticateToken, (req: AuthRequest, res) => {
     }
 });
 
+// Create new move
+router.post('/', authenticateToken, (req: AuthRequest, res) => {
+    const user = req.user!;
+    const { ShpoleName, ShpoleLevel, videoUrl } = req.body;
+
+    if (!ShpoleName || !videoUrl) {
+        return res.status(400).json({ error: 'Name and Video URL are required' });
+    }
+
+    const slug = ShpoleName.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+
+    try {
+        db.transaction(() => {
+            // Check for duplicate name
+            const existingMove = db.prepare('SELECT Id FROM Moves WHERE ShpoleName = ?').get(ShpoleName);
+
+            if (existingMove) {
+                throw new Error('A move with this name already exists');
+            }
+
+            // 1. Create or get existing MoveName
+            let nameId: number | bigint;
+            const existingName = db.prepare('SELECT Id FROM MoveNames WHERE MoveName = ?').get(ShpoleName) as { Id: number } | undefined;
+
+            if (existingName) {
+                nameId = existingName.Id;
+            } else {
+                // Before creating, make sure the SLUG doesn't exist either
+                const existingSlug = db.prepare('SELECT Id FROM MoveNames WHERE Slug = ?').get(slug);
+                if (existingSlug) {
+                    throw new Error('A move with a similar URL already exists. Please contact an administrator.');
+                }
+
+                const nameResult = db.prepare('INSERT INTO MoveNames (MoveName, Slug, AuthorId) VALUES (?, ?, ?)').run(ShpoleName, slug, user.id);
+                nameId = nameResult.lastInsertRowid;
+            }
+
+            // 2. Create Video
+            const videoResult = db.prepare('INSERT INTO Videos (Url, AuthorId) VALUES (?, ?)').run(videoUrl, user.id);
+            const videoId = videoResult.lastInsertRowid;
+
+            // 3. Create Move
+            const moveResult = db.prepare(`
+                INSERT INTO Moves (ShpoleName, ShpoleLevel, Status, AuthorId)
+                VALUES (?, ?, ?, ?)
+            `).run(ShpoleName, ShpoleLevel || null, 0, user.id);
+            const moveId = moveResult.lastInsertRowid;
+
+            // 4. Create Junctions
+            db.prepare('INSERT INTO Move_Name (MoveId, NameId, Source, AuthorId) VALUES (?, ?, ?, ?)').run(moveId, nameId, 'online', user.id);
+            db.prepare('INSERT INTO Move_Video (MoveId, VideoId) VALUES (?, ?)').run(moveId, videoId);
+        })();
+
+        res.status(201).json({ message: 'Move submitted successfully' });
+    } catch (error) {
+        console.error('Create move error:', error);
+        res.status(400).json({ error: error instanceof Error ? error.message : 'Failed to create move' });
+    }
+});
+
 export default router;

@@ -57,11 +57,19 @@
             const token = $authStore.token;
             if (!token) throw new Error("Not authenticated");
 
+            // Ensure ShpoleName is always included in the names list as source: online (and first)
+            const filteredNames = names.filter(
+                (n) => n.MoveName && n.MoveName.toLowerCase() !== moveData.ShpoleName.toLowerCase(),
+            );
+            const finalNames = moveData.ShpoleName
+                ? [{ MoveName: moveData.ShpoleName, Source: "online" }, ...filteredNames]
+                : filteredNames;
+
             await movesApi.update(
                 moveData.Id,
                 {
                     ...moveData,
-                    names,
+                    names: finalNames,
                 },
                 token,
             );

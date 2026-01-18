@@ -76,7 +76,14 @@ export const moves = {
         fetchAPI<{ types: Array<{ Id: number; Name: string }> }>('/moves/types'),
 
     getSimpleList: () =>
-        fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string }> }>('/moves/simple-list')
+        fetchAPI<{ moves: Array<{ Id: number; PdcName: string | null; ShpoleName: string }> }>('/moves/simple-list'),
+
+    create: (data: { ShpoleName: string; ShpoleLevel?: number; videoUrl: string }, token: string) =>
+        fetchAPI<{ message: string }>('/moves', {
+            method: 'POST',
+            body: JSON.stringify(data),
+            token
+        })
 };
 
 // Contributors
