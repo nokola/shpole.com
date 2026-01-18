@@ -13,6 +13,7 @@
         strength: number | null;
         flexibility: number | null;
         technique: number | null;
+        status: number;
         isPrimary: boolean;
     }
 
@@ -24,6 +25,7 @@
         strength: number | null;
         flexibility: number | null;
         technique: number | null;
+        status: number;
     }
 
     let movesList = $state<Move[]>([]);
@@ -233,6 +235,7 @@
                     strength: move.StrengthReq,
                     flexibility: move.FlexibilityReq,
                     technique: move.TechniqueReq,
+                    status: move.Status,
                     isPrimary: true,
                 });
             }
@@ -256,6 +259,7 @@
                             strength: move.StrengthReq,
                             flexibility: move.FlexibilityReq,
                             technique: move.TechniqueReq,
+                            status: move.Status,
                             isPrimary: false,
                         });
                     }
@@ -324,6 +328,7 @@
                 strength: move.StrengthReq,
                 flexibility: move.FlexibilityReq,
                 technique: move.TechniqueReq,
+                status: move.Status,
             });
         }
 
@@ -590,7 +595,8 @@
                             <td class="leading-5 text-md">
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}>
                                     {#if row.isPrimary}
-                                        {@html highlightMatch(row.name, searchQuery)}
+                                        {@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
+                                            🚧{/if}
                                     {:else}
                                         <span class="text-[hsl(var(--shpole-text-muted))]"
                                             >{@html highlightMatch(row.name, searchQuery)}</span
@@ -615,7 +621,8 @@
                         <tr class="clickable-row" onclick={() => navigateToMove(row.slug)}>
                             <td class="leading-5 text-md">
                                 <a href="/m/{row.slug}" class="move-link" onclick={(e) => e.stopPropagation()}
-                                    >{@html highlightMatch(row.name, searchQuery)}</a
+                                    >{@html highlightMatch(row.name, searchQuery)}{#if row.status === 0}
+                                        🚧{/if}</a
                                 >
                             </td>
                             <td class="level">{row.level ?? "–"}</td>
