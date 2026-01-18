@@ -52,6 +52,7 @@
     }
 
     let useFlattenedMoves = $state(false);
+    let showDrafts = $state(true);
 
     // Level filter state
     const levelLabels: Record<number, string> = {
@@ -199,7 +200,9 @@
             if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
             // Search filter
             const { matches } = moveMatchesSearch(move, searchQuery);
-            return matches;
+            if (!matches) return false;
+            if (!showDrafts && move.Status === 0) return false;
+            return true;
         });
 
         for (const move of filteredMoves) {
@@ -309,7 +312,9 @@
             if (!matchesStatFilter(move.TechniqueReq, selectedTechnique)) return false;
             // Search filter
             const { matches } = moveMatchesSearch(move, searchQuery);
-            return matches;
+            if (!matches) return false;
+            if (!showDrafts && move.Status === 0) return false;
+            return true;
         });
 
         for (const move of filteredMoves) {
@@ -423,8 +428,15 @@
 <div class="moves-page px-2">
     <header class="pl-1 pb-4">
         <h1>{movesList.length > 0 ? movesList.length : "335"} Pole Moves</h1>
-        <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
+        <button
+            class="view-toggle"
+            class:has-filter={useFlattenedMoves}
+            onclick={() => (useFlattenedMoves = !useFlattenedMoves)}
+        >
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
+        </button>
+        <button class="view-toggle" class:has-filter={!showDrafts} onclick={() => (showDrafts = !showDrafts)}>
+            {showDrafts ? "Showing Drafts🚧" : "Excluding Drafts"}
         </button>
         <div class="search-box-wrapper w-full pr-0.5">
             <input
@@ -793,6 +805,11 @@
 
     .view-toggle:hover {
         background: hsl(var(--shpole-bg-secondary));
+        border-color: hsl(var(--shpole-primary));
+    }
+
+    .view-toggle.has-filter {
+        background: hsl(var(--shpole-primary) / 0.15);
         border-color: hsl(var(--shpole-primary));
     }
 
