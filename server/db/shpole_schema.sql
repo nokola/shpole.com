@@ -12,6 +12,11 @@ CREATE TABLE IF NOT EXISTS Principals (
     UserName TEXT NOT NULL UNIQUE,
     Email TEXT NOT NULL UNIQUE,
     PasswordHash TEXT NOT NULL,
+    Role TEXT NOT NULL DEFAULT 'user' CHECK (Role IN ('user', 'moderator', 'admin')),
+    -- Permissions:
+    -- user:      vote, suggest names, add videos, add new moves (Status=0 unverified)
+    -- moderator: + edit moves, set Status=1 (community verified), change move names
+    -- admin:     + everything (set Status=2 official, manage users, delete content)
     CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP
 );
 
