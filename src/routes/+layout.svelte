@@ -66,7 +66,7 @@
 </svelte:head>
 
 <!-- Navigation -->
-<nav>
+<nav class="relative z-200">
   <div class="max-w-4xl px-4 mx-auto py-4">
     <div class="relative h-10">
       <!-- Centered logo (absolute to center on full screen) -->
