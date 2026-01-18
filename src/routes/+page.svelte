@@ -101,6 +101,7 @@
     let searchQuery = $state("");
     let searchForcesAltNames = $state(false); // True when search matches an alt name while in grouped mode
     let searchInputEl: HTMLInputElement | null = $state(null);
+    let savedScrollPosition: number | null = null; // Store scroll position before search focus
 
     // Check if a search query matches a string (case-insensitive)
     function matchesSearch(text: string, query: string): boolean {
@@ -362,15 +363,35 @@
         return rows;
     });
 
-    onMount(async () => {
-        try {
-            const data = await movesApi.list();
-            movesList = data.moves;
-        } catch (e) {
-            error = e instanceof Error ? e.message : "Failed to load moves";
-        } finally {
-            loading = false;
-        }
+    onMount(() => {
+        // Load moves data
+        (async () => {
+            try {
+                const data = await movesApi.list();
+                movesList = data.moves;
+            } catch (e) {
+                error = e instanceof Error ? e.message : "Failed to load moves";
+            } finally {
+                loading = false;
+            }
+        })();
+
+        // Handle browser back to restore scroll position after search focus
+        const handlePopState = (event: PopStateEvent) => {
+            if (event.state?.scrollPosition !== undefined) {
+                // Restore scroll position when navigating back from search
+                window.scrollTo({ top: event.state.scrollPosition, behavior: "instant" });
+                // Blur the search input if focused
+                if (searchInputEl && document.activeElement === searchInputEl) {
+                    searchInputEl.blur();
+                }
+            }
+        };
+
+        window.addEventListener("popstate", handlePopState);
+        return () => {
+            window.removeEventListener("popstate", handlePopState);
+        };
     });
 
     function navigateToMove(slug: string) {
@@ -488,8 +509,15 @@
                 placeholder="🔍 Search moves..."
                 bind:value={searchQuery}
                 onfocus={(e) => {
-                    // On mobile, scroll so search bar is at very top of viewport
+                    // On mobile, save scroll position and push history state for back navigation
                     if (window.innerWidth < 768) {
+                        const currentScroll = window.scrollY;
+                        // Replace current state with scroll position (so popstate can restore it)
+                        history.replaceState({ scrollPosition: currentScroll }, "");
+                        // Push a new state for the search view
+                        history.pushState({ searchActive: true }, "");
+
+                        // Scroll so search bar is at very top of viewport
                         const inputEl = e.currentTarget;
                         const rect = inputEl.getBoundingClientRect();
                         const scrollTop = window.scrollY + rect.top - 10; // 10px padding from top
