@@ -222,8 +222,8 @@
             }
 
             // Add primary name row if it matches OR if any alt name matches (for context)
-            // Use move slug as part of key to allow same name under different moves
-            const primaryKey = `${move.Slug}:${primaryName.toLowerCase()}`;
+            // Use move Id as part of key to allow same name under different moves
+            const primaryKey = `${move.Id}:${primaryName.toLowerCase()}`;
             const shouldShowPrimary = primaryMatches || hasMatchingAlt;
             if (shouldShowPrimary && !seenNames.has(primaryKey)) {
                 seenNames.add(primaryKey);
@@ -247,7 +247,7 @@
                     .map((n) => n.trim())
                     .filter((n) => n);
                 for (const altName of altNames) {
-                    const altKey = `${move.Slug}:${altName.toLowerCase()}`;
+                    const altKey = `${move.Id}:${altName.toLowerCase()}`;
                     const altMatches = !searchQuery || matchesSearch(altName, searchQuery);
                     if (altMatches && !seenNames.has(altKey)) {
                         seenNames.add(altKey);
