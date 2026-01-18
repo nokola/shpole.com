@@ -432,75 +432,6 @@
         <button class="view-toggle" onclick={() => (useFlattenedMoves = !useFlattenedMoves)}>
             {useFlattenedMoves ? "📝 Primary+Alt Names" : "📋 Primary Names"}
         </button>
-        <Dropdown bind:open={levelDropdownOpen} class="level-filter-wrapper">
-            {#snippet trigger()}
-                <button class="view-toggle level-filter-btn" class:has-filter={selectedLevels.size > 0}>
-                    🎯 {getLevelButtonLabel()}
-                </button>
-            {/snippet}
-            <div class="level-dropdown">
-                {#each [1, 2, 3, 4, 5, 6] as level}
-                    <button
-                        type="button"
-                        class="level-option"
-                        class:active={selectedLevels.has(level)}
-                        onclick={() => toggleLevel(level)}
-                    >
-                        <span class="level-number">{level}</span>
-                        <span class="level-label">{levelLabels[level]}</span>
-                    </button>
-                {/each}
-            </div>
-        </Dropdown>
-        <br />
-        <Dropdown bind:open={statsDropdownOpen}>
-            {#snippet trigger()}
-                <button class="view-toggle stats-filter-btn" class:has-filter={hasStatsFilter()}>
-                    💪 {getStatsButtonLabel()}
-                </button>
-            {/snippet}
-            <div class="stats-dropdown">
-                <div class="stat-row">
-                    <span class="stat-label"><strong>STR</strong>ength</span>
-                    <div class="star-buttons">
-                        {#each [1, 2, 3, 4, 5] as star}
-                            <button
-                                type="button"
-                                class="star-btn"
-                                class:active={selectedStrength.has(star)}
-                                onclick={() => toggleStat("strength", star)}>★</button
-                            >
-                        {/each}
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label"><strong>FLEX</strong>ibility</span>
-                    <div class="star-buttons">
-                        {#each [1, 2, 3, 4, 5] as star}
-                            <button
-                                type="button"
-                                class="star-btn"
-                                class:active={selectedFlexibility.has(star)}
-                                onclick={() => toggleStat("flexibility", star)}>★</button
-                            >
-                        {/each}
-                    </div>
-                </div>
-                <div class="stat-row">
-                    <span class="stat-label"><strong>TECH</strong>nical</span>
-                    <div class="star-buttons">
-                        {#each [1, 2, 3, 4, 5] as star}
-                            <button
-                                type="button"
-                                class="star-btn"
-                                class:active={selectedTechnique.has(star)}
-                                onclick={() => toggleStat("technique", star)}>★</button
-                            >
-                        {/each}
-                    </div>
-                </div>
-            </div>
-        </Dropdown>
         <div class="search-box-wrapper">
             <input
                 bind:this={searchInputEl}
@@ -528,6 +459,76 @@
             {#if searchQuery}
                 <button class="search-clear" onclick={() => (searchQuery = "")}>✕</button>
             {/if}
+        </div>
+        <div class="filter-row">
+            <Dropdown bind:open={levelDropdownOpen} class="level-filter-wrapper">
+                {#snippet trigger()}
+                    <button class="view-toggle level-filter-btn" class:has-filter={selectedLevels.size > 0}>
+                        🎯 {getLevelButtonLabel()}
+                    </button>
+                {/snippet}
+                <div class="level-dropdown">
+                    {#each [1, 2, 3, 4, 5, 6] as level}
+                        <button
+                            type="button"
+                            class="level-option"
+                            class:active={selectedLevels.has(level)}
+                            onclick={() => toggleLevel(level)}
+                        >
+                            <span class="level-number">{level}</span>
+                            <span class="level-label">{levelLabels[level]}</span>
+                        </button>
+                    {/each}
+                </div>
+            </Dropdown>
+            <Dropdown bind:open={statsDropdownOpen}>
+                {#snippet trigger()}
+                    <button class="view-toggle stats-filter-btn" class:has-filter={hasStatsFilter()}>
+                        💪 {getStatsButtonLabel()}
+                    </button>
+                {/snippet}
+                <div class="stats-dropdown">
+                    <div class="stat-row">
+                        <span class="stat-label"><strong>STR</strong>ength</span>
+                        <div class="star-buttons">
+                            {#each [1, 2, 3, 4, 5] as star}
+                                <button
+                                    type="button"
+                                    class="star-btn"
+                                    class:active={selectedStrength.has(star)}
+                                    onclick={() => toggleStat("strength", star)}>★</button
+                                >
+                            {/each}
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><strong>FLEX</strong>ibility</span>
+                        <div class="star-buttons">
+                            {#each [1, 2, 3, 4, 5] as star}
+                                <button
+                                    type="button"
+                                    class="star-btn"
+                                    class:active={selectedFlexibility.has(star)}
+                                    onclick={() => toggleStat("flexibility", star)}>★</button
+                                >
+                            {/each}
+                        </div>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label"><strong>TECH</strong>nical</span>
+                        <div class="star-buttons">
+                            {#each [1, 2, 3, 4, 5] as star}
+                                <button
+                                    type="button"
+                                    class="star-btn"
+                                    class:active={selectedTechnique.has(star)}
+                                    onclick={() => toggleStat("technique", star)}>★</button
+                                >
+                            {/each}
+                        </div>
+                    </div>
+                </div>
+            </Dropdown>
         </div>
     </header>
 
@@ -811,11 +812,6 @@
         border-color: hsl(var(--shpole-primary));
     }
 
-    /* Level filter styles */
-    :global(.level-filter-wrapper) {
-        margin-left: 0.5rem;
-    }
-
     .level-filter-btn.has-filter {
         background: hsl(var(--shpole-primary) / 0.15);
         border-color: hsl(var(--shpole-primary));
@@ -936,6 +932,14 @@
         background: hsl(var(--shpole-primary) / 0.2);
     }
 
+    /* Filter row for Level and Stats buttons */
+    .filter-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
     /* Search box styles */
     .search-box-wrapper {
         display: flex;
@@ -984,16 +988,6 @@
     .search-clear:hover {
         color: hsl(var(--shpole-text));
         background: hsl(var(--shpole-bg-secondary));
-    }
-
-    .search-mode-notice {
-        margin-top: 0.5rem;
-        padding: 0.35rem 0.6rem;
-        font-size: 0.75rem;
-        color: hsl(var(--shpole-primary));
-        background: hsl(var(--shpole-primary) / 0.1);
-        border-radius: 4px;
-        display: inline-block;
     }
 
     /* Search highlight */
