@@ -224,7 +224,7 @@
         <div class="flex items-center gap-3 flex-wrap mb-2">
             {#if move.move.MoveTypeName}
                 <span
-                    class="inline-block px-3 py-1.5 bg-amber-500/90 rounded-full text-xs font-bold uppercase tracking-wide text-black"
+                    class="inline-block px-2.5 py-0.5 bg-amber-500 rounded-full text-[0.7rem] font-bold uppercase tracking-wide text-black"
                 >
                     {move.move.MoveTypeName}
                 </span>
@@ -331,13 +331,12 @@
                     href={videos[0].Url}
                     target="_blank"
                     rel="noopener"
-                    class="inline-flex items-center gap-2 mt-2 text-[hsl(var(--shpole-primary))] no-underline font-semibold text-base hover:underline"
+                    class="flex items-center justify-center gap-2 mt-3 text-[hsl(var(--shpole-primary))] text-sm"
+                    style="text-decoration: none"
                 >
-                    🎬 Watch Tutorial
+                    🎬<span class="underline">Watch Tutorial</span>
                     {#if videos[0].Credit}
-                        <span class="font-normal text-[hsl(var(--shpole-text-muted))] text-sm"
-                            >by {videos[0].Credit}</span
-                        >
+                        <span class="text-[hsl(var(--shpole-text-muted))]">by {videos[0].Credit}</span>
                     {/if}
                 </a>
                 {#if videos.length > 1}
