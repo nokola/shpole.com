@@ -178,7 +178,7 @@
     <meta name="description" content="Details about the {displayName} pole dance move" />
 </svelte:head>
 
-<div class="max-w-[600px] mx-auto px-4 py-4 pb-12 text-[hsl(var(--shpole-text))]">
+<div class="max-w-150 mx-auto px-4 py-4 pb-12 text-[hsl(var(--shpole-text))]">
     {#if loading}
         <div class="text-center py-16 text-[hsl(var(--shpole-text-muted))] text-xl">Loading...</div>
     {:else if error}
@@ -244,7 +244,7 @@
         <!-- Compact Stats Row -->
         {#if hasStats}
             <div
-                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl px-4 py-3.5 my-4"
+                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl px-2 py-3.5 my-4"
             >
                 <!-- Stats Columns with Separators -->
                 <div class="flex items-center justify-center gap-4 mb-1">
@@ -252,7 +252,7 @@
                         <div class="flex flex-col items-center gap-0.5">
                             <span class="text-sm leading-none">{strengthInfo.emojis}</span>
                             <span
-                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {strengthInfo.color}">{strengthInfo.name}</span
                             >
                         </div>
@@ -264,7 +264,7 @@
                         <div class="flex flex-col items-center gap-0.5">
                             <span class="text-sm leading-none">{flexInfo.emojis}</span>
                             <span
-                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {flexInfo.color}">{flexInfo.name}</span
                             >
                         </div>
@@ -276,7 +276,7 @@
                         <div class="flex flex-col items-center gap-0.5">
                             <span class="text-sm leading-none">{techInfo.emojis}</span>
                             <span
-                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {techInfo.color}">{techInfo.name}</span
                             >
                         </div>
@@ -308,7 +308,7 @@
                         />
                     {:else}
                         <div
-                            class="w-full h-full bg-gradient-to-br from-[hsl(var(--shpole-bg-secondary))] to-[hsl(var(--shpole-bg))]"
+                            class="w-full h-full bg-linear-to-br from-[hsl(var(--shpole-bg-secondary))] to-[hsl(var(--shpole-bg))]"
                         ></div>
                     {/if}
                     <div
@@ -372,7 +372,7 @@
         <!-- Key Info Section -->
         <div class="flex flex-col gap-3 my-6">
             <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-[100px] font-semibold text-[hsl(var(--shpole-text-muted))]">Grip</span>
+                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Grip</span>
                 <span class="flex-1">
                     {#if move.move.GripSlug}
                         <a
@@ -389,7 +389,7 @@
                 </span>
             </div>
             <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-[100px] font-semibold text-[hsl(var(--shpole-text-muted))]">Prerequisites</span>
+                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Prerequisites</span>
                 <span class="flex-1">
                     {#if prerequisites.length > 0}
                         {#each prerequisites as prereq, i}
@@ -407,7 +407,7 @@
                 </span>
             </div>
             <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-[100px] font-semibold text-[hsl(var(--shpole-text-muted))]">Leads to</span>
+                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Leads to</span>
                 <span class="flex-1">
                     <span class="text-[hsl(var(--shpole-text-muted))] opacity-60">—</span>
                 </span>
