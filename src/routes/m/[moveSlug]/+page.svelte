@@ -27,6 +27,58 @@
         RelationType: string;
     }
 
+    type MoveStat = {
+        label: string;
+        emoji: string;
+        baseColor: string;
+        levels: {
+            name: string;
+            subtitle: string;
+        }[];
+    };
+
+    const strengthStat: MoveStat = {
+        label: "Strength",
+        emoji: "💪",
+        baseColor: "#f87171", // red
+        levels: [
+            { name: "Untested", subtitle: "So it begins" },
+            { name: "Sturdy", subtitle: "You can hold this" },
+            { name: "Fierce", subtitle: "Look at you!" },
+            { name: "Valiant", subtitle: "Oh you're strong strong" },
+            { name: "Heroic", subtitle: "Your muscles have muscles" },
+            { name: "Epic", subtitle: "Gravity asked nicely" },
+        ],
+    };
+
+    const flexStat: MoveStat = {
+        label: "Flexibility",
+        emoji: "🥨",
+        baseColor: "#4ade80", // green
+        levels: [
+            { name: "Untested", subtitle: "Let's get bendy" },
+            { name: "Supple", subtitle: "Warm-up complete" },
+            { name: "Fluid", subtitle: "Wait, since when?!" },
+            { name: "Serpentine", subtitle: "Okay noodle queen" },
+            { name: "Ethereal", subtitle: "That's illegal" },
+            { name: "Boundless", subtitle: "Call an exorcist" }, // or: Do you even have bones?
+        ],
+    };
+
+    const techStat: MoveStat = {
+        label: "Technique",
+        emoji: "🎯",
+        baseColor: "#60a5fa", // blue
+        levels: [
+            { name: "Untested", subtitle: "The journey begins" },
+            { name: "Apprentice", subtitle: "Everyone starts here" },
+            { name: "Adept", subtitle: "The instructions make sense now" },
+            { name: "Artisan", subtitle: "You make it look easy" },
+            { name: "Virtuoso", subtitle: "Okay now you're showing off" },
+            { name: "Sovereign", subtitle: "The pole learns from you" },
+        ],
+    };
+
     let move = $state<MoveDetail | null>(null);
     let names = $state<MoveName[]>([]);
     let videos = $state<Video[]>([]);
@@ -148,14 +200,8 @@
                 <div class="flex flex-row items-center gap-6 md:gap-12 min-w-max">
                     <!-- Strength -->
                     <div class="shrink-0">
-                        {#if move.move.StrengthReq && move.move.StrengthReq >= 1 && move.move.StrengthReq <= 3}
+                        {#if move.move.StrengthReq}
                             <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/strong{move.move.StrengthReq}.png"
-                                    alt="Strength"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
                                 <span
                                     class="font-black text-sm md:text-base tracking-widest uppercase"
                                     style="color: {move.move.StrengthReq === 1
@@ -174,24 +220,21 @@
                             </div>
                         {:else}
                             <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">⚔️</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.StrengthReq, "💪")}</span
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: #fde047"
                                 >
+                                    Strength
+                                </span>
+                                <span class="text-xs">—</span>
                             </div>
                         {/if}
                     </div>
 
                     <!-- Flexibility -->
                     <div class="shrink-0">
-                        {#if move.move.FlexibilityReq && move.move.FlexibilityReq >= 1 && move.move.FlexibilityReq <= 3}
+                        {#if move.move.FlexibilityReq}
                             <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/flex{move.move.FlexibilityReq}.png"
-                                    alt="Flexibility"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
                                 <span
                                     class="font-black text-sm md:text-base tracking-widest uppercase"
                                     style="color: {move.move.FlexibilityReq === 1
@@ -210,24 +253,21 @@
                             </div>
                         {:else}
                             <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">🌿</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.FlexibilityReq, "🥨")}</span
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: #86efac"
                                 >
+                                    Flexibility
+                                </span>
+                                <span class="text-xs">—</span>
                             </div>
                         {/if}
                     </div>
 
                     <!-- Technique -->
                     <div class="shrink-0">
-                        {#if move.move.TechniqueReq && move.move.TechniqueReq >= 1 && move.move.TechniqueReq <= 3}
+                        {#if move.move.TechniqueReq}
                             <div class="flex flex-col items-center gap-3 text-center">
-                                <img
-                                    src="/tech{move.move.TechniqueReq}.png"
-                                    alt="Technique"
-                                    class="w-20 md:w-24 h-20 md:h-24 object-contain"
-                                    style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                                />
                                 <span
                                     class="font-black text-sm md:text-base tracking-widest uppercase"
                                     style="color: {move.move.TechniqueReq === 1
@@ -246,10 +286,13 @@
                             </div>
                         {:else}
                             <div class="flex flex-col items-center gap-2">
-                                <span class="text-3xl">⚙️</span>
-                                <span class="font-bold text-[hsl(var(--shpole-text-muted))]"
-                                    >{renderStat(move.move.TechniqueReq, "🎯")}</span
+                                <span
+                                    class="font-black text-sm md:text-base tracking-widest uppercase"
+                                    style="color: #93c5fd"
                                 >
+                                    Technique
+                                </span>
+                                <span class="text-xs">—</span>
                             </div>
                         {/if}
                     </div>
