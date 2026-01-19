@@ -376,23 +376,25 @@
                 KEY INFO
             </h3>
             <div class="flex flex-col gap-2">
-                <div class="flex gap-4 text-sm leading-relaxed">
-                    <span class="min-w-28 text-[hsl(var(--shpole-text))]">Grip</span>
-                    <span class="flex-1">
-                        {#if move.move.GripSlug}
-                            <a
-                                href="/m/{move.move.GripSlug}"
-                                class="text-[hsl(var(--shpole-primary))] no-underline hover:underline"
-                            >
-                                {move.move.GripName || "Move Link"}
-                            </a>
-                        {:else if move.move.GripName}
-                            <span class="text-[hsl(var(--shpole-text))]">{move.move.GripName}</span>
-                        {:else}
-                            <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
-                        {/if}
-                    </span>
-                </div>
+                {#if !move.move.MoveTypeName?.toLowerCase().includes("grip")}
+                    <div class="flex gap-4 text-sm leading-relaxed">
+                        <span class="min-w-28 text-[hsl(var(--shpole-text))]">Grip</span>
+                        <span class="flex-1">
+                            {#if move.move.GripSlug}
+                                <a
+                                    href="/m/{move.move.GripSlug}"
+                                    class="text-[hsl(var(--shpole-primary))] no-underline hover:underline"
+                                >
+                                    {move.move.GripName || "Move Link"}
+                                </a>
+                            {:else if move.move.GripName}
+                                <span class="text-[hsl(var(--shpole-text))]">{move.move.GripName}</span>
+                            {:else}
+                                <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
+                            {/if}
+                        </span>
+                    </div>
+                {/if}
                 <div class="flex gap-4 text-sm leading-relaxed">
                     <span class="min-w-28 text-[hsl(var(--shpole-text))]">Prerequisites</span>
                     <span class="flex-1">
