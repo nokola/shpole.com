@@ -44,8 +44,8 @@
         levels: [
             { name: "Untested", subtitle: "So it begins" },
             { name: "Sturdy", subtitle: "You can hold this" },
-            { name: "Fierce", subtitle: "This is where strength grows" },
-            { name: "Valiant", subtitle: "Oh you're strong strong" },
+            { name: "Firm", subtitle: "This is where strength grows" },
+            { name: "Mighty", subtitle: "Oh you're strong strong" },
             { name: "Heroic", subtitle: "Your muscles have muscles" },
             { name: "Epic", subtitle: "Gravity asked nicely" },
         ],
@@ -57,7 +57,7 @@
         baseColor: "#4ade80", // green
         levels: [
             { name: "Untested", subtitle: "Let's get bendy" },
-            { name: "Supple", subtitle: "Soft entry, solid hold" },
+            { name: "Supple", subtitle: "Ease into it" },
             { name: "Fluid", subtitle: "Bending the rules slightly" },
             { name: "Serpentine", subtitle: "Okay noodle queen" },
             { name: "Ethereal", subtitle: "Do you even have bones?" },
@@ -71,8 +71,8 @@
         baseColor: "#60a5fa", // blue
         levels: [
             { name: "Untested", subtitle: "The journey begins" },
-            { name: "Apprentice", subtitle: "Everyone starts here" },
-            { name: "Adept", subtitle: "The instructions make sense now" },
+            { name: "Apprentice", subtitle: "This is how mastery starts" },
+            { name: "Adept", subtitle: "Your body knows the way" },
             { name: "Artisan", subtitle: "You make it look easy" },
             { name: "Virtuoso", subtitle: "Okay now you're showing off" },
             { name: "Sovereign", subtitle: "The pole learns from you" },
@@ -243,16 +243,10 @@
             </span>
         </div>
 
-        {#if featuredSubtitle()}
-            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 pt-1 mb-2">
-                {featuredSubtitle()}
-            </p>
-        {/if}
-
         <!-- Also Known As -->
         {#if alternateNames.length > 0}
             <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mb-2 leading-snug">
-                Also known as: <span class="text-[hsl(var(--shpole-text))]"
+                Also Known As: <span class="text-[hsl(var(--shpole-text))]"
                     >{alternateNames.map((n) => n.MoveName).join(", ")}</span
                 >
             </p>
@@ -299,6 +293,12 @@
                         </div>
                     {/if}
                 </div>
+                <!-- Subtitle -->
+                {#if featuredSubtitle()}
+                    <p class="text-xs text-[hsl(var(--shpole-text-muted))] text-center m-0 mt-2 italic">
+                        {featuredSubtitle()}
+                    </p>
+                {/if}
             </div>
         {/if}
 
