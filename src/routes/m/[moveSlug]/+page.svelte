@@ -372,86 +372,89 @@
         {/if}
 
         <!-- Key Info Section -->
-        <div class="flex flex-col gap-3 my-6">
-            <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Grip</span>
-                <span class="flex-1">
-                    {#if move.move.GripSlug}
-                        <a
-                            href="/m/{move.move.GripSlug}"
-                            class="text-[hsl(var(--shpole-primary))] no-underline font-medium hover:underline"
-                        >
-                            {move.move.GripName || "Move Link"}
-                        </a>
-                    {:else if move.move.GripName}
-                        <span class="text-[hsl(var(--shpole-text-muted))] opacity-60">{move.move.GripName}</span>
-                    {:else}
-                        <span class="text-[hsl(var(--shpole-text-muted))] opacity-60">—</span>
-                    {/if}
-                </span>
-            </div>
-            <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Prerequisites</span>
-                <span class="flex-1">
-                    {#if prerequisites.length > 0}
-                        {#each prerequisites as prereq, i}
+        <div class="my-6">
+            <h3 class="text-[0.7rem] font-bold uppercase tracking-widest text-[hsl(var(--shpole-text-muted))] m-0 mb-3">
+                KEY INFO
+            </h3>
+            <div class="flex flex-col gap-2">
+                <div class="flex gap-4 text-sm leading-relaxed">
+                    <span class="min-w-28 text-[hsl(var(--shpole-text))]">Grip</span>
+                    <span class="flex-1">
+                        {#if move.move.GripSlug}
                             <a
-                                href="/m/{prereq.Slug}"
-                                class="text-[hsl(var(--shpole-primary))] no-underline font-medium hover:underline"
+                                href="/m/{move.move.GripSlug}"
+                                class="text-[hsl(var(--shpole-primary))] no-underline hover:underline"
                             >
-                                {prereq.PdcName || prereq.Slug}
-                            </a>{#if i < prerequisites.length - 1},
-                            {/if}
-                        {/each}
-                    {:else}
-                        <span class="text-[hsl(var(--shpole-text-muted))] opacity-60">—</span>
-                    {/if}
-                </span>
-            </div>
-            <div class="flex gap-4 text-base leading-relaxed">
-                <span class="min-w-25 font-semibold text-[hsl(var(--shpole-text-muted))]">Leads to</span>
-                <span class="flex-1">
-                    <span class="text-[hsl(var(--shpole-text-muted))] opacity-60">—</span>
-                </span>
+                                {move.move.GripName || "Move Link"}
+                            </a>
+                        {:else if move.move.GripName}
+                            <span class="text-[hsl(var(--shpole-text))]">{move.move.GripName}</span>
+                        {:else}
+                            <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
+                        {/if}
+                    </span>
+                </div>
+                <div class="flex gap-4 text-sm leading-relaxed">
+                    <span class="min-w-28 text-[hsl(var(--shpole-text))]">Prerequisites</span>
+                    <span class="flex-1">
+                        {#if prerequisites.length > 0}
+                            {#each prerequisites as prereq, i}
+                                <a
+                                    href="/m/{prereq.Slug}"
+                                    class="text-[hsl(var(--shpole-primary))] no-underline hover:underline"
+                                >
+                                    {prereq.PdcName || prereq.Slug}
+                                </a>{#if i < prerequisites.length - 1},
+                                {/if}
+                            {/each}
+                        {:else}
+                            <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
+                        {/if}
+                    </span>
+                </div>
+                <div class="flex gap-4 text-sm leading-relaxed">
+                    <span class="min-w-28 text-[hsl(var(--shpole-text))]">Leads to</span>
+                    <span class="flex-1">
+                        <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
+                    </span>
+                </div>
             </div>
         </div>
 
         <!-- Collapsible Sections -->
-        <div class="flex flex-col gap-2 mt-6">
+        <div class="flex flex-col mt-4">
             <!-- Related Moves -->
-            <div class="border border-[hsl(var(--shpole-border))] rounded-xl overflow-hidden">
+            <div class="border-t border-[hsl(var(--shpole-border))]">
                 <button
-                    class="w-full flex items-center gap-3 px-4 py-3.5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left transition-colors hover:bg-[hsl(var(--shpole-bg-secondary))]"
+                    class="w-full flex items-center gap-2 py-3 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
                     onclick={() => (showRelated = !showRelated)}
                 >
-                    <span class="text-xs transition-transform duration-200 {showRelated ? 'rotate-90' : ''}">▸</span>
-                    <span class="font-semibold flex-1">Related Moves</span>
+                    <span class="text-lg transition-transform duration-200 {showRelated ? 'rotate-90' : ''}">▸</span>
+                    <span class="font-medium text-sm">Related Moves</span>
                     {#if relatedMoves.length > 0}
-                        <span class="text-[hsl(var(--shpole-text-muted))] text-sm">({relatedMoves.length})</span>
+                        <span class="text-[hsl(var(--shpole-text-muted))] text-xs">({relatedMoves.length})</span>
                     {/if}
                 </button>
                 {#if showRelated}
-                    <div
-                        class="px-4 pb-4 pt-0 border-t border-[hsl(var(--shpole-border))] bg-[hsl(var(--shpole-bg-secondary))]"
-                    >
+                    <div class="pb-3">
                         {#if relatedMoves.length > 0}
-                            <ul class="list-none p-0 mt-3 flex flex-col gap-2">
+                            <ul class="list-none p-0 m-0 flex flex-col gap-1.5 pl-5">
                                 {#each relatedMoves as related}
-                                    <li class="text-base">
+                                    <li class="text-sm">
                                         <a
                                             href="/m/{related.Slug}"
-                                            class="text-[hsl(var(--shpole-primary))] no-underline font-medium hover:underline"
+                                            class="text-[hsl(var(--shpole-primary))] no-underline hover:underline"
                                         >
                                             {related.PdcName || related.Slug}
                                         </a>
-                                        <span class="text-[hsl(var(--shpole-text-muted))] text-sm ml-2">
+                                        <span class="text-[hsl(var(--shpole-text-muted))] text-xs ml-1">
                                             ({related.RelationType.replace("_", " ")})
                                         </span>
                                     </li>
                                 {/each}
                             </ul>
                         {:else}
-                            <p class="text-[hsl(var(--shpole-text-muted))] italic mt-3 text-sm m-0">
+                            <p class="text-[hsl(var(--shpole-text-muted))] text-sm m-0 pl-5">
                                 No related moves added yet.
                             </p>
                         {/if}
@@ -460,24 +463,22 @@
             </div>
 
             <!-- Competition Codes -->
-            <div class="border border-[hsl(var(--shpole-border))] rounded-xl overflow-hidden">
+            <div class="border-t border-[hsl(var(--shpole-border))]">
                 <button
-                    class="w-full flex items-center gap-3 px-4 py-3.5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left transition-colors hover:bg-[hsl(var(--shpole-bg-secondary))]"
+                    class="w-full flex items-center gap-2 py-3 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
                     onclick={() => (showCodes = !showCodes)}
                 >
-                    <span class="text-xs transition-transform duration-200 {showCodes ? 'rotate-90' : ''}">▸</span>
-                    <span class="font-semibold flex-1">Competition Codes</span>
+                    <span class="text-lg transition-transform duration-200 {showCodes ? 'rotate-90' : ''}">▸</span>
+                    <span class="font-medium text-sm">Competition Codes</span>
                 </button>
                 {#if showCodes}
-                    <div
-                        class="px-4 pb-4 pt-0 border-t border-[hsl(var(--shpole-border))] bg-[hsl(var(--shpole-bg-secondary))]"
-                    >
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-3">
+                    <div class="pb-3 pl-5">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             <div class="flex flex-col gap-0.5">
                                 <span class="text-[0.65rem] font-bold uppercase text-[hsl(var(--shpole-text-muted))]"
                                     >IPSF</span
                                 >
-                                <span class="text-lg font-bold">{move.move.IpsfCode || "—"}</span>
+                                <span class="text-base font-bold">{move.move.IpsfCode || "—"}</span>
                                 {#if move.move.IpsfName}
                                     <span class="text-xs text-[hsl(var(--shpole-text-muted))]"
                                         >{move.move.IpsfName}</span
@@ -488,7 +489,7 @@
                                 <span class="text-[0.65rem] font-bold uppercase text-[hsl(var(--shpole-text-muted))]"
                                     >POSA</span
                                 >
-                                <span class="text-lg font-bold">{move.move.PosaCode || "—"}</span>
+                                <span class="text-base font-bold">{move.move.PosaCode || "—"}</span>
                                 {#if move.move.PosaName}
                                     <span class="text-xs text-[hsl(var(--shpole-text-muted))]"
                                         >{move.move.PosaName}</span
@@ -499,13 +500,13 @@
                                 <span class="text-[0.65rem] font-bold uppercase text-[hsl(var(--shpole-text-muted))]"
                                     >PDC</span
                                 >
-                                <span class="text-lg font-bold">{move.move.PdcLevel || "—"}</span>
+                                <span class="text-base font-bold">{move.move.PdcLevel || "—"}</span>
                             </div>
                             <div class="flex flex-col gap-0.5">
                                 <span class="text-[0.65rem] font-bold uppercase text-[hsl(var(--shpole-text-muted))]"
                                     >PSO</span
                                 >
-                                <span class="text-lg font-bold">{move.move.PsoLevel || "—"}</span>
+                                <span class="text-base font-bold">{move.move.PsoLevel || "—"}</span>
                             </div>
                         </div>
                     </div>
