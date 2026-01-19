@@ -59,7 +59,7 @@
             { name: "Untested", subtitle: "Let's get bendy" },
             { name: "Supple", subtitle: "Soft entry, solid hold" },
             { name: "Fluid", subtitle: "Bending the rules slightly" },
-            { name: "Serpentine", subtitle: '"Okay noodle queen"' },
+            { name: "Serpentine", subtitle: "Okay noodle queen" },
             { name: "Ethereal", subtitle: "Do you even have bones?" },
             { name: "Boundless", subtitle: "Call an exorcist!" },
         ],
@@ -234,23 +234,31 @@
             </span>
         </div>
 
+        {#if featuredSubtitle()}
+            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mt-0 mb-2">
+                {featuredSubtitle()}
+            </p>
+        {/if}
+
         <!-- Also Known As -->
         {#if alternateNames.length > 0}
-            <p class="text-sm text-[hsl(var(--shpole-text-muted))] italic m-0 mb-4 leading-relaxed">
-                Also known as: {alternateNames.map((n) => n.MoveName).join(", ")}
+            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mb-4 leading-relaxed">
+                Also known as <span class="text-[hsl(var(--shpole-text))]"
+                    >{alternateNames.map((n) => n.MoveName).join(", ")}</span
+                >
             </p>
         {/if}
 
         <!-- Compact Stats Row -->
         {#if hasStats}
             <div
-                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl px-2 py-3.5 my-4"
+                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl px-2 py-3 mb-4"
             >
                 <!-- Stats Columns with Separators -->
-                <div class="flex items-center justify-center gap-4 mb-1">
+                <div class="flex items-center justify-center gap-4">
                     {#if (move.move.StrengthReq ?? 0) > 0}
                         <div class="flex flex-col items-center gap-0.5">
-                            <span class="text-sm leading-none">{strengthInfo.emojis}</span>
+                            <span class="text-xs leading-none">{strengthInfo.emojis}</span>
                             <span
                                 class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {strengthInfo.color}">{strengthInfo.name}</span
@@ -262,7 +270,7 @@
                     {/if}
                     {#if (move.move.FlexibilityReq ?? 0) > 0}
                         <div class="flex flex-col items-center gap-0.5">
-                            <span class="text-sm leading-none">{flexInfo.emojis}</span>
+                            <span class="text-xs leading-none">{flexInfo.emojis}</span>
                             <span
                                 class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {flexInfo.color}">{flexInfo.name}</span
@@ -274,7 +282,7 @@
                     {/if}
                     {#if (move.move.TechniqueReq ?? 0) > 0}
                         <div class="flex flex-col items-center gap-0.5">
-                            <span class="text-sm leading-none">{techInfo.emojis}</span>
+                            <span class="text-xs leading-none">{techInfo.emojis}</span>
                             <span
                                 class="text-[0.65rem] font-bold uppercase tracking-wide pt-1"
                                 style="color: {techInfo.color}">{techInfo.name}</span
@@ -282,12 +290,6 @@
                         </div>
                     {/if}
                 </div>
-                <!-- Featured Subtitle (from highest stat) -->
-                {#if featuredSubtitle()}
-                    <div class="text-[0.7rem] text-[hsl(var(--shpole-text-muted))] italic text-center">
-                        {featuredSubtitle()}
-                    </div>
-                {/if}
             </div>
         {/if}
 
