@@ -432,6 +432,8 @@
                     <span class="font-medium text-sm">Related Moves</span>
                     {#if relatedMoves.length > 0}
                         <span class="text-[hsl(var(--shpole-text-muted))] text-xs">({relatedMoves.length})</span>
+                    {:else}
+                        <span class="text-[hsl(var(--shpole-text-muted))] text-xs opacity-80">(none)</span>
                     {/if}
                 </button>
                 {#if showRelated}
