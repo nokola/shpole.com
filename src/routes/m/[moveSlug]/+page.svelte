@@ -127,6 +127,14 @@
         }
     });
 
+    let backToMoves = $state<HTMLAnchorElement | null>(null);
+    // Scroll down a bit on mount so "Back to moves" is half visible
+    onMount(() => {
+        setTimeout(() => {
+            backToMoves?.scrollIntoView({ behavior: "instant" });
+        }, 20);
+    });
+
     let displayName = $derived(move?.move.ShpoleName || move?.move.Slug || "Move");
 
     // Filter out the main display name from "Also Known As" to avoid duplication
@@ -187,6 +195,7 @@
         <!-- Header Row -->
         <div class="flex justify-between items-center mb-3">
             <a
+                bind:this={backToMoves}
                 href="/"
                 class="text-[hsl(var(--shpole-text-muted))] no-underline text-sm font-medium transition-colors hover:text-[hsl(var(--shpole-primary))]"
             >
