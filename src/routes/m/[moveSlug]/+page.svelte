@@ -144,6 +144,23 @@
         (move?.move.StrengthReq ?? 0) > 0 || (move?.move.FlexibilityReq ?? 0) > 0 || (move?.move.TechniqueReq ?? 0) > 0,
     );
 
+    // Get the featured subtitle from the highest stat (strength > flex > tech if tied)
+    let featuredSubtitle = $derived(() => {
+        const str = move?.move.StrengthReq ?? 0;
+        const flex = move?.move.FlexibilityReq ?? 0;
+        const tech = move?.move.TechniqueReq ?? 0;
+
+        if (str === 0 && flex === 0 && tech === 0) return "";
+
+        // Find the max value
+        const max = Math.max(str, flex, tech);
+
+        // Priority: strength > flex > tech when tied
+        if (str === max) return strengthInfo.subtitle;
+        if (flex === max) return flexInfo.subtitle;
+        return techInfo.subtitle;
+    });
+
     // Get YouTube thumbnail from video URL
     function getYouTubeThumbnail(url: string): string | null {
         const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?/]+)/);
@@ -229,52 +246,48 @@
             <div
                 class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl px-4 py-3.5 my-4"
             >
-                <!-- Emojis Row -->
-                <div class="flex gap-4 justify-center text-xl mb-2">
+                <!-- Stats Columns with Separators -->
+                <div class="flex items-center justify-center gap-4 mb-1">
                     {#if (move.move.StrengthReq ?? 0) > 0}
-                        <span class="tracking-wider">{strengthInfo.emojis}</span>
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-sm leading-none">{strengthInfo.emojis}</span>
+                            <span
+                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                style="color: {strengthInfo.color}">{strengthInfo.name}</span
+                            >
+                        </div>
+                    {/if}
+                    {#if (move.move.StrengthReq ?? 0) > 0 && ((move.move.FlexibilityReq ?? 0) > 0 || (move.move.TechniqueReq ?? 0) > 0)}
+                        <div class="w-px h-8 bg-[hsl(var(--shpole-border))] opacity-40"></div>
                     {/if}
                     {#if (move.move.FlexibilityReq ?? 0) > 0}
-                        <span class="tracking-wider">{flexInfo.emojis}</span>
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-sm leading-none">{flexInfo.emojis}</span>
+                            <span
+                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                style="color: {flexInfo.color}">{flexInfo.name}</span
+                            >
+                        </div>
+                    {/if}
+                    {#if (move.move.FlexibilityReq ?? 0) > 0 && (move.move.TechniqueReq ?? 0) > 0}
+                        <div class="w-px h-8 bg-[hsl(var(--shpole-border))] opacity-40"></div>
                     {/if}
                     {#if (move.move.TechniqueReq ?? 0) > 0}
-                        <span class="tracking-wider">{techInfo.emojis}</span>
+                        <div class="flex flex-col items-center gap-0.5">
+                            <span class="text-sm leading-none">{techInfo.emojis}</span>
+                            <span
+                                class="text-[0.65rem] font-bold uppercase tracking-wide"
+                                style="color: {techInfo.color}">{techInfo.name}</span
+                            >
+                        </div>
                     {/if}
                 </div>
-                <!-- Level Names Row -->
-                <div class="flex gap-2 justify-center flex-wrap text-xs font-bold uppercase tracking-wide mb-1">
-                    {#if (move.move.StrengthReq ?? 0) > 0}
-                        <span style="color: {strengthInfo.color}">{strengthInfo.name}</span>
-                        <span class="text-[hsl(var(--shpole-text-muted))] opacity-50">•</span>
-                    {/if}
-                    {#if (move.move.FlexibilityReq ?? 0) > 0}
-                        <span style="color: {flexInfo.color}">{flexInfo.name}</span>
-                        {#if (move.move.TechniqueReq ?? 0) > 0}
-                            <span class="text-[hsl(var(--shpole-text-muted))] opacity-50">•</span>
-                        {/if}
-                    {/if}
-                    {#if (move.move.TechniqueReq ?? 0) > 0}
-                        <span style="color: {techInfo.color}">{techInfo.name}</span>
-                    {/if}
-                </div>
-                <!-- Subtitles Row -->
-                <div
-                    class="flex gap-1 justify-center flex-wrap text-[0.65rem] text-[hsl(var(--shpole-text-muted))] italic text-center"
-                >
-                    {#if (move.move.StrengthReq ?? 0) > 0}
-                        <span>{strengthInfo.subtitle}</span>
-                        <span class="opacity-50 mx-1">•</span>
-                    {/if}
-                    {#if (move.move.FlexibilityReq ?? 0) > 0}
-                        <span>{flexInfo.subtitle}</span>
-                        {#if (move.move.TechniqueReq ?? 0) > 0}
-                            <span class="opacity-50 mx-1">•</span>
-                        {/if}
-                    {/if}
-                    {#if (move.move.TechniqueReq ?? 0) > 0}
-                        <span>{techInfo.subtitle}</span>
-                    {/if}
-                </div>
+                <!-- Featured Subtitle (from highest stat) -->
+                {#if featuredSubtitle()}
+                    <div class="text-[0.7rem] text-[hsl(var(--shpole-text-muted))] italic text-center">
+                        {featuredSubtitle()}
+                    </div>
+                {/if}
             </div>
         {/if}
 
