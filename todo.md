@@ -11,6 +11,10 @@
 -- add "submitted by" to moves to encourage contributions
 -- add "switch to authors" in home page to encourage contributions
 
+-- once folks click "I got this!"
+    -- ping for video
+    -- rate the move
+
 -- terms of use and contributing
 
 X-- rename to show Drafts
