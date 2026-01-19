@@ -224,12 +224,12 @@
         <div class="flex items-center gap-3 flex-wrap mb-2">
             {#if move.move.MoveTypeName}
                 <span
-                    class="inline-block px-2.5 py-1 bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-lg text-xs font-bold uppercase tracking-wider text-[hsl(var(--shpole-primary))]"
+                    class="inline-block px-3 py-1.5 bg-amber-500/90 rounded-full text-xs font-bold uppercase tracking-wide text-black"
                 >
                     {move.move.MoveTypeName}
                 </span>
             {/if}
-            <span class="text-base font-semibold text-[hsl(var(--shpole-text-muted))]">
+            <span class="text-sm text-[hsl(var(--shpole-text))]">
                 Level {move.move.ShpoleLevel ?? "–"}
             </span>
         </div>
