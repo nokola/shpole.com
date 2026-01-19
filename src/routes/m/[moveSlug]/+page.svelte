@@ -132,7 +132,7 @@
     onMount(() => {
         setTimeout(() => {
             backToMoves?.scrollIntoView({ behavior: "instant" });
-        }, 20);
+        }, 50);
     });
 
     let displayName = $derived(move?.move.ShpoleName || move?.move.Slug || "Move");
@@ -244,15 +244,15 @@
         </div>
 
         {#if featuredSubtitle()}
-            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mt-0 mb-2">
+            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 pt-1 mb-2">
                 {featuredSubtitle()}
             </p>
         {/if}
 
         <!-- Also Known As -->
         {#if alternateNames.length > 0}
-            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mb-4 leading-relaxed">
-                Also known as <span class="text-[hsl(var(--shpole-text))]"
+            <p class="text-sm text-[hsl(var(--shpole-text-muted))] m-0 mb-2 leading-snug">
+                Also known as: <span class="text-[hsl(var(--shpole-text))]"
                     >{alternateNames.map((n) => n.MoveName).join(", ")}</span
                 >
             </p>
@@ -304,7 +304,7 @@
 
         <!-- Video Thumbnail -->
         {#if videos.length > 0}
-            <div class="my-5">
+            <div class="mt-3 mb-4">
                 <a
                     href={videos[0].Url}
                     target="_blank"
@@ -340,12 +340,12 @@
                     href={videos[0].Url}
                     target="_blank"
                     rel="noopener"
-                    class="flex items-center justify-center gap-2 mt-3 text-[hsl(var(--shpole-primary))] text-sm"
+                    class="flex items-center justify-center gap-1.5 mt-2 text-[hsl(var(--shpole-text-primary))] text-sm"
                     style="text-decoration: none"
                 >
                     🎬<span class="underline">Watch Tutorial</span>
                     {#if videos[0].Credit}
-                        <span class="text-[hsl(var(--shpole-text-muted))]">by {videos[0].Credit}</span>
+                        <span class="text-[hsl(var(--shpole-text-muted))]">&nbsp;by {videos[0].Credit}</span>
                     {/if}
                 </a>
                 {#if videos.length > 1}
@@ -373,20 +373,20 @@
         <!-- Description/Info -->
         {#if move.move.Info}
             <div
-                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl p-4 my-4"
+                class="bg-[hsl(var(--shpole-bg-secondary))] border border-[hsl(var(--shpole-border))] rounded-xl p-3 my-3"
             >
-                <p class="m-0 text-base leading-relaxed whitespace-pre-wrap">{move.move.Info}</p>
+                <p class="m-0 text-sm leading-relaxed whitespace-pre-wrap">{move.move.Info}</p>
             </div>
         {/if}
 
         <!-- Key Info Section -->
         <div class="my-6">
-            <h3 class="text-[0.7rem] font-bold uppercase tracking-widest text-[hsl(var(--shpole-text-muted))] m-0 mb-3">
+            <h3 class="text-[0.7rem] font-bold uppercase tracking-widest text-[hsl(var(--shpole-text-muted))] m-0 mb-2">
                 KEY INFO
             </h3>
-            <div class="flex flex-col gap-2">
+            <div class="flex flex-col gap-1">
                 {#if !move.move.MoveTypeName?.toLowerCase().includes("grip")}
-                    <div class="flex gap-4 text-sm leading-relaxed">
+                    <div class="flex gap-4 text-sm leading-snug">
                         <span class="min-w-28 text-[hsl(var(--shpole-text))]">Grip</span>
                         <span class="flex-1">
                             {#if move.move.GripSlug}
@@ -404,7 +404,7 @@
                         </span>
                     </div>
                 {/if}
-                <div class="flex gap-4 text-sm leading-relaxed">
+                <div class="flex gap-4 text-sm leading-snug">
                     <span class="min-w-28 text-[hsl(var(--shpole-text))]">Prerequisites</span>
                     <span class="flex-1">
                         {#if prerequisites.length > 0}
@@ -422,7 +422,7 @@
                         {/if}
                     </span>
                 </div>
-                <div class="flex gap-4 text-sm leading-relaxed">
+                <div class="flex gap-4 text-sm leading-snug">
                     <span class="min-w-28 text-[hsl(var(--shpole-text))]">Leads to</span>
                     <span class="flex-1">
                         <span class="text-[hsl(var(--shpole-text-muted))]">—</span>
@@ -432,14 +432,14 @@
         </div>
 
         <!-- Collapsible Sections -->
-        <div class="flex flex-col mt-4">
+        <div class="flex flex-col mt-2">
             <!-- Related Moves -->
             <div class="border-t border-[hsl(var(--shpole-border))]">
                 <button
-                    class="w-full flex items-center gap-2 py-3 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
+                    class="w-full flex items-center gap-2 py-2.5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
                     onclick={() => (showRelated = !showRelated)}
                 >
-                    <span class="text-lg transition-transform duration-200 {showRelated ? 'rotate-90' : ''}">▸</span>
+                    <span class="text-xs transition-transform duration-200 {showRelated ? 'rotate-90' : ''}">▶</span>
                     <span class="font-medium text-sm">Related Moves</span>
                     {#if relatedMoves.length > 0}
                         <span class="text-[hsl(var(--shpole-text-muted))] text-xs">({relatedMoves.length})</span>
@@ -477,10 +477,10 @@
             <!-- Competition Codes -->
             <div class="border-t border-[hsl(var(--shpole-border))]">
                 <button
-                    class="w-full flex items-center gap-2 py-3 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
+                    class="w-full flex items-center gap-2 py-2.5 bg-transparent border-none cursor-pointer text-[hsl(var(--shpole-text))] text-left"
                     onclick={() => (showCodes = !showCodes)}
                 >
-                    <span class="text-lg transition-transform duration-200 {showCodes ? 'rotate-90' : ''}">▸</span>
+                    <span class="text-xs transition-transform duration-200 {showCodes ? 'rotate-90' : ''}">▶</span>
                     <span class="font-medium text-sm">Competition Codes</span>
                 </button>
                 {#if showCodes}
