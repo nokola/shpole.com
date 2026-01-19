@@ -44,7 +44,7 @@
         levels: [
             { name: "Untested", subtitle: "So it begins" },
             { name: "Sturdy", subtitle: "You can hold this" },
-            { name: "Fierce", subtitle: "Look at you!" },
+            { name: "Fierce", subtitle: "This is where strength grows" },
             { name: "Valiant", subtitle: "Oh you're strong strong" },
             { name: "Heroic", subtitle: "Your muscles have muscles" },
             { name: "Epic", subtitle: "Gravity asked nicely" },
@@ -57,11 +57,11 @@
         baseColor: "#4ade80", // green
         levels: [
             { name: "Untested", subtitle: "Let's get bendy" },
-            { name: "Supple", subtitle: "Warm-up complete" },
-            { name: "Fluid", subtitle: "Wait, since when?!" },
-            { name: "Serpentine", subtitle: "Okay noodle queen" },
-            { name: "Ethereal", subtitle: "That's illegal" },
-            { name: "Boundless", subtitle: "Call an exorcist" },
+            { name: "Supple", subtitle: "Soft entry, solid hold" },
+            { name: "Fluid", subtitle: "Bending the rules slightly" },
+            { name: "Serpentine", subtitle: '"Okay noodle queen"' },
+            { name: "Ethereal", subtitle: "Do you even have bones?" },
+            { name: "Boundless", subtitle: "Call an exorcist!" },
         ],
     };
 
