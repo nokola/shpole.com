@@ -142,16 +142,16 @@
 
             <!-- Stats Section -->
             <section>
-                <div class="grid grid-cols-3 gap-2 md:gap-12">
+                <div class="flex flex-row flex-wrap items-start gap-12 md:gap-20">
                     <!-- Strength -->
-                    <div class="flex flex-col gap-0.5">
+                    <div class="flex flex-col gap-1">
                         <span
-                            class="text-[0.55rem] md:text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-wider md:tracking-[0.2em]"
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
                             >Strength</span
                         >
                         {#if move.move.StrengthReq && move.move.StrengthReq >= 1}
                             <span
-                                class="font-black text-[0.65rem] md:text-base tracking-wide md:tracking-widest uppercase leading-tight"
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
                                 style="color: {move.move.StrengthReq === 1
                                     ? '#fde047'
                                     : move.move.StrengthReq === 2
@@ -165,20 +165,18 @@
                                       : "HEROIC"}
                             </span>
                         {/if}
-                        <span class="text-sm md:text-2xl mt-0.5 leading-tight"
-                            >{renderStat(move.move.StrengthReq, "💪")}</span
-                        >
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.StrengthReq, "💪")}</span>
                     </div>
 
                     <!-- Flexibility -->
-                    <div class="flex flex-col gap-0.5">
+                    <div class="flex flex-col gap-1">
                         <span
-                            class="text-[0.55rem] md:text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-wider md:tracking-[0.2em]"
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
                             >Flexibility</span
                         >
                         {#if move.move.FlexibilityReq && move.move.FlexibilityReq >= 1}
                             <span
-                                class="font-black text-[0.65rem] md:text-base tracking-wide md:tracking-widest uppercase leading-tight"
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
                                 style="color: {move.move.FlexibilityReq === 1
                                     ? '#86efac'
                                     : move.move.FlexibilityReq === 2
@@ -192,20 +190,18 @@
                                       : "SERPENTINE"}
                             </span>
                         {/if}
-                        <span class="text-sm md:text-2xl mt-0.5 leading-tight"
-                            >{renderStat(move.move.FlexibilityReq, "🥨")}</span
-                        >
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.FlexibilityReq, "🥨")}</span>
                     </div>
 
                     <!-- Technique -->
-                    <div class="flex flex-col gap-0.5">
+                    <div class="flex flex-col gap-1">
                         <span
-                            class="text-[0.55rem] md:text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-wider md:tracking-[0.2em]"
+                            class="text-[0.65rem] font-bold text-[hsl(var(--shpole-text-muted))] uppercase tracking-[0.2em]"
                             >Technique</span
                         >
                         {#if move.move.TechniqueReq && move.move.TechniqueReq >= 1}
                             <span
-                                class="font-black text-[0.65rem] md:text-base tracking-wide md:tracking-widest uppercase leading-tight"
+                                class="font-black text-sm md:text-base tracking-widest uppercase"
                                 style="color: {move.move.TechniqueReq === 1
                                     ? '#93c5fd'
                                     : move.move.TechniqueReq === 2
@@ -215,13 +211,11 @@
                                 {move.move.TechniqueReq === 1
                                     ? "APPRENTICE"
                                     : move.move.TechniqueReq === 2
-                                      ? "ADEPT"
+                                      ? "Adept"
                                       : "VIRTUOSO"}
                             </span>
                         {/if}
-                        <span class="text-sm md:text-2xl mt-0.5 leading-tight"
-                            >{renderStat(move.move.TechniqueReq, "🎯")}</span
-                        >
+                        <span class="text-xl md:text-2xl mt-1">{renderStat(move.move.TechniqueReq, "🎯")}</span>
                     </div>
                 </div>
             </section>
