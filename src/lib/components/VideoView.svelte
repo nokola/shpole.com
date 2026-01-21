@@ -51,11 +51,24 @@
     function handleTimeUpdate() {
         if (!videoEl) return;
         currentTime = videoEl.currentTime;
+        // Fallback: also check duration here in case loadedmetadata didn't fire
+        if (duration === 0 && videoEl.duration > 0 && !isNaN(videoEl.duration)) {
+            duration = videoEl.duration;
+        }
     }
 
     function handleLoadedMetadata() {
         if (!videoEl) return;
-        duration = videoEl.duration;
+        if (videoEl.duration > 0 && !isNaN(videoEl.duration)) {
+            duration = videoEl.duration;
+        }
+    }
+
+    function handleDurationChange() {
+        if (!videoEl) return;
+        if (videoEl.duration > 0 && !isNaN(videoEl.duration)) {
+            duration = videoEl.duration;
+        }
     }
 
     function handlePlay() {
@@ -86,10 +99,42 @@
 
     // Progress percentage
     let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
+
+    // Marker colors by type
+    function getMarkerColor(type: Marker["type"]): string {
+        switch (type) {
+            case "comment":
+                return "bg-sky-400";
+            case "move":
+                return "bg-violet-500";
+            case "pause":
+                return "bg-amber-400";
+            case "like":
+                return "bg-rose-500";
+            default:
+                return "bg-white";
+        }
+    }
+
+    // Marker icons/symbols by type
+    function getMarkerSymbol(type: Marker["type"]): string {
+        switch (type) {
+            case "comment":
+                return "💬";
+            case "move":
+                return "🎯";
+            case "pause":
+                return "⏸";
+            case "like":
+                return "❤️";
+            default:
+                return "•";
+        }
+    }
 </script>
 
 <!-- Outer scrollable container (div1) -->
-<div class="w-full">
+<div class="w-full h-full overflow-y-auto">
     <!-- Video + Controls section - exactly viewport height (div2) -->
     <div class="relative w-full h-dvh bg-black text-white">
         <!-- Video - fills entire section -->
@@ -99,6 +144,8 @@
             class="w-full h-full object-contain"
             ontimeupdate={handleTimeUpdate}
             onloadedmetadata={handleLoadedMetadata}
+            ondurationchange={handleDurationChange}
+            onloadeddata={handleLoadedMetadata}
             onplay={handlePlay}
             onpause={handlePause}
             playsinline
@@ -116,21 +163,58 @@
 
         <!-- Controls - overlaid at bottom of video section -->
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
-            <!-- Progress Bar -->
-            <button
-                type="button"
-                class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
-                onclick={handleProgressClick}
-                aria-label="Video progress: {formatTime(currentTime)} of {formatTime(duration)}"
-            >
-                <!-- Progress Fill -->
-                <div class="absolute inset-y-0 left-0 bg-white rounded-full" style="width: {progressPercent}%;"></div>
-                <!-- Scrubber Thumb -->
-                <div
-                    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg"
-                    style="left: {progressPercent}%;"
-                ></div>
-            </button>
+            <!-- Progress Bar Container -->
+            <div class="relative w-full h-6 flex items-center">
+                <!-- Progress Bar Track -->
+                <button
+                    type="button"
+                    class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
+                    onclick={handleProgressClick}
+                    aria-label="Video progress: {formatTime(currentTime)} of {formatTime(duration)}"
+                >
+                    <!-- Progress Fill -->
+                    <div
+                        class="absolute inset-y-0 left-0 bg-white rounded-full"
+                        style="width: {progressPercent}%;"
+                    ></div>
+
+                    <!-- Annotation Markers -->
+                    {#each markers as marker (marker.id)}
+                        {@const markerPercent = duration > 0 ? (marker.time / duration) * 100 : 0}
+                        <div
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full {getMarkerColor(
+                                marker.type,
+                            )} ring-2 ring-black/50 cursor-pointer hover:scale-125 transition-transform z-10"
+                            style="left: {markerPercent}%;"
+                            title="{marker.type}: {marker.text || formatTime(marker.time)}"
+                            role="button"
+                            tabindex="0"
+                            onclick={(e) => {
+                                e.stopPropagation();
+                                seekTo(marker.time);
+                            }}
+                            onkeydown={(e) => {
+                                if (e.key === "Enter") {
+                                    e.stopPropagation();
+                                    seekTo(marker.time);
+                                }
+                            }}
+                        >
+                            <span
+                                class="absolute -top-5 left-1/2 -translate-x-1/2 text-sm pointer-events-none drop-shadow-md"
+                            >
+                                {getMarkerSymbol(marker.type)}
+                            </span>
+                        </div>
+                    {/each}
+
+                    <!-- Scrubber Thumb -->
+                    <div
+                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg z-20"
+                        style="left: {progressPercent}%;"
+                    ></div>
+                </button>
+            </div>
 
             <!-- Controls Row -->
             <div class="flex items-center justify-between mt-3">
