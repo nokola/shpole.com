@@ -8,6 +8,7 @@
         type: "comment" | "move" | "pause" | "like" | "hide";
         text?: string;
         color?: string;
+        username?: string;
     }
 
     // Props
@@ -310,7 +311,12 @@
                         <div
                             class="relative bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
                         >
-                            {activeMarker.text}
+                            <div>{activeMarker.text}</div>
+                            {#if activeMarker.username}
+                                <div class="text-[10px] text-gray-500 font-medium mt-0.5">
+                                    — {activeMarker.username}
+                                </div>
+                            {/if}
                             <!-- Notch pointing down at marker -->
                             <div
                                 class="absolute top-full -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/95"
@@ -421,9 +427,9 @@
                 <button
                     type="button"
                     class="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors"
-                    aria-label="Add annotation"
+                    aria-label="Add Comment"
                 >
-                    Add Annotation
+                    Add Comment
                 </button>
             </div>
         </div>
