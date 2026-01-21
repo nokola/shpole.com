@@ -155,6 +155,35 @@
         return null;
     });
 
+    // All move segments for highlighting on the timeline
+    let moveSegments = $derived.by(() => {
+        if (duration <= 0) return [];
+        const sorted = [...markers]
+            .filter((m) => m.type === "move" || m.type === "hide")
+            .sort((a, b) => a.time - b.time);
+
+        const segments: { start: number; end: number }[] = [];
+        let currentStartTime: number | null = null;
+
+        for (const m of sorted) {
+            if (m.type === "move") {
+                if (currentStartTime !== null) {
+                    segments.push({ start: currentStartTime, end: m.time });
+                }
+                currentStartTime = m.time;
+            } else if (m.type === "hide") {
+                if (currentStartTime !== null) {
+                    segments.push({ start: currentStartTime, end: m.time });
+                    currentStartTime = null;
+                }
+            }
+        }
+        if (currentStartTime !== null) {
+            segments.push({ start: currentStartTime, end: duration });
+        }
+        return segments;
+    });
+
     // Bubble positioning calculations
     let bubblePosition = $derived.by(() => {
         if (!activeMarker || containerWidth === 0) {
@@ -295,16 +324,25 @@
                 >
                     <!-- Progress Fill -->
                     <div
-                        class="absolute inset-y-0 left-0 bg-white rounded-full"
+                        class="absolute inset-y-0 left-0 bg-white rounded-full z-10"
                         style="width: {progressPercent}%;"
                     ></div>
+
+                    <!-- Move Highlights -->
+                    {#each moveSegments as seg}
+                        <div
+                            class="absolute inset-y-0 bg-blue-400 rounded-full"
+                            style="left: {(seg.start / duration) * 100}%; width: {((seg.end - seg.start) / duration) *
+                                100}%"
+                        ></div>
+                    {/each}
 
                     <!-- Annotation Markers -->
                     {#each markers as marker (marker.id)}
                         {@const markerPercent = duration > 0 ? (marker.time / duration) * 100 : 0}
                         <button
                             type="button"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-10 drop-shadow-md {getMarkerColor(
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-20 drop-shadow-md {getMarkerColor(
                                 marker,
                             )}"
                             style="left: {markerPercent}%;"
@@ -320,7 +358,7 @@
 
                     <!-- Scrubber Thumb -->
                     <div
-                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg z-20"
+                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg z-30"
                         style="left: {progressPercent}%;"
                     ></div>
                 </div>
