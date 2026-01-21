@@ -124,13 +124,14 @@
         const markerPercent = duration > 0 ? (activeMarker.time / duration) * 100 : 0;
         const markerPx = (markerPercent / 100) * containerWidth;
         const halfBubble = bubbleWidth / 2;
+        const marginPx = 14;
         const idealLeft = markerPx - halfBubble;
-        const clampedLeft = Math.max(0, Math.min(containerWidth - bubbleWidth, idealLeft));
+        const clampedLeft = Math.max(-marginPx, Math.min(containerWidth - bubbleWidth + marginPx, idealLeft));
         const notchPx = markerPx - clampedLeft;
         const notchPercent = bubbleWidth > 0 ? (notchPx / bubbleWidth) * 100 : 50;
         return {
             left: clampedLeft,
-            notchPercent: Math.max(10, Math.min(90, notchPercent)),
+            notchPercent: Math.max(8, Math.min(92, notchPercent)),
         };
     });
 
@@ -197,9 +198,7 @@
         ></button>
 
         <!-- Controls - overlaid at bottom of video section -->
-        <div
-            class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8 overflow-hidden"
-        >
+        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
                 <div class="relative w-full mb-2 h-8" bind:this={bubbleContainerEl} bind:clientWidth={containerWidth}>
