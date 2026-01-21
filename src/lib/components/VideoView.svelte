@@ -132,14 +132,14 @@
     // Progress percentage
     let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
 
-    // Find active marker (within 1 second of current time)
+    // Find the marker currently under the playhead (within 1 second)
+    let playheadMarker = $derived(markers.find((m) => Math.abs(m.time - currentTime) < 1) || null);
+
+    // Find active marker for the comment bubble (within 1 second of current time)
     let activeMarker = $derived.by(() => {
-        const marker = markers.find((m) => Math.abs(m.time - currentTime) < 1);
-        if (!marker || marker.type === "move" || marker.type === "hide") return null;
-        if (marker.type === "pause" && !marker.text) {
-            return { ...marker, text: "Auto-paused" };
-        }
-        return marker.text ? marker : null;
+        const m = playheadMarker;
+        if (!m || m.type === "move" || m.type === "hide" || m.type === "pause") return null;
+        return m.text ? m : null;
     });
 
     // Find current active move name
@@ -273,14 +273,23 @@
             aria-label={isPlaying ? "Pause" : "Play"}
         ></button>
 
-        <!-- Active Move Display (Bottom Left) -->
-        {#if activeMoveName}
-            <div
-                class="absolute bottom-40 left-6 text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] pointer-events-none transition-opacity duration-300"
-            >
-                {activeMoveName}
-            </div>
-        {/if}
+        <!-- Status Labels (Bottom Left) -->
+        <div class="absolute bottom-40 left-6 flex flex-col gap-1 pointer-events-none">
+            {#if activeMoveName}
+                <div
+                    class="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                >
+                    {activeMoveName}
+                </div>
+            {/if}
+            {#if !isPlaying && playheadMarker?.type === "pause"}
+                <div
+                    class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                >
+                    ⏸ Auto-paused
+                </div>
+            {/if}
+        </div>
 
         <!-- Controls - overlaid at bottom of video section -->
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">

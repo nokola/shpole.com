@@ -14,7 +14,7 @@
         { id: "11", time: 17, type: "hide" as const },
         { id: "3", time: 30.23, type: "pause" as const },
         { id: "4", time: 40.12, type: "like" as const, text: "🔥" },
-        { id: "5", time: 45.12, type: "move" as const, text: "Spin sequence" },
+        { id: "5", time: 45.12, type: "comment" as const, text: "bye" },
     ]);
 
     function handleMarkerAdd(marker: { id: string; time: number; type: string; text?: string }) {
