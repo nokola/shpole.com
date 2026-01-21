@@ -1,6 +1,14 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
 
+    // Marker type
+    interface Marker {
+        id: string;
+        time: number;
+        type: "comment" | "move" | "pause" | "like";
+        text?: string;
+    }
+
     // Props
     interface Props {
         videoUrl: string;
@@ -10,14 +18,6 @@
     }
 
     let { videoUrl, markers = $bindable([]), onMarkerAdd, children }: Props = $props();
-
-    // Marker type
-    interface Marker {
-        id: string;
-        time: number;
-        type: "comment" | "move" | "pause" | "like";
-        text?: string;
-    }
 
     // State
     let videoEl: HTMLVideoElement | null = $state(null);
@@ -117,15 +117,11 @@
         <!-- Controls - overlaid at bottom of video section -->
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/90 to-transparent backdrop-blur-sm">
             <!-- Progress Bar -->
-            <div
-                class="relative h-1 bg-white/20 cursor-pointer mx-4 mt-3"
+            <button
+                type="button"
+                class="relative w-full h-1 bg-white/20 cursor-pointer mx-4 mt-3"
                 onclick={handleProgressClick}
-                role="slider"
-                aria-label="Video progress"
-                aria-valuenow={currentTime}
-                aria-valuemin={0}
-                aria-valuemax={duration}
-                tabindex="0"
+                aria-label="Video progress: {formatTime(currentTime)} of {formatTime(duration)}"
             >
                 <!-- Progress Fill -->
                 <div class="absolute inset-y-0 left-0 bg-[hsl(280_80%_55%)]" style="width: {progressPercent}%;"></div>
@@ -134,7 +130,7 @@
                     class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg"
                     style="left: {progressPercent}%;"
                 ></div>
-            </div>
+            </button>
 
             <!-- Time + Controls Row -->
             <div class="flex items-center justify-between px-4 py-3">
