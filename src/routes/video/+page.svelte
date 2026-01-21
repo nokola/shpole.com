@@ -13,6 +13,7 @@
         { id: "2", time: 15.12, type: "comment" as const, text: "Nice transition!", username: "someone.poles" },
         { id: "11", time: 17, type: "hide" as const },
         { id: "3", time: 30.23, type: "pause" as const, text: "Practice point: try to hold here" },
+        { id: "6", time: 35.5, type: "tip" as const, text: "Tip: arch back", username: "nikola" },
         { id: "4", time: 40.12, type: "like" as const, text: "🔥", username: "sarah" },
         { id: "5", time: 45.12, type: "comment" as const, text: "bye", username: "nokola" },
     ]);
