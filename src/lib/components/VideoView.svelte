@@ -157,6 +157,9 @@
         return null;
     });
 
+    // Visible markers sorted by time (excluding 'hide' markers)
+    let sortedVisibleMarkers = $derived([...markers].filter((m) => m.type !== "hide").sort((a, b) => a.time - b.time));
+
     // All move segments for highlighting on the timeline
     let moveSegments = $derived.by(() => {
         if (duration <= 0) return [];
@@ -437,6 +440,55 @@
                     Add Comment
                 </button>
             </div>
+        </div>
+    </div>
+
+    <!-- Annotations List -->
+    <div class="max-w-3xl mx-auto px-6 py-8">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+            Annotations
+            <span class="text-sm font-normal text-gray-500">({sortedVisibleMarkers.length})</span>
+        </h2>
+
+        <div class="space-y-1">
+            {#each sortedVisibleMarkers as marker (marker.id)}
+                <button
+                    type="button"
+                    class="w-full flex items-start gap-4 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group text-left"
+                    onclick={() => seekTo(marker.time)}
+                >
+                    <!-- Time Badge -->
+                    <span
+                        class="text-xs font-mono font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 min-w-[3.5rem] text-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                    >
+                        {formatTime(marker.time)}
+                    </span>
+
+                    <!-- Content -->
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-0.5">
+                            <span class="text-sm {getMarkerColor(marker)}">
+                                {getMarkerSymbol(marker.type)}
+                            </span>
+                            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
+                                {marker.type}
+                            </span>
+                        </div>
+
+                        {#if marker.text}
+                            <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
+                                {marker.text}
+                            </p>
+                        {/if}
+
+                        {#if marker.username}
+                            <span class="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
+                                — {marker.username}
+                            </span>
+                        {/if}
+                    </div>
+                </button>
+            {/each}
         </div>
     </div>
 
