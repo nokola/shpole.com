@@ -135,7 +135,7 @@
     // Find active marker (within 1 second of current time)
     let activeMarker = $derived.by(() => {
         const marker = markers.find((m) => Math.abs(m.time - currentTime) < 1);
-        if (!marker) return null;
+        if (!marker || marker.type === "move" || marker.type === "hide") return null;
         if (marker.type === "pause" && !marker.text) {
             return { ...marker, text: "Auto-paused" };
         }
