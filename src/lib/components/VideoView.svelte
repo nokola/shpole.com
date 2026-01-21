@@ -100,6 +100,9 @@
     // Progress percentage
     let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
 
+    // Find active marker (within 1 second of current time)
+    let activeMarker = $derived(markers.find((m) => m.text && Math.abs(m.time - currentTime) < 1) || null);
+
     // Marker colors by type
     function getMarkerColor(type: Marker["type"]): string {
         switch (type) {
@@ -163,6 +166,16 @@
 
         <!-- Controls - overlaid at bottom of video section -->
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
+            <!-- Active Marker Comment -->
+            {#if activeMarker}
+                <div
+                    class="mb-3 px-3 py-2 bg-black/70 backdrop-blur-sm rounded-lg text-white text-sm inline-block max-w-full"
+                >
+                    <span class="mr-1">{getMarkerSymbol(activeMarker.type)}</span>
+                    <span>{activeMarker.text}</span>
+                </div>
+            {/if}
+
             <!-- Progress Bar Container -->
             <div class="relative w-full h-6 flex items-center">
                 <!-- Progress Bar Track -->
