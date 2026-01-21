@@ -31,6 +31,13 @@
     let containerWidth = $state(0);
     let bubbleWidth = $state(0);
 
+    // Ensure duration is captured if video is already ready
+    $effect(() => {
+        if (videoEl && videoEl.duration > 0 && !isNaN(videoEl.duration)) {
+            duration = videoEl.duration;
+        }
+    });
+
     // Format time as MM:SS
     function formatTime(seconds: number): string {
         const mins = Math.floor(seconds / 60);
@@ -176,6 +183,7 @@
             onplay={handlePlay}
             onpause={handlePause}
             playsinline
+            preload="metadata"
         >
             <track kind="captions" />
         </video>
