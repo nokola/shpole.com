@@ -8,11 +8,11 @@
     // Sample markers for testing
     let markers = $state([
         { id: "0", time: 0, type: "move" as const, text: "Opening pose" },
-        { id: "1", time: 5, type: "move" as const, text: "Opening pose" },
-        { id: "2", time: 15, type: "comment" as const, text: "Nice transition!" },
-        { id: "3", time: 30, type: "pause" as const },
-        { id: "4", time: 40, type: "like" as const, text: "🔥" },
-        { id: "5", time: 45, type: "move" as const, text: "Spin sequence" },
+        { id: "1", time: 5.32, type: "move" as const, text: "Opening pose" },
+        { id: "2", time: 15.12, type: "comment" as const, text: "Nice transition!" },
+        { id: "3", time: 30.23, type: "pause" as const },
+        { id: "4", time: 40.12, type: "like" as const, text: "🔥" },
+        { id: "5", time: 45.12, type: "move" as const, text: "Spin sequence" },
     ]);
 
     function handleMarkerAdd(marker: { id: string; time: number; type: string; text?: string }) {
@@ -26,5 +26,5 @@
 </svelte:head>
 
 <div class="fixed inset-0 w-screen h-dvh">
-    <VideoView {videoUrl} bind:markers onMarkerAdd={handleMarkerAdd} />
+    <VideoView {videoUrl} duration={45.138186} bind:markers onMarkerAdd={handleMarkerAdd} />
 </div>

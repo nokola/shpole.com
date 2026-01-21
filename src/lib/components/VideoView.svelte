@@ -12,17 +12,17 @@
     // Props
     interface Props {
         videoUrl: string;
+        duration: number;
         markers?: Marker[];
         onMarkerAdd?: (marker: Marker) => void;
         children?: Snippet;
     }
 
-    let { videoUrl, markers = $bindable([]), onMarkerAdd, children }: Props = $props();
+    let { videoUrl, duration, markers = $bindable([]), onMarkerAdd, children }: Props = $props();
 
     // State
     let videoEl: HTMLVideoElement | null = $state(null);
     let currentTime = $state(0);
-    let duration = $state(0);
     let isPlaying = $state(false);
 
     // Bubble positioning
