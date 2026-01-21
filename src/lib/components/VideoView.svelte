@@ -1,14 +1,15 @@
 <script lang="ts">
-    import { onMount } from "svelte";
+    import type { Snippet } from "svelte";
 
     // Props
     interface Props {
         videoUrl: string;
         markers?: Marker[];
         onMarkerAdd?: (marker: Marker) => void;
+        children?: Snippet;
     }
 
-    let { videoUrl, markers = $bindable([]), onMarkerAdd }: Props = $props();
+    let { videoUrl, markers = $bindable([]), onMarkerAdd, children }: Props = $props();
 
     // Marker type
     interface Marker {
@@ -23,30 +24,6 @@
     let currentTime = $state(0);
     let duration = $state(0);
     let isPlaying = $state(false);
-    let isDragging = $state(false);
-    let commentText = $state("");
-
-    // Timeline scroll state
-    let preciseScrubberEl: HTMLDivElement | null = $state(null);
-    let fastScrubberEl: HTMLDivElement | null = $state(null);
-    let isAutoScrolling = $state(true);
-
-    // Constants
-    const PIXELS_PER_SECOND = 15; // How wide each second is on the timeline
-    const MARKER_ICONS: Record<Marker["type"], string> = {
-        comment: "💬",
-        move: "🏃",
-        pause: "⏸",
-        like: "❤️",
-    };
-    const QUICK_REACTIONS = ["🔥", "👏", "🥺"];
-
-    // Computed
-    let timelineWidth = $derived(duration * PIXELS_PER_SECOND);
-    let playheadPosition = $derived(currentTime * PIXELS_PER_SECOND);
-
-    // Sort markers by time for navigation
-    let sortedMarkers = $derived([...markers].sort((a, b) => a.time - b.time));
 
     // Format time as MM:SS
     function formatTime(seconds: number): string {
@@ -72,15 +49,8 @@
 
     // Handle video events
     function handleTimeUpdate() {
-        if (!videoEl || isDragging) return;
+        if (!videoEl) return;
         currentTime = videoEl.currentTime;
-
-        // Auto-scroll timeline to keep playhead visible
-        if (isAutoScrolling && preciseScrubberEl) {
-            const containerWidth = preciseScrubberEl.clientWidth;
-            const targetScroll = playheadPosition - containerWidth / 3;
-            preciseScrubberEl.scrollLeft = Math.max(0, targetScroll);
-        }
     }
 
     function handleLoadedMetadata() {
@@ -90,87 +60,39 @@
 
     function handlePlay() {
         isPlaying = true;
-        isAutoScrolling = true;
     }
 
     function handlePause() {
         isPlaying = false;
     }
 
-    // Timeline scrubbing
-    function handleTimelineClick(e: MouseEvent, element: HTMLDivElement) {
-        const rect = element.getBoundingClientRect();
-        const clickX = e.clientX - rect.left + element.scrollLeft;
-        const time = clickX / PIXELS_PER_SECOND;
-        seekTo(time);
-        isAutoScrolling = false;
+    // Progress bar scrubbing
+    function handleProgressClick(e: MouseEvent) {
+        const target = e.currentTarget as HTMLDivElement;
+        const rect = target.getBoundingClientRect();
+        const clickX = e.clientX - rect.left;
+        const percent = clickX / rect.width;
+        seekTo(percent * duration);
     }
 
-    function handleScroll() {
-        // When user manually scrolls, disable auto-scroll
-        if (!isDragging) {
-            isAutoScrolling = false;
-        }
+    // Skip forward/back
+    function skipBack() {
+        seekTo(currentTime - 10);
     }
 
-    // Marker navigation
-    function goToPrevMarker() {
-        const prevMarker = sortedMarkers.filter((m) => m.time < currentTime - 0.5).pop();
-        if (prevMarker) {
-            seekTo(prevMarker.time);
-        } else if (sortedMarkers.length > 0) {
-            seekTo(sortedMarkers[sortedMarkers.length - 1].time);
-        }
+    function skipForward() {
+        seekTo(currentTime + 10);
     }
 
-    function goToNextMarker() {
-        const nextMarker = sortedMarkers.find((m) => m.time > currentTime + 0.5);
-        if (nextMarker) {
-            seekTo(nextMarker.time);
-        } else if (sortedMarkers.length > 0) {
-            seekTo(sortedMarkers[0].time);
-        }
-    }
-
-    // Add markers
-    function addMarker(type: Marker["type"], text?: string) {
-        const newMarker: Marker = {
-            id: crypto.randomUUID(),
-            time: currentTime,
-            type,
-            text,
-        };
-        markers = [...markers, newMarker];
-        onMarkerAdd?.(newMarker);
-    }
-
-    function addReaction(emoji: string) {
-        addMarker("like", emoji);
-    }
-
-    function addComment() {
-        if (!commentText.trim()) return;
-        addMarker("comment", commentText.trim());
-        commentText = "";
-    }
-
-    function handleCommentKeydown(e: KeyboardEvent) {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            addComment();
-        }
-    }
-
-    // Generate thumbnail placeholder colors based on time position
-    function getThumbnailColor(index: number, total: number): string {
-        const hue = (index / total) * 360;
-        return `hsl(${hue}, 50%, 30%)`;
-    }
+    // Progress percentage
+    let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
 </script>
 
-<div class="video-view flex flex-col h-dvh bg-[hsl(240_15%_8%)] text-white overflow-hidden">
-    <!-- Video Player Section -->
-    <div class="relative flex-1 min-h-0 flex items-center justify-center bg-black">
+<!-- Outer scrollable container (div1) -->
+<div class="w-full">
+    <!-- Video + Controls section - exactly viewport height (div2) -->
+    <div class="relative w-full h-dvh bg-black text-white">
+        <!-- Video - fills entire section -->
         <video
             bind:this={videoEl}
             src={videoUrl}
@@ -184,223 +106,98 @@
             <track kind="captions" />
         </video>
 
-        <!-- Play/Pause Overlay -->
+        <!-- Tap to play/pause overlay -->
         <button
             type="button"
-            class="absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 hover:opacity-100 transition-opacity cursor-pointer"
+            class="absolute inset-0 cursor-pointer"
             onclick={togglePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
-        >
-            <div class="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                <span class="text-3xl">{isPlaying ? "⏸" : "▶️"}</span>
-            </div>
-        </button>
-    </div>
+        ></button>
 
-    <!-- Time Display -->
-    <div class="flex items-center justify-center gap-2 py-2 text-lg font-mono bg-[hsl(240_15%_10%)]">
-        <span class="text-white">{formatTime(currentTime)}</span>
-        <span class="text-white/50">|</span>
-        <span class="text-white/70">{formatTime(duration)}</span>
-    </div>
-
-    <!-- Fast Scrubber (Markers Only) -->
-    <div class="relative bg-[hsl(240_15%_12%)] border-y border-white/10">
-        <div class="flex items-center px-2 gap-2">
-            <button
-                type="button"
-                class="p-2 text-white/70 hover:text-white transition-colors"
-                onclick={goToPrevMarker}
-                aria-label="Previous marker"
-            >
-                ◀
-            </button>
-
+        <!-- Controls - overlaid at bottom of video section -->
+        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/90 to-transparent backdrop-blur-sm">
+            <!-- Progress Bar -->
             <div
-                bind:this={fastScrubberEl}
-                class="flex-1 h-10 overflow-x-auto scrollbar-thin relative"
-                onclick={(e) => handleTimelineClick(e, fastScrubberEl!)}
-                onscroll={handleScroll}
+                class="relative h-1 bg-white/20 cursor-pointer mx-4 mt-3"
+                onclick={handleProgressClick}
                 role="slider"
-                aria-label="Fast marker scrubber"
+                aria-label="Video progress"
                 aria-valuenow={currentTime}
                 aria-valuemin={0}
                 aria-valuemax={duration}
                 tabindex="0"
             >
-                <div class="relative h-full" style="width: {timelineWidth}px; min-width: 100%;">
-                    <!-- Playhead -->
-                    <div
-                        class="absolute top-0 bottom-0 w-0.5 bg-[hsl(var(--shpole-primary))] z-10"
-                        style="left: {playheadPosition}px;"
-                    ></div>
-
-                    <!-- Markers -->
-                    {#each markers as marker}
-                        <button
-                            type="button"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-lg hover:scale-125 transition-transform cursor-pointer z-20"
-                            style="left: {marker.time * PIXELS_PER_SECOND}px;"
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                seekTo(marker.time);
-                            }}
-                            aria-label="{marker.type} marker at {formatTime(marker.time)}"
-                        >
-                            {MARKER_ICONS[marker.type]}
-                        </button>
-                    {/each}
-                </div>
+                <!-- Progress Fill -->
+                <div class="absolute inset-y-0 left-0 bg-[hsl(280_80%_55%)]" style="width: {progressPercent}%;"></div>
+                <!-- Scrubber Thumb -->
+                <div
+                    class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg"
+                    style="left: {progressPercent}%;"
+                ></div>
             </div>
 
-            <button
-                type="button"
-                class="p-2 text-white/70 hover:text-white transition-colors"
-                onclick={goToNextMarker}
-                aria-label="Next marker"
-            >
-                ▶
-            </button>
-        </div>
-    </div>
+            <!-- Time + Controls Row -->
+            <div class="flex items-center justify-between px-4 py-3">
+                <!-- Time Display -->
+                <div class="text-sm font-mono text-white/80">
+                    {formatTime(currentTime)} / {formatTime(duration)}
+                </div>
 
-    <!-- Precise Scrubber (Thumbnails) -->
-    <div class="bg-[hsl(240_15%_6%)]">
-        <div
-            bind:this={preciseScrubberEl}
-            class="h-16 overflow-x-auto scrollbar-thin relative"
-            onclick={(e) => handleTimelineClick(e, preciseScrubberEl!)}
-            onscroll={handleScroll}
-            role="slider"
-            aria-label="Precise thumbnail scrubber"
-            aria-valuenow={currentTime}
-            aria-valuemin={0}
-            aria-valuemax={duration}
-            tabindex="0"
-        >
-            <div class="relative h-full flex" style="width: {timelineWidth}px; min-width: 100%;">
-                <!-- Thumbnail placeholders (colored blocks) -->
-                {#each Array(Math.max(1, Math.ceil(duration / 5))) as _, i}
-                    <div
-                        class="h-full flex-shrink-0"
-                        style="width: {5 * PIXELS_PER_SECOND}px; background: {getThumbnailColor(
-                            i,
-                            Math.ceil(duration / 5),
-                        )};"
-                    ></div>
-                {/each}
-
-                <!-- Playhead -->
-                <div
-                    class="absolute top-0 bottom-0 w-0.5 bg-[hsl(var(--shpole-primary))] z-10"
-                    style="left: {playheadPosition}px;"
-                ></div>
-
-                <!-- Progress overlay (played portion) -->
-                <div
-                    class="absolute inset-y-0 left-0 bg-[hsl(var(--shpole-primary))] opacity-30 pointer-events-none"
-                    style="width: {playheadPosition}px;"
-                ></div>
-
-                <!-- Markers on thumbnail bar -->
-                {#each markers as marker}
+                <!-- Playback Controls -->
+                <div class="flex items-center gap-4">
+                    <!-- Skip Back 10s -->
                     <button
                         type="button"
-                        class="absolute bottom-1 -translate-x-1/2 text-sm opacity-70 hover:opacity-100 cursor-pointer z-20"
-                        style="left: {marker.time * PIXELS_PER_SECOND}px;"
-                        onclick={(e) => {
-                            e.stopPropagation();
-                            seekTo(marker.time);
-                        }}
-                        aria-label="{marker.type} marker at {formatTime(marker.time)}"
+                        class="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                        onclick={skipBack}
+                        aria-label="Skip back 10 seconds"
                     >
-                        {MARKER_ICONS[marker.type]}
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M12.5 3C17.15 3 21.08 6.03 22.47 10.22L20.1 11C19.05 7.81 16.04 5.5 12.5 5.5C10.54 5.5 8.77 6.22 7.38 7.38L10 10H3V3L5.6 5.6C7.45 4 9.85 3 12.5 3M10 12L12.5 14.5L10 17V12M6 11.5V19H8V13.5L6 11.5Z"
+                            />
+                        </svg>
                     </button>
-                {/each}
+
+                    <!-- Play/Pause -->
+                    <button
+                        type="button"
+                        class="w-14 h-14 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                        onclick={togglePlay}
+                        aria-label={isPlaying ? "Pause" : "Play"}
+                    >
+                        {#if isPlaying}
+                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+                            </svg>
+                        {:else}
+                            <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        {/if}
+                    </button>
+
+                    <!-- Skip Forward 10s -->
+                    <button
+                        type="button"
+                        class="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
+                        onclick={skipForward}
+                        aria-label="Skip forward 10 seconds"
+                    >
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                            <path
+                                d="M11.5 3C6.85 3 2.92 6.03 1.53 10.22L3.9 11C4.95 7.81 7.96 5.5 11.5 5.5C13.46 5.5 15.23 6.22 16.62 7.38L14 10H21V3L18.4 5.6C16.55 4 14.15 3 11.5 3M14 12L11.5 14.5L14 17V12M18 11.5V19H16V13.5L18 11.5Z"
+                            />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- Spacer to balance layout -->
+                <div class="w-16"></div>
             </div>
         </div>
     </div>
 
-    <!-- Add Marker Buttons -->
-    <div class="flex items-center justify-center gap-4 py-2 bg-[hsl(240_15%_10%)]">
-        <button
-            type="button"
-            class="px-3 py-1 rounded-full text-sm bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-1"
-            onclick={() => addMarker("pause")}
-            aria-label="Add pause marker"
-        >
-            ⏸ Pause
-        </button>
-        <button
-            type="button"
-            class="px-3 py-1 rounded-full text-sm bg-white/10 hover:bg-white/20 transition-colors flex items-center gap-1"
-            onclick={() => addMarker("move")}
-            aria-label="Add move marker"
-        >
-            🏃 Move
-        </button>
-    </div>
-
-    <!-- Comment/Reaction Bar -->
-    <div class="p-3 bg-[hsl(240_15%_12%)] border-t border-white/10">
-        <div class="flex items-center gap-2 bg-[hsl(240_15%_18%)] rounded-full px-4 py-2">
-            <input
-                type="text"
-                placeholder="Drop a comment..."
-                class="flex-1 bg-transparent border-none outline-none text-white placeholder-white/50 text-sm"
-                bind:value={commentText}
-                onkeydown={handleCommentKeydown}
-            />
-            {#each QUICK_REACTIONS as emoji}
-                <button
-                    type="button"
-                    class="text-xl hover:scale-125 transition-transform cursor-pointer"
-                    onclick={() => addReaction(emoji)}
-                    aria-label="Add {emoji} reaction"
-                >
-                    {emoji}
-                </button>
-            {/each}
-        </div>
-    </div>
-
-    <!-- Marker Navigation -->
-    <div class="flex items-center justify-between px-4 py-3 bg-[hsl(240_15%_8%)] border-t border-white/10">
-        <button
-            type="button"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm"
-            onclick={goToPrevMarker}
-            aria-label="Go to previous marker"
-        >
-            ◀️ Prev
-        </button>
-        <span class="text-white/50 text-sm">
-            {markers.length} marker{markers.length !== 1 ? "s" : ""}
-        </span>
-        <button
-            type="button"
-            class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm"
-            onclick={goToNextMarker}
-            aria-label="Go to next marker"
-        >
-            Next ▶️
-        </button>
-    </div>
+    <!-- Additional content slot (div3) - for comments, etc. -->
+    {@render children?.()}
 </div>
-
-<style>
-    /* Custom scrollbar for timeline */
-    .scrollbar-thin::-webkit-scrollbar {
-        height: 4px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-track {
-        background: hsl(240 15% 15%);
-    }
-    .scrollbar-thin::-webkit-scrollbar-thumb {
-        background: hsl(280 80% 55%);
-        border-radius: 2px;
-    }
-    .scrollbar-thin::-webkit-scrollbar-thumb:hover {
-        background: hsl(280 80% 65%);
-    }
-</style>
