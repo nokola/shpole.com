@@ -165,23 +165,25 @@
         ></button>
 
         <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
+        <div
+            class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8 overflow-hidden"
+        >
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
                 {@const markerPercent = duration > 0 ? (activeMarker.time / duration) * 100 : 0}
-                <div class="relative w-full mb-2">
+                {@const clampedPercent = Math.max(15, Math.min(85, markerPercent))}
+                {@const notchOffsetVw = (markerPercent - clampedPercent) * 0.92}
+                <div class="relative w-full mb-2 h-8">
                     <!-- Comment bubble positioned at marker -->
-                    <div
-                        class="absolute bottom-0 -translate-x-1/2 max-w-[80%] min-w-0"
-                        style="left: clamp(10%, {markerPercent}%, 90%);"
-                    >
+                    <div class="absolute bottom-0 -translate-x-1/2" style="left: {clampedPercent}%;">
                         <div
                             class="relative bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
                         >
                             {activeMarker.text}
-                            <!-- Notch pointing down -->
+                            <!-- Notch pointing down, offset to point at actual marker -->
                             <div
-                                class="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/95"
+                                class="absolute top-full -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/95"
+                                style="left: calc(50% + {notchOffsetVw}vw);"
                             ></div>
                         </div>
                     </div>
