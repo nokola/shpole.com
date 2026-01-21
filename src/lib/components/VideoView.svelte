@@ -142,6 +142,19 @@
         return marker.text ? marker : null;
     });
 
+    // Find current active move name
+    let activeMoveName = $derived.by(() => {
+        // Find the latest marker of type 'move' or 'hide' that has already happened
+        const lastRelevantMarker = [...markers]
+            .filter((m) => (m.type === "move" || m.type === "hide") && m.time <= currentTime)
+            .sort((a, b) => b.time - a.time)[0];
+
+        if (lastRelevantMarker?.type === "move") {
+            return lastRelevantMarker.text;
+        }
+        return null;
+    });
+
     // Bubble positioning calculations
     let bubblePosition = $derived.by(() => {
         if (!activeMarker || containerWidth === 0) {
@@ -227,6 +240,15 @@
             onclick={togglePlay}
             aria-label={isPlaying ? "Pause" : "Play"}
         ></button>
+
+        <!-- Active Move Display (Bottom Left) -->
+        {#if activeMoveName}
+            <div
+                class="absolute bottom-40 left-6 text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] pointer-events-none transition-opacity duration-300"
+            >
+                {activeMoveName}
+            </div>
+        {/if}
 
         <!-- Controls - overlaid at bottom of video section -->
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
