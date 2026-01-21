@@ -7,6 +7,7 @@
         time: number;
         type: "comment" | "move" | "pause" | "like";
         text?: string;
+        color?: string;
     }
 
     // Props
@@ -136,18 +137,19 @@
     });
 
     // Marker colors by type
-    function getMarkerColor(type: Marker["type"]): string {
-        switch (type) {
+    function getMarkerColor(marker: Marker): string {
+        if (marker.color) return marker.color;
+        switch (marker.type) {
             case "comment":
-                return "bg-sky-400";
+                return "text-sky-400";
             case "move":
-                return "bg-violet-500";
+                return "text-blue-400";
             case "pause":
-                return "bg-amber-400";
+                return "text-orange-500";
             case "like":
-                return "bg-rose-500";
+                return "text-rose-500";
             default:
-                return "bg-white";
+                return "text-white";
         }
     }
 
@@ -157,7 +159,7 @@
             case "comment":
                 return "💬";
             case "move":
-                return "🎯";
+                return "◆";
             case "pause":
                 return "⏸";
             case "like":
@@ -251,7 +253,9 @@
                         {@const markerPercent = duration > 0 ? (marker.time / duration) * 100 : 0}
                         <button
                             type="button"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-10 drop-shadow-md"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-10 drop-shadow-md {getMarkerColor(
+                                marker,
+                            )}"
                             style="left: {markerPercent}%;"
                             title="{marker.type}: {marker.text || formatTime(marker.time)}"
                             onclick={(e) => {
