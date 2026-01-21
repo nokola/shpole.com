@@ -25,6 +25,12 @@
     let duration = $state(0);
     let isPlaying = $state(false);
 
+    // Bubble positioning
+    let bubbleContainerEl: HTMLDivElement | null = $state(null);
+    let bubbleEl: HTMLDivElement | null = $state(null);
+    let containerWidth = $state(0);
+    let bubbleWidth = $state(0);
+
     // Format time as MM:SS
     function formatTime(seconds: number): string {
         const mins = Math.floor(seconds / 60);
@@ -103,6 +109,24 @@
     // Find active marker (within 1 second of current time)
     let activeMarker = $derived(markers.find((m) => m.text && Math.abs(m.time - currentTime) < 1) || null);
 
+    // Bubble positioning calculations
+    let bubblePosition = $derived.by(() => {
+        if (!activeMarker || containerWidth === 0) {
+            return { left: 0, notchPercent: 50 };
+        }
+        const markerPercent = duration > 0 ? (activeMarker.time / duration) * 100 : 0;
+        const markerPx = (markerPercent / 100) * containerWidth;
+        const halfBubble = bubbleWidth / 2;
+        const idealLeft = markerPx - halfBubble;
+        const clampedLeft = Math.max(0, Math.min(containerWidth - bubbleWidth, idealLeft));
+        const notchPx = markerPx - clampedLeft;
+        const notchPercent = bubbleWidth > 0 ? (notchPx / bubbleWidth) * 100 : 50;
+        return {
+            left: clampedLeft,
+            notchPercent: Math.max(10, Math.min(90, notchPercent)),
+        };
+    });
+
     // Marker colors by type
     function getMarkerColor(type: Marker["type"]): string {
         switch (type) {
@@ -170,20 +194,22 @@
         >
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
-                {@const markerPercent = duration > 0 ? (activeMarker.time / duration) * 100 : 0}
-                {@const clampedPercent = Math.max(15, Math.min(85, markerPercent))}
-                {@const notchOffsetVw = (markerPercent - clampedPercent) * 0.92}
-                <div class="relative w-full mb-2 h-8">
+                <div class="relative w-full mb-2 h-8" bind:this={bubbleContainerEl} bind:clientWidth={containerWidth}>
                     <!-- Comment bubble positioned at marker -->
-                    <div class="absolute bottom-0 -translate-x-1/2" style="left: {clampedPercent}%;">
+                    <div
+                        bind:this={bubbleEl}
+                        bind:clientWidth={bubbleWidth}
+                        class="absolute bottom-0"
+                        style="left: {bubblePosition.left}px;"
+                    >
                         <div
                             class="relative bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
                         >
                             {activeMarker.text}
-                            <!-- Notch pointing down, offset to point at actual marker -->
+                            <!-- Notch pointing down at marker -->
                             <div
                                 class="absolute top-full -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/95"
-                                style="left: calc(50% + {notchOffsetVw}vw);"
+                                style="left: {bubblePosition.notchPercent}%;"
                             ></div>
                         </div>
                     </div>
