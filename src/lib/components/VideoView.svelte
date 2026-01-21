@@ -5,7 +5,7 @@
     interface Marker {
         id: string;
         time: number;
-        type: "comment" | "move" | "pause" | "like";
+        type: "comment" | "move" | "pause" | "like" | "hide";
         text?: string;
         color?: string;
     }
@@ -173,6 +173,8 @@
                 return "text-orange-500";
             case "like":
                 return "text-rose-500";
+            case "hide":
+                return "text-blue-400";
             default:
                 return "text-white";
         }
@@ -189,6 +191,8 @@
                 return "⏸";
             case "like":
                 return "❤️";
+            case "hide":
+                return "|";
             default:
                 return "•";
         }
