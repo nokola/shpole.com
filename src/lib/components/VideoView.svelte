@@ -139,7 +139,8 @@
     // Find active marker for the comment bubble (within 1 second of current time)
     let activeMarker = $derived.by(() => {
         const m = playheadMarker;
-        if (!m || m.type === "move" || m.type === "hide" || m.type === "pause") return null;
+        if (!m || m.type === "move" || m.type === "hide") return null;
+        if (m.type === "pause") return m.text ? m : null;
         return m.text ? m : null;
     });
 
