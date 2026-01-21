@@ -25,5 +25,5 @@
 </svelte:head>
 
 <div class="fixed inset-0 w-screen h-dvh">
-    <VideoView {videoUrl} bind:markers onMarkerAdd={handleMarkerAdd} />
+    <VideoView {videoUrl} bind:markers onMarkerAdd={handleMarkerAdd}>some comment</VideoView>
 </div>
