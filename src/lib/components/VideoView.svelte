@@ -166,11 +166,19 @@
             <!-- Progress Bar Container -->
             <div class="relative w-full h-6 flex items-center">
                 <!-- Progress Bar Track -->
-                <button
-                    type="button"
+                <div
                     class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
                     onclick={handleProgressClick}
-                    aria-label="Video progress: {formatTime(currentTime)} of {formatTime(duration)}"
+                    onkeydown={(e) => {
+                        if (e.key === "ArrowLeft") seekTo(currentTime - 5);
+                        if (e.key === "ArrowRight") seekTo(currentTime + 5);
+                    }}
+                    role="slider"
+                    aria-label="Video progress"
+                    aria-valuenow={Math.round(progressPercent)}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    tabindex="0"
                 >
                     <!-- Progress Fill -->
                     <div
@@ -181,31 +189,18 @@
                     <!-- Annotation Markers -->
                     {#each markers as marker (marker.id)}
                         {@const markerPercent = duration > 0 ? (marker.time / duration) * 100 : 0}
-                        <div
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full {getMarkerColor(
-                                marker.type,
-                            )} ring-2 ring-black/50 cursor-pointer hover:scale-125 transition-transform z-10"
+                        <button
+                            type="button"
+                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-10 drop-shadow-md"
                             style="left: {markerPercent}%;"
                             title="{marker.type}: {marker.text || formatTime(marker.time)}"
-                            role="button"
-                            tabindex="0"
                             onclick={(e) => {
                                 e.stopPropagation();
                                 seekTo(marker.time);
                             }}
-                            onkeydown={(e) => {
-                                if (e.key === "Enter") {
-                                    e.stopPropagation();
-                                    seekTo(marker.time);
-                                }
-                            }}
                         >
-                            <span
-                                class="absolute -top-5 left-1/2 -translate-x-1/2 text-sm pointer-events-none drop-shadow-md"
-                            >
-                                {getMarkerSymbol(marker.type)}
-                            </span>
-                        </div>
+                            {getMarkerSymbol(marker.type)}
+                        </button>
                     {/each}
 
                     <!-- Scrubber Thumb -->
@@ -213,7 +208,7 @@
                         class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg z-20"
                         style="left: {progressPercent}%;"
                     ></div>
-                </button>
+                </div>
             </div>
 
             <!-- Controls Row -->
