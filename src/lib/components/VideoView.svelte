@@ -25,6 +25,7 @@
     let videoEl: HTMLVideoElement | null = $state(null);
     let currentTime = $state(0);
     let isPlaying = $state(false);
+    let lastPausedMarkerId = $state<string | null>(null);
 
     // Bubble positioning
     let bubbleContainerEl: HTMLDivElement | null = $state(null);
@@ -59,12 +60,29 @@
     function seekTo(time: number) {
         if (!videoEl) return;
         videoEl.currentTime = Math.max(0, Math.min(time, duration));
+        lastPausedMarkerId = null; // Clear trigger when seeking
     }
 
     // Handle video events
     function handleTimeUpdate() {
         if (!videoEl) return;
         currentTime = videoEl.currentTime;
+
+        // Auto-pause logic
+        if (isPlaying) {
+            const pauseMarker = markers.find(
+                (m) =>
+                    m.type === "pause" &&
+                    Math.abs(m.time - currentTime) < 0.25 && // Typical timeupdate interval
+                    m.id !== lastPausedMarkerId,
+            );
+
+            if (pauseMarker) {
+                videoEl.pause();
+                lastPausedMarkerId = pauseMarker.id;
+            }
+        }
+
         // Fallback: also check duration here in case loadedmetadata didn't fire
         if (duration === 0 && videoEl.duration > 0 && !isNaN(videoEl.duration)) {
             duration = videoEl.duration;
@@ -115,7 +133,14 @@
     let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
 
     // Find active marker (within 1 second of current time)
-    let activeMarker = $derived(markers.find((m) => m.text && Math.abs(m.time - currentTime) < 1) || null);
+    let activeMarker = $derived.by(() => {
+        const marker = markers.find((m) => Math.abs(m.time - currentTime) < 1);
+        if (!marker) return null;
+        if (marker.type === "pause" && !marker.text) {
+            return { ...marker, text: "Auto-paused" };
+        }
+        return marker.text ? marker : null;
+    });
 
     // Bubble positioning calculations
     let bubblePosition = $derived.by(() => {
