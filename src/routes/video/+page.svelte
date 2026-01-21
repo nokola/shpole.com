@@ -24,6 +24,6 @@
     <meta name="description" content="Test page for the video annotation component" />
 </svelte:head>
 
-<div class="h-dvh w-full">
+<div class="fixed inset-0 w-screen h-dvh">
     <VideoView {videoUrl} bind:markers onMarkerAdd={handleMarkerAdd} />
 </div>

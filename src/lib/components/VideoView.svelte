@@ -115,16 +115,16 @@
         ></button>
 
         <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/90 to-transparent backdrop-blur-sm">
+        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             <!-- Progress Bar -->
             <button
                 type="button"
-                class="relative w-full h-1 bg-white/20 cursor-pointer mx-4 mt-3"
+                class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
                 onclick={handleProgressClick}
                 aria-label="Video progress: {formatTime(currentTime)} of {formatTime(duration)}"
             >
                 <!-- Progress Fill -->
-                <div class="absolute inset-y-0 left-0 bg-[hsl(280_80%_55%)]" style="width: {progressPercent}%;"></div>
+                <div class="absolute inset-y-0 left-0 bg-white rounded-full" style="width: {progressPercent}%;"></div>
                 <!-- Scrubber Thumb -->
                 <div
                     class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg"
@@ -132,64 +132,43 @@
                 ></div>
             </button>
 
-            <!-- Time + Controls Row -->
-            <div class="flex items-center justify-between px-4 py-3">
-                <!-- Time Display -->
-                <div class="text-sm font-mono text-white/80">
-                    {formatTime(currentTime)} / {formatTime(duration)}
-                </div>
-
-                <!-- Playback Controls -->
-                <div class="flex items-center gap-4">
-                    <!-- Skip Back 10s -->
-                    <button
-                        type="button"
-                        class="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-                        onclick={skipBack}
-                        aria-label="Skip back 10 seconds"
-                    >
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M12.5 3C17.15 3 21.08 6.03 22.47 10.22L20.1 11C19.05 7.81 16.04 5.5 12.5 5.5C10.54 5.5 8.77 6.22 7.38 7.38L10 10H3V3L5.6 5.6C7.45 4 9.85 3 12.5 3M10 12L12.5 14.5L10 17V12M6 11.5V19H8V13.5L6 11.5Z"
-                            />
-                        </svg>
-                    </button>
-
+            <!-- Controls Row -->
+            <div class="flex items-center justify-between mt-3">
+                <!-- Left: Play/Pause + Time -->
+                <div class="flex items-center gap-3">
                     <!-- Play/Pause -->
                     <button
                         type="button"
-                        class="w-14 h-14 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
                         onclick={togglePlay}
                         aria-label={isPlaying ? "Pause" : "Play"}
                     >
                         {#if isPlaying}
-                            <svg class="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
                             </svg>
                         {:else}
-                            <svg class="w-7 h-7 ml-1" fill="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M8 5v14l11-7z" />
                             </svg>
                         {/if}
                     </button>
 
-                    <!-- Skip Forward 10s -->
-                    <button
-                        type="button"
-                        class="w-10 h-10 flex items-center justify-center text-white/80 hover:text-white transition-colors"
-                        onclick={skipForward}
-                        aria-label="Skip forward 10 seconds"
-                    >
-                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                            <path
-                                d="M11.5 3C6.85 3 2.92 6.03 1.53 10.22L3.9 11C4.95 7.81 7.96 5.5 11.5 5.5C13.46 5.5 15.23 6.22 16.62 7.38L14 10H21V3L18.4 5.6C16.55 4 14.15 3 11.5 3M14 12L11.5 14.5L14 17V12M18 11.5V19H16V13.5L18 11.5Z"
-                            />
-                        </svg>
-                    </button>
+                    <!-- Time Display -->
+                    <div class="text-sm text-white/90">
+                        {formatTime(currentTime)}
+                        <span class="text-white/50">/ {formatTime(duration)}</span>
+                    </div>
                 </div>
 
-                <!-- Spacer to balance layout -->
-                <div class="w-16"></div>
+                <!-- Right: Add Annotation Button -->
+                <button
+                    type="button"
+                    class="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors"
+                    aria-label="Add annotation"
+                >
+                    Add Annotation
+                </button>
             </div>
         </div>
     </div>
