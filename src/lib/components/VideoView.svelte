@@ -162,24 +162,27 @@
             .filter((m) => m.type === "move" || m.type === "hide")
             .sort((a, b) => a.time - b.time);
 
-        const segments: { start: number; end: number }[] = [];
+        const segments: { start: number; end: number; text: string | null }[] = [];
         let currentStartTime: number | null = null;
+        let currentText: string | null = null;
 
         for (const m of sorted) {
             if (m.type === "move") {
                 if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time });
+                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
                 }
                 currentStartTime = m.time;
+                currentText = m.text || null;
             } else if (m.type === "hide") {
                 if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time });
+                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
                     currentStartTime = null;
+                    currentText = null;
                 }
             }
         }
         if (currentStartTime !== null) {
-            segments.push({ start: currentStartTime, end: duration });
+            segments.push({ start: currentStartTime, end: duration, text: currentText });
         }
         return segments;
     });
@@ -283,7 +286,11 @@
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
-                <div class="relative w-full mb-2 h-8" bind:this={bubbleContainerEl} bind:clientWidth={containerWidth}>
+                <div
+                    class="relative w-full mb-2 h-8 z-40"
+                    bind:this={bubbleContainerEl}
+                    bind:clientWidth={containerWidth}
+                >
                     <!-- Comment bubble positioned at marker -->
                     <div
                         bind:this={bubbleEl}
@@ -334,7 +341,15 @@
                             class="absolute top-1/2 -translate-y-1/2 bg-blue-400 rounded-full h-2"
                             style="left: {(seg.start / duration) * 100}%; width: {((seg.end - seg.start) / duration) *
                                 100}%;"
-                        ></div>
+                        >
+                            {#if seg.text}
+                                <span
+                                    class="absolute bottom-full mb-1.5 left-0 text-[9px] text-white bg-black/50 px-1.5 py-0.5 rounded-[4px] font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full pointer-events-none backdrop-blur-[2px]"
+                                >
+                                    {seg.text}
+                                </span>
+                            {/if}
+                        </div>
                     {/each}
 
                     <!-- Annotation Markers -->
