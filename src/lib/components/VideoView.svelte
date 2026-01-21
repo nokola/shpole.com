@@ -331,9 +331,9 @@
                     <!-- Move Highlights -->
                     {#each moveSegments as seg}
                         <div
-                            class="absolute inset-y-0 bg-blue-400 rounded-full"
+                            class="absolute top-1/2 -translate-y-1/2 bg-blue-400 rounded-full h-2"
                             style="left: {(seg.start / duration) * 100}%; width: {((seg.end - seg.start) / duration) *
-                                100}%"
+                                100}%;"
                         ></div>
                     {/each}
 
