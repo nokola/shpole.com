@@ -35,27 +35,6 @@ export function getMarkerSymbol(type: Marker["type"]): string {
     }
 }
 
-/** Returns a hex color string for the given marker (used in SVG/canvas/inline style contexts). */
-export function getMarkerColorHex(marker: Marker): string {
-    if (marker.color) return marker.color;
-    switch (marker.type) {
-        case "comment":
-            return "#38bdf8"; // sky-400
-        case "move":
-            return "#60a5fa"; // blue-400
-        case "pause":
-            return "#f97316"; // orange-500
-        case "like":
-            return "#f43f5e"; // rose-500
-        case "hide":
-            return "#60a5fa"; // blue-400
-        case "tip":
-            return "#fbbf24"; // amber-400
-        default:
-            return "#ffffff";
-    }
-}
-
 /** Returns a Tailwind text-color class for the given marker (used in class= contexts). */
 export function getMarkerColorClass(marker: Marker): string {
     if (marker.color) return marker.color;
@@ -71,7 +50,7 @@ export function getMarkerColorClass(marker: Marker): string {
         case "hide":
             return "text-blue-400";
         case "tip":
-            return "text-amber-300";
+            return "text-amber-400";
         default:
             return "text-white";
     }

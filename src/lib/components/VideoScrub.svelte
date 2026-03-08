@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Marker, type MoveSegment, getMarkerColorHex, getMarkerSymbol } from "$lib/markers";
+    import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
 
     interface Props {
         duration: number;
@@ -255,8 +255,8 @@
         {#each visibleMarkers as marker (marker.id)}
             <button
                 type="button"
-                class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2"
-                style="left: {marker.time * pixelsPerSecond}px; color: {getMarkerColorHex(marker)};"
+                class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(marker)}"
+                style="left: {marker.time * pixelsPerSecond}px;"
                 title="{marker.type}: {marker.text}"
                 onclick={(e) => {
                     e.stopPropagation();
