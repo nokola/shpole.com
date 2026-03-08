@@ -255,7 +255,7 @@
         </div>
 
         <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
+        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent pb-4 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
                 <div class="flex justify-center items-center gap-1.5 mb-0.5 z-40">
@@ -276,7 +276,7 @@
             <VideoScrub {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
 
             <!-- Controls Row -->
-            <div class="flex items-center justify-between mt-3">
+            <div class="flex items-center justify-between mt-3 px-4">
                 <!-- Left: Play/Pause + Time -->
                 <div class="flex items-center gap-3">
                     <!-- Play/Pause -->
