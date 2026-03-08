@@ -20,11 +20,16 @@
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
 
-    // Bubble positioning
-    let bubbleContainerEl: HTMLDivElement | null = $state(null);
-    let bubbleEl: HTMLDivElement | null = $state(null);
-    let containerWidth = $state(0);
-    let bubbleWidth = $state(0);
+    // Initials helper
+    function getInitials(name?: string): string {
+        if (!name) return "U";
+        return name
+            .split(/\s+/)
+            .filter(part => part.length > 0)
+            .map(part => part[0].toUpperCase())
+            .join("")
+            .slice(0, 2);
+    }
 
     // Ensure duration is captured if video is already ready
     $effect(() => {
@@ -179,24 +184,6 @@
         return segments;
     });
 
-    // Bubble positioning calculations
-    let bubblePosition = $derived.by(() => {
-        if (!activeMarker || containerWidth === 0) {
-            return { left: 0, notchPercent: 50 };
-        }
-        const markerPercent = duration > 0 ? (activeMarker.time / duration) * 100 : 0;
-        const markerPx = (markerPercent / 100) * containerWidth;
-        const halfBubble = bubbleWidth / 2;
-        const marginPx = 14;
-        const idealLeft = markerPx - halfBubble;
-        const clampedLeft = Math.max(-marginPx, Math.min(containerWidth - bubbleWidth + marginPx, idealLeft));
-        const notchPx = markerPx - clampedLeft;
-        const notchPercent = bubbleWidth > 0 ? (notchPx / bubbleWidth) * 100 : 50;
-        return {
-            left: clampedLeft,
-            notchPercent: Math.max(8, Math.min(92, notchPercent)),
-        };
-    });
 
 </script>
 
@@ -251,33 +238,11 @@
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
-                <div
-                    class="relative w-full mb-2 h-8 z-40"
-                    bind:this={bubbleContainerEl}
-                    bind:clientWidth={containerWidth}
-                >
-                    <!-- Comment bubble positioned at marker -->
+                <div class="flex justify-center mb-2 z-40">
                     <div
-                        bind:this={bubbleEl}
-                        bind:clientWidth={bubbleWidth}
-                        class="absolute bottom-0"
-                        style="left: {bubblePosition.left}px;"
+                        class="bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
                     >
-                        <div
-                            class="relative bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
-                        >
-                            <div>{activeMarker.text}</div>
-                            {#if activeMarker.username}
-                                <div class="text-[10px] text-gray-500 font-medium mt-0.5">
-                                    — {activeMarker.username}
-                                </div>
-                            {/if}
-                            <!-- Notch pointing down at marker -->
-                            <div
-                                class="absolute top-full -translate-x-1/2 w-0 h-0 border-l-[6px] border-l-transparent border-r-[6px] border-r-transparent border-t-[6px] border-t-white/95"
-                                style="left: {bubblePosition.notchPercent}%;"
-                            ></div>
-                        </div>
+                        {getInitials(activeMarker.username)} - {activeMarker.text}
                     </div>
                 </div>
             {/if}
