@@ -234,8 +234,8 @@
         <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent px-4 pb-4 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
-                <div class="flex justify-center mb-2 z-40">
-                    <div class="bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
+                <div class="flex justify-center mb-0.5 z-40">
+                    <div class="bg-black/70 text-white text-sm px-3 py-1 rounded-lg shadow-lg whitespace-nowrap">
                         {getInitials(activeMarker.username)} - {activeMarker.text}
                     </div>
                 </div>

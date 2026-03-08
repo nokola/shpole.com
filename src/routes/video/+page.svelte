@@ -8,6 +8,7 @@
     // Sample markers for testing
     let markers = $state([
         { id: "0", time: 0, type: "move" as const, text: "Cup split grip" },
+        { id: "21", time: 1, type: "comment" as const, text: "Nice transition!", username: "someone.poles" },
         { id: "10", time: 3, type: "hide" as const },
         { id: "1", time: 5.32, type: "move" as const, text: "Layout (cup grip)" },
         { id: "2", time: 15.12, type: "comment" as const, text: "Nice transition!", username: "someone.poles" },
