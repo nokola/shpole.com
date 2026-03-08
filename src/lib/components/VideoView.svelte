@@ -1,5 +1,6 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
+    import VideoScrub from "./VideoScrub.svelte";
 
     // Marker type
     interface Marker {
@@ -112,63 +113,9 @@
         isPlaying = false;
     }
 
-    // Progress bar scrubbing
-    let isScrubbing = $state(false);
-    let wasPlayingBeforeScrub = $state(false);
-    let progressBarEl: HTMLDivElement | null = $state(null);
-
-    function seekFromClientX(clientX: number) {
-        if (!progressBarEl) return;
-        const rect = progressBarEl.getBoundingClientRect();
-        const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
-        seekTo(percent * duration);
-    }
-
-    function handleProgressClick(e: MouseEvent) {
-        // If we just finished a drag, skip the click
-        if (isScrubbing) return;
-        seekFromClientX(e.clientX);
-    }
-
-    // Mouse drag scrubbing
-    function handleMouseDown(e: MouseEvent) {
-        e.preventDefault();
-        isScrubbing = true;
-        wasPlayingBeforeScrub = isPlaying;
-        if (videoEl && isPlaying) videoEl.pause();
-        seekFromClientX(e.clientX);
-
-        function onMouseMove(ev: MouseEvent) {
-            seekFromClientX(ev.clientX);
-        }
-        function onMouseUp() {
-            isScrubbing = false;
-            if (wasPlayingBeforeScrub && videoEl) videoEl.play();
-            window.removeEventListener("mousemove", onMouseMove);
-            window.removeEventListener("mouseup", onMouseUp);
-        }
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-    }
-
-    // Touch drag scrubbing
-    function handleTouchStart(e: TouchEvent) {
-        if (e.touches.length !== 1) return;
-        isScrubbing = true;
-        wasPlayingBeforeScrub = isPlaying;
-        if (videoEl && isPlaying) videoEl.pause();
-        seekFromClientX(e.touches[0].clientX);
-    }
-
-    function handleTouchMove(e: TouchEvent) {
-        if (!isScrubbing || e.touches.length !== 1) return;
-        seekFromClientX(e.touches[0].clientX);
-    }
-
-    function handleTouchEnd() {
-        if (!isScrubbing) return;
-        isScrubbing = false;
-        if (wasPlayingBeforeScrub && videoEl) videoEl.play();
+    // Scrub handler for VideoScrub component
+    function handleScrub(time: number) {
+        seekTo(time);
     }
 
     // Skip forward/back
@@ -180,8 +127,7 @@
         seekTo(currentTime + 10);
     }
 
-    // Progress percentage
-    let progressPercent = $derived(duration > 0 ? (currentTime / duration) * 100 : 0);
+
 
     // Find the marker currently under the playhead (within 1 second)
     let playheadMarker = $derived(markers.find((m) => Math.abs(m.time - currentTime) < 1) || null);
@@ -385,79 +331,15 @@
                 </div>
             {/if}
 
-            <!-- Progress Bar Container -->
-            <div class="relative w-full h-6 flex items-center">
-                <!-- Progress Bar Track -->
-                <div
-                    bind:this={progressBarEl}
-                    class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
-                    style="touch-action: none;"
-                    onclick={handleProgressClick}
-                    onmousedown={handleMouseDown}
-                    ontouchstart={handleTouchStart}
-                    ontouchmove={handleTouchMove}
-                    ontouchend={handleTouchEnd}
-                    ontouchcancel={handleTouchEnd}
-                    onkeydown={(e) => {
-                        if (e.key === "ArrowLeft") seekTo(currentTime - 5);
-                        if (e.key === "ArrowRight") seekTo(currentTime + 5);
-                    }}
-                    role="slider"
-                    aria-label="Video progress"
-                    aria-valuenow={Math.round(progressPercent)}
-                    aria-valuemin={0}
-                    aria-valuemax={100}
-                    tabindex="0"
-                >
-                    <!-- Progress Fill -->
-                    <div
-                        class="absolute inset-y-0 left-0 bg-white rounded-full z-10"
-                        style="width: {progressPercent}%;"
-                    ></div>
-
-                    <!-- Move Highlights -->
-                    {#each moveSegments as seg}
-                        <div
-                            class="absolute top-1/2 -translate-y-1/2 bg-blue-400 rounded-full h-2"
-                            style="left: {(seg.start / duration) * 100}%; width: {((seg.end - seg.start) / duration) *
-                                100}%;"
-                        >
-                            {#if seg.text}
-                                <span
-                                    class="absolute bottom-full mb-1.5 left-0 text-[9px] text-white bg-black/50 px-1.5 py-0.5 rounded-[4px] font-medium whitespace-nowrap overflow-hidden text-ellipsis max-w-full pointer-events-none backdrop-blur-[2px]"
-                                >
-                                    {seg.text}
-                                </span>
-                            {/if}
-                        </div>
-                    {/each}
-
-                    <!-- Annotation Markers -->
-                    {#each markers as marker (marker.id)}
-                        {@const markerPercent = duration > 0 ? (marker.time / duration) * 100 : 0}
-                        <button
-                            type="button"
-                            class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 text-sm cursor-pointer hover:scale-150 transition-transform z-20 drop-shadow-md {getMarkerColor(
-                                marker,
-                            )}"
-                            style="left: {markerPercent}%;"
-                            title="{marker.type}: {marker.text || formatTime(marker.time)}"
-                            onclick={(e) => {
-                                e.stopPropagation();
-                                seekTo(marker.time);
-                            }}
-                        >
-                            {getMarkerSymbol(marker.type)}
-                        </button>
-                    {/each}
-
-                    <!-- Scrubber Thumb -->
-                    <div
-                        class="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-lg z-30"
-                        style="left: {progressPercent}%;"
-                    ></div>
-                </div>
-            </div>
+            <!-- VideoScrub Timeline -->
+            <VideoScrub
+                {duration}
+                {currentTime}
+                {markers}
+                {moveSegments}
+                {isPlaying}
+                onSeek={handleScrub}
+            />
 
             <!-- Controls Row -->
             <div class="flex items-center justify-between mt-3">
