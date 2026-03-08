@@ -194,24 +194,38 @@
 
     // ─── Thumbnails ───
     let thumbnails = $state<string[]>([]);
+    let currentThumbCount = $state(0);
+
     $effect(() => {
         if (!videoUrl || duration <= 0) return;
 
-        let active = true;
-        // Extract 1 thumbnail every 2 seconds, but at least 10 and max 60
-        const count = Math.min(60, Math.max(10, Math.ceil(duration / 2)));
+        // Dependency on pixelsPerSecond to trigger re-extraction on zoom
+        // but we'll debounce it to avoid constant processing.
+        pixelsPerSecond;
 
-        extractThumbnails(videoUrl, count, 160).then((ts) => {
-            if (active) {
-                releaseThumbnails(thumbnails);
-                thumbnails = ts;
-            } else {
-                releaseThumbnails(ts);
-            }
-        });
+        let active = true;
+        const timeout = setTimeout(() => {
+            // Calculate ideal count based on zoom level
+            // We want roughly one thumbnail every 120 pixels of track
+            const idealCount = Math.ceil((duration * pixelsPerSecond) / 120);
+            const count = Math.min(60, Math.max(10, idealCount));
+
+            extractThumbnails(videoUrl, count, 160).then((ts) => {
+                if (active) {
+                    const oldTs = [...thumbnails];
+                    thumbnails = ts;
+                    currentThumbCount = count;
+                    // Clean up old object URLs
+                    setTimeout(() => releaseThumbnails(oldTs), 100);
+                } else {
+                    releaseThumbnails(ts);
+                }
+            });
+        }, 400); // 400ms debounce
 
         return () => {
             active = false;
+            clearTimeout(timeout);
         };
     });
 
@@ -258,13 +272,15 @@
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
         <!-- Thumbnails background -->
-        <div class="absolute inset-0 flex pointer-events-none opacity-100 select-none overflow-hidden">
-            {#each thumbnails as thumb}
+        <div class="absolute inset-0 pointer-events-none opacity-100 select-none overflow-hidden">
+            {#each thumbnails as thumb, i}
+                {@const interval = duration / currentThumbCount}
+                {@const time = i * interval + interval / 2}
                 <img
                     src={thumb}
                     alt=""
-                    class="h-full object-cover shrink-0"
-                    style="width: {(duration / thumbnails.length) * pixelsPerSecond}px"
+                    class="h-full object-cover absolute top-0 -translate-x-1/2"
+                    style="left: {time * pixelsPerSecond}px; width: 120px"
                 />
             {/each}
         </div>
