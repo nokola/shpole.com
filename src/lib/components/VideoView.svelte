@@ -113,12 +113,62 @@
     }
 
     // Progress bar scrubbing
-    function handleProgressClick(e: MouseEvent) {
-        const target = e.currentTarget as HTMLDivElement;
-        const rect = target.getBoundingClientRect();
-        const clickX = e.clientX - rect.left;
-        const percent = clickX / rect.width;
+    let isScrubbing = $state(false);
+    let wasPlayingBeforeScrub = $state(false);
+    let progressBarEl: HTMLDivElement | null = $state(null);
+
+    function seekFromClientX(clientX: number) {
+        if (!progressBarEl) return;
+        const rect = progressBarEl.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
         seekTo(percent * duration);
+    }
+
+    function handleProgressClick(e: MouseEvent) {
+        // If we just finished a drag, skip the click
+        if (isScrubbing) return;
+        seekFromClientX(e.clientX);
+    }
+
+    // Mouse drag scrubbing
+    function handleMouseDown(e: MouseEvent) {
+        e.preventDefault();
+        isScrubbing = true;
+        wasPlayingBeforeScrub = isPlaying;
+        if (videoEl && isPlaying) videoEl.pause();
+        seekFromClientX(e.clientX);
+
+        function onMouseMove(ev: MouseEvent) {
+            seekFromClientX(ev.clientX);
+        }
+        function onMouseUp() {
+            isScrubbing = false;
+            if (wasPlayingBeforeScrub && videoEl) videoEl.play();
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+        }
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+    }
+
+    // Touch drag scrubbing
+    function handleTouchStart(e: TouchEvent) {
+        if (e.touches.length !== 1) return;
+        isScrubbing = true;
+        wasPlayingBeforeScrub = isPlaying;
+        if (videoEl && isPlaying) videoEl.pause();
+        seekFromClientX(e.touches[0].clientX);
+    }
+
+    function handleTouchMove(e: TouchEvent) {
+        if (!isScrubbing || e.touches.length !== 1) return;
+        seekFromClientX(e.touches[0].clientX);
+    }
+
+    function handleTouchEnd() {
+        if (!isScrubbing) return;
+        isScrubbing = false;
+        if (wasPlayingBeforeScrub && videoEl) videoEl.play();
     }
 
     // Skip forward/back
@@ -339,8 +389,15 @@
             <div class="relative w-full h-6 flex items-center">
                 <!-- Progress Bar Track -->
                 <div
+                    bind:this={progressBarEl}
                     class="relative w-full h-1 bg-white/30 cursor-pointer rounded-full"
+                    style="touch-action: none;"
                     onclick={handleProgressClick}
+                    onmousedown={handleMouseDown}
+                    ontouchstart={handleTouchStart}
+                    ontouchmove={handleTouchMove}
+                    ontouchend={handleTouchEnd}
+                    ontouchcancel={handleTouchEnd}
                     onkeydown={(e) => {
                         if (e.key === "ArrowLeft") seekTo(currentTime - 5);
                         if (e.key === "ArrowRight") seekTo(currentTime + 5);
@@ -459,7 +516,7 @@
                 >
                     <!-- Time Badge -->
                     <span
-                        class="text-xs font-mono font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 min-w-[3.5rem] text-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
+                        class="text-xs font-mono font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 min-w-14 text-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
                     >
                         {formatTime(marker.time)}
                     </span>
