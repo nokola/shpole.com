@@ -80,6 +80,12 @@
         return `${mins}:${secs.toString().padStart(2, "0")}`;
     }
 
+    function formatTime2(seconds: number): string {
+        const mins = Math.floor(seconds / 60);
+        const secs = (seconds % 60).toFixed(1).padStart(4, "0");
+        return `${mins}:${secs}`;
+    }
+
     // ─── Marker helpers ───
     function getMarkerColor(marker: Marker): string {
         if (marker.color) return marker.color;
@@ -242,7 +248,7 @@
 
 <!-- VideoScrub component -->
 <div
-    class="relative w-full h-18 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-md"
+    class="relative w-full h-16 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-md"
     style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
@@ -327,13 +333,13 @@
 
     <!-- Fixed center playhead line -->
     <div
-        class="absolute top-0 left-1/2 w-0.5 bottom-10 bg-white -translate-x-1/2 pointer-events-none z-10 rounded-sm"
+        class="absolute top-0 left-1/2 w-0.5 bottom-8 bg-white -translate-x-1/2 pointer-events-none z-10 rounded-sm"
     ></div>
 
     <!-- Current time label at playhead -->
     <div
-        class="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+        class="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[9px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
     >
-        {formatTime(currentTime)}
+        {formatTime2(currentTime)}
     </div>
 </div>
