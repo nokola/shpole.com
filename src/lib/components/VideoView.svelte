@@ -71,10 +71,7 @@
         // Auto-pause logic
         if (isPlaying) {
             const pauseMarker = markers.find(
-                (m) =>
-                    m.type === "pause" &&
-                    Math.abs(m.time - currentTime) < 0.25 &&
-                    m.id !== lastPausedMarkerId,
+                (m) => m.type === "pause" && Math.abs(m.time - currentTime) < 0.25 && m.id !== lastPausedMarkerId,
             );
 
             if (pauseMarker) {
@@ -136,6 +133,8 @@
 
     // Scrub handler for VideoScrub component
     function handleScrub(time: number) {
+        // pause video when scrubbing
+        videoEl?.pause();
         seekTo(time);
     }
 
@@ -238,10 +237,10 @@
         ></button>
 
         <!-- Status Labels (Bottom Left) -->
-        <div class="absolute bottom-40 left-6 flex flex-col gap-1 pointer-events-none">
+        <div class="absolute bottom-43 left-6 flex flex-col gap-1 pointer-events-none">
             {#if activeMoveName}
                 <div
-                    class="text-3xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                    class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
                 >
                     {activeMoveName}
                 </div>
@@ -274,7 +273,7 @@
             {/if}
 
             <!-- VideoScrub Timeline -->
-            <VideoScrub {duration} {currentTime} {markers} {moveSegments} {isPlaying} onSeek={handleScrub} />
+            <VideoScrub {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
 
             <!-- Controls Row -->
             <div class="flex items-center justify-between mt-3">

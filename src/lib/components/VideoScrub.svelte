@@ -6,11 +6,10 @@
         currentTime: number;
         markers?: Marker[];
         moveSegments?: MoveSegment[];
-        isPlaying: boolean;
         onSeek: (time: number) => void;
     }
 
-    let { duration, currentTime, markers = [], moveSegments = [], isPlaying, onSeek }: Props = $props();
+    let { duration, currentTime, markers = [], moveSegments = [], onSeek }: Props = $props();
 
     // ─── Zoom state ───
     const MIN_PX_PER_SEC = 5; // fully zoomed out
@@ -71,7 +70,6 @@
         const secs = (seconds % 60).toFixed(1).padStart(4, "0");
         return `${mins}:${secs}`;
     }
-
 
     // ─── Clamp helper ───
     function clamp(val: number, min: number, max: number): number {
@@ -255,7 +253,9 @@
         {#each visibleMarkers as marker (marker.id)}
             <button
                 type="button"
-                class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(marker)}"
+                class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
+                    marker,
+                )}"
                 style="left: {marker.time * pixelsPerSecond}px;"
                 title="{marker.type}: {marker.text}"
                 onclick={(e) => {
