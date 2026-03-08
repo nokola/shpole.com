@@ -1,16 +1,7 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import VideoScrub from "./VideoScrub.svelte";
-
-    // Marker type
-    interface Marker {
-        id: string;
-        time: number;
-        type: "comment" | "move" | "pause" | "like" | "hide" | "tip";
-        text?: string;
-        color?: string;
-        username?: string;
-    }
+    import { type Marker, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
 
     // Props
     interface Props {
@@ -207,46 +198,6 @@
         };
     });
 
-    // Marker colors by type
-    function getMarkerColor(marker: Marker): string {
-        if (marker.color) return marker.color;
-        switch (marker.type) {
-            case "comment":
-                return "text-sky-400";
-            case "move":
-                return "text-blue-400";
-            case "pause":
-                return "text-orange-500";
-            case "like":
-                return "text-rose-500";
-            case "hide":
-                return "text-blue-400";
-            case "tip":
-                return "text-amber-300";
-            default:
-                return "text-white";
-        }
-    }
-
-    // Marker icons/symbols by type
-    function getMarkerSymbol(type: Marker["type"]): string {
-        switch (type) {
-            case "comment":
-                return "💬";
-            case "move":
-                return "◆";
-            case "pause":
-                return "⏸";
-            case "like":
-                return "❤️";
-            case "hide":
-                return "|";
-            case "tip":
-                return "💡";
-            default:
-                return "•";
-        }
-    }
 </script>
 
 <!-- Outer scrollable container (div1) -->
@@ -406,7 +357,7 @@
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-sm {getMarkerColor(marker)}">
+                            <span class="text-sm {getMarkerColorClass(marker)}">
                                 {getMarkerSymbol(marker.type)}
                             </span>
                             <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">

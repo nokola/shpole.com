@@ -1,19 +1,5 @@
 <script lang="ts">
-    // Marker type (same as VideoView)
-    interface Marker {
-        id: string;
-        time: number;
-        type: "comment" | "move" | "pause" | "like" | "hide" | "tip";
-        text?: string;
-        color?: string;
-        username?: string;
-    }
-
-    interface MoveSegment {
-        start: number;
-        end: number;
-        text: string | null;
-    }
+    import { type Marker, type MoveSegment, getMarkerColorHex, getMarkerSymbol } from "$lib/markers";
 
     interface Props {
         duration: number;
@@ -86,45 +72,6 @@
         return `${mins}:${secs}`;
     }
 
-    // ─── Marker helpers ───
-    function getMarkerColor(marker: Marker): string {
-        if (marker.color) return marker.color;
-        switch (marker.type) {
-            case "comment":
-                return "#38bdf8"; // sky-400
-            case "move":
-                return "#60a5fa"; // blue-400
-            case "pause":
-                return "#f97316"; // orange-500
-            case "like":
-                return "#f43f5e"; // rose-500
-            case "hide":
-                return "#60a5fa"; // blue-400
-            case "tip":
-                return "#fbbf24"; // amber-400
-            default:
-                return "#ffffff";
-        }
-    }
-
-    function getMarkerSymbol(type: Marker["type"]): string {
-        switch (type) {
-            case "comment":
-                return "💬";
-            case "move":
-                return "◆";
-            case "pause":
-                return "⏸";
-            case "like":
-                return "❤️";
-            case "hide":
-                return "|";
-            case "tip":
-                return "💡";
-            default:
-                return "•";
-        }
-    }
 
     // ─── Clamp helper ───
     function clamp(val: number, min: number, max: number): number {
@@ -309,7 +256,7 @@
             <button
                 type="button"
                 class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2"
-                style="left: {marker.time * pixelsPerSecond}px; color: {getMarkerColor(marker)};"
+                style="left: {marker.time * pixelsPerSecond}px; color: {getMarkerColorHex(marker)};"
                 title="{marker.type}: {marker.text}"
                 onclick={(e) => {
                     e.stopPropagation();
