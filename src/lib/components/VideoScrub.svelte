@@ -1,7 +1,9 @@
 <script lang="ts">
     import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
+    import { extractThumbnails, releaseThumbnails } from "$lib/video";
 
     interface Props {
+        videoUrl: string;
         duration: number;
         currentTime: number;
         markers?: Marker[];
@@ -9,7 +11,7 @@
         onSeek: (time: number) => void;
     }
 
-    let { duration, currentTime, markers = [], moveSegments = [], onSeek }: Props = $props();
+    let { videoUrl, duration, currentTime, markers = [], moveSegments = [], onSeek }: Props = $props();
 
     // ─── Zoom state ───
     const MIN_PX_PER_SEC = 5; // fully zoomed out
@@ -189,6 +191,36 @@
 
     // ─── Visible markers (exclude "hide") ───
     let visibleMarkers = $derived(markers.filter((m) => m.type !== "hide"));
+
+    // ─── Thumbnails ───
+    let thumbnails = $state<string[]>([]);
+    $effect(() => {
+        if (!videoUrl || duration <= 0) return;
+
+        let active = true;
+        // Extract 1 thumbnail every 2 seconds, but at least 10 and max 60
+        const count = Math.min(60, Math.max(10, Math.ceil(duration / 2)));
+
+        extractThumbnails(videoUrl, count, 160).then((ts) => {
+            if (active) {
+                releaseThumbnails(thumbnails);
+                thumbnails = ts;
+            } else {
+                releaseThumbnails(ts);
+            }
+        });
+
+        return () => {
+            active = false;
+        };
+    });
+
+    // Cleanup thumbnails on unmount
+    $effect(() => {
+        return () => {
+            releaseThumbnails(thumbnails);
+        };
+    });
 </script>
 
 <!-- VideoScrub component -->
@@ -225,6 +257,18 @@
         class="absolute top-0 left-0 h-full will-change-transform"
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
+        <!-- Thumbnails background -->
+        <div class="absolute inset-0 flex pointer-events-none opacity-100 select-none overflow-hidden">
+            {#each thumbnails as thumb}
+                <img
+                    src={thumb}
+                    alt=""
+                    class="h-full object-cover shrink-0"
+                    style="width: {(duration / thumbnails.length) * pixelsPerSecond}px"
+                />
+            {/each}
+        </div>
+
         <!-- Track background line -->
         <div class="absolute top-[22px] left-0 right-0 h-[3px] bg-white/20 rounded-sm"></div>
 

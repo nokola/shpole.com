@@ -1,4 +1,4 @@
-async function extractThumbnails(
+export async function extractThumbnails(
     src: string,
     count: number,
     width = 160
@@ -40,7 +40,7 @@ async function extractThumbnails(
     return thumbnails; // array of data URLs
 }
 
-function releaseThumbnails(thumbnails: string[]) {
+export function releaseThumbnails(thumbnails: string[]) {
     thumbnails.forEach(URL.revokeObjectURL);
 }
 

@@ -273,7 +273,7 @@
             {/if}
 
             <!-- VideoScrub Timeline -->
-            <VideoScrub {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
+            <VideoScrub {videoUrl} {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
 
             <!-- Controls Row -->
             <div class="flex items-center justify-between mt-3 px-4">
