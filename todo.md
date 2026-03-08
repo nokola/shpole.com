@@ -1,9 +1,20 @@
+
+-- VideoView assumes it's exactly full page height
+-- Add < Back button in top left corner
+
+-- Crescent moon issue in shpole
+-- voiceover add/edit
+    -- add comments/annotations/etc.
+    -- voice each comment if you'd like
+
+-- for comments - see SoundCloud list
+
 -- grips with order
 -- order of videos
 -- Thumbnail
 -- camera Record
 
--- video auto pause at key moments to try the move so far
+DONE -- video auto pause at key moments to try the move so far
 -- badges can be used for rewards - maybe one per move?
 -- move-specific badges - side effect
 
@@ -18,6 +29,5 @@
 
 -- terms of use and contributing
 
-X-- rename to show Drafts
-X-- add how many drafts are there at the bottom
-
+TEST:
+-- can folks discover zooming the scrub bar?
