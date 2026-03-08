@@ -25,8 +25,8 @@
         if (!name) return "U";
         return name
             .split(/\s+/)
-            .filter(part => part.length > 0)
-            .map(part => part[0].toUpperCase())
+            .filter((part) => part.length > 0)
+            .map((part) => part[0].toUpperCase())
             .join("")
             .slice(0, 2);
     }
@@ -123,8 +123,6 @@
         seekTo(currentTime + 10);
     }
 
-
-
     // Find the marker currently under the playhead (within 1 second)
     let playheadMarker = $derived(markers.find((m) => Math.abs(m.time - currentTime) < 1) || null);
 
@@ -183,8 +181,6 @@
         }
         return segments;
     });
-
-
 </script>
 
 <!-- Outer scrollable container (div1) -->
@@ -239,23 +235,14 @@
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
                 <div class="flex justify-center mb-2 z-40">
-                    <div
-                        class="bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap"
-                    >
+                    <div class="bg-white/95 text-gray-800 text-sm px-3 py-1.5 rounded-lg shadow-lg whitespace-nowrap">
                         {getInitials(activeMarker.username)} - {activeMarker.text}
                     </div>
                 </div>
             {/if}
 
             <!-- VideoScrub Timeline -->
-            <VideoScrub
-                {duration}
-                {currentTime}
-                {markers}
-                {moveSegments}
-                {isPlaying}
-                onSeek={handleScrub}
-            />
+            <VideoScrub {duration} {currentTime} {markers} {moveSegments} {isPlaying} onSeek={handleScrub} />
 
             <!-- Controls Row -->
             <div class="flex items-center justify-between mt-3">
