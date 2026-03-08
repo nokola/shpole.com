@@ -57,21 +57,23 @@
 
     function seekTo(time: number) {
         if (!videoEl) return;
-        videoEl.currentTime = Math.max(0, Math.min(time, duration));
+        const clamped = Math.max(0, Math.min(time, duration));
+        videoEl.currentTime = clamped;
+        currentTime = clamped; // Immediate update for responsive scrubbing
         lastPausedMarkerId = null; // Clear trigger when seeking
     }
 
-    // Handle video events
-    function handleTimeUpdate() {
+    // Sync current time and handle automated behaviors
+    function syncTime(time?: number) {
         if (!videoEl) return;
-        currentTime = videoEl.currentTime;
+        currentTime = time ?? videoEl.currentTime;
 
         // Auto-pause logic
         if (isPlaying) {
             const pauseMarker = markers.find(
                 (m) =>
                     m.type === "pause" &&
-                    Math.abs(m.time - currentTime) < 0.25 && // Typical timeupdate interval
+                    Math.abs(m.time - currentTime) < 0.25 &&
                     m.id !== lastPausedMarkerId,
             );
 
@@ -81,10 +83,14 @@
             }
         }
 
-        // Fallback: also check duration here in case loadedmetadata didn't fire
+        // Check duration in case events missed it
         if (duration === 0 && videoEl.duration > 0 && !isNaN(videoEl.duration)) {
             duration = videoEl.duration;
         }
+    }
+
+    function handleTimeUpdate() {
+        syncTime();
     }
 
     function handleLoadedMetadata() {
@@ -108,6 +114,25 @@
     function handlePause() {
         isPlaying = false;
     }
+
+    // High-precision frame updates for smoother scrubbing/playback
+    $effect(() => {
+        if (isPlaying && videoEl && "requestVideoFrameCallback" in videoEl) {
+            let handle: number;
+            const callback = (_now: number, metadata: { mediaTime: number }) => {
+                if (videoEl) {
+                    syncTime(metadata.mediaTime);
+                    handle = (videoEl as any).requestVideoFrameCallback(callback);
+                }
+            };
+            handle = (videoEl as any).requestVideoFrameCallback(callback);
+            return () => {
+                if (videoEl && "cancelVideoFrameCallback" in videoEl) {
+                    (videoEl as any).cancelVideoFrameCallback(handle);
+                }
+            };
+        }
+    });
 
     // Scrub handler for VideoScrub component
     function handleScrub(time: number) {
