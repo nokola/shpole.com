@@ -27,8 +27,8 @@
     let { duration, currentTime, markers = [], moveSegments = [], isPlaying, onSeek }: Props = $props();
 
     // ─── Zoom state ───
-    const MIN_PX_PER_SEC = 5;   // fully zoomed out
-    const MAX_PX_PER_SEC = 80;  // fully zoomed in for fine scrub
+    const MIN_PX_PER_SEC = 5; // fully zoomed out
+    const MAX_PX_PER_SEC = 80; // fully zoomed in for fine scrub
     let pixelsPerSecond = $state(20);
 
     // ─── Container refs & sizing ───
@@ -84,25 +84,39 @@
     function getMarkerColor(marker: Marker): string {
         if (marker.color) return marker.color;
         switch (marker.type) {
-            case "comment": return "#38bdf8";   // sky-400
-            case "move": return "#60a5fa";       // blue-400
-            case "pause": return "#f97316";      // orange-500
-            case "like": return "#f43f5e";       // rose-500
-            case "hide": return "#60a5fa";       // blue-400
-            case "tip": return "#fbbf24";        // amber-400
-            default: return "#ffffff";
+            case "comment":
+                return "#38bdf8"; // sky-400
+            case "move":
+                return "#60a5fa"; // blue-400
+            case "pause":
+                return "#f97316"; // orange-500
+            case "like":
+                return "#f43f5e"; // rose-500
+            case "hide":
+                return "#60a5fa"; // blue-400
+            case "tip":
+                return "#fbbf24"; // amber-400
+            default:
+                return "#ffffff";
         }
     }
 
     function getMarkerSymbol(type: Marker["type"]): string {
         switch (type) {
-            case "comment": return "💬";
-            case "move": return "◆";
-            case "pause": return "⏸";
-            case "like": return "❤️";
-            case "hide": return "|";
-            case "tip": return "💡";
-            default: return "•";
+            case "comment":
+                return "💬";
+            case "move":
+                return "◆";
+            case "pause":
+                return "⏸";
+            case "like":
+                return "❤️";
+            case "hide":
+                return "|";
+            case "tip":
+                return "💡";
+            default:
+                return "•";
         }
     }
 
@@ -228,7 +242,7 @@
 
 <!-- VideoScrub component -->
 <div
-    class="relative w-full h-16 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-md"
+    class="relative w-full h-18 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-md"
     style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
@@ -251,7 +265,8 @@
         if (e.key === "ArrowLeft") onSeek(clamp(currentTime - 1, 0, duration));
         if (e.key === "ArrowRight") onSeek(clamp(currentTime + 1, 0, duration));
         if (e.key === "-") pixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
-        if (e.key === "=" || e.key === "+") pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        if (e.key === "=" || e.key === "+")
+            pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
     }}
 >
     <!-- Scrolling inner track -->
@@ -275,7 +290,10 @@
                 style="left: {seg.start * pixelsPerSecond}px; width: {(seg.end - seg.start) * pixelsPerSecond}px;"
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
-                    <span class="absolute bottom-[calc(100%+2px)] left-0.5 text-[8px] text-white/80 bg-black/50 px-1 py-px rounded-sm whitespace-nowrap pointer-events-none font-medium">{seg.text}</span>
+                    <span
+                        class="absolute bottom-[calc(100%+2px)] left-0.5 text-[8px] text-white/80 bg-black/50 px-1 py-px rounded-sm whitespace-nowrap pointer-events-none font-medium"
+                        >{seg.text}</span
+                    >
                 {/if}
             </div>
         {/each}
@@ -286,7 +304,7 @@
                 type="button"
                 class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2"
                 style="left: {marker.time * pixelsPerSecond}px; color: {getMarkerColor(marker)};"
-                title="{marker.type}: {marker.text || formatTime(marker.time)}"
+                title="{marker.type}: {marker.text}"
                 onclick={(e) => {
                     e.stopPropagation();
                     onSeek(marker.time);
@@ -298,21 +316,24 @@
 
         <!-- Time ticks & labels -->
         {#each ticks as tick}
-            <div
-                class="absolute top-[30px] -translate-x-px pointer-events-none"
-                style="left: {tick.x}px;"
-            >
-                <div class="w-px h-2 bg-white/30"></div>
-                <span class="block text-[9px] text-white/50 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]">{formatTime(tick.time)}</span>
+            <div class="absolute top-[30px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
+                <span
+                    class="block text-[9px] text-white/50 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
+                    >{formatTime(tick.time)}</span
+                >
             </div>
         {/each}
     </div>
 
     <!-- Fixed center playhead line -->
-    <div class="absolute top-0 left-1/2 w-0.5 h-[42px] bg-white -translate-x-1/2 pointer-events-none z-10 shadow-[0_0_6px_rgba(255,255,255,0.5)] rounded-sm before:content-[''] before:absolute before:-top-px before:left-1/2 before:-translate-x-1/2 before:w-0 before:h-0 before:border-l-[5px] before:border-l-transparent before:border-r-[5px] before:border-r-transparent before:border-t-[6px] before:border-t-white"></div>
+    <div
+        class="absolute top-0 left-1/2 w-0.5 bottom-10 bg-white -translate-x-1/2 pointer-events-none z-10 rounded-sm"
+    ></div>
 
     <!-- Current time label at playhead -->
-    <div class="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">
+    <div
+        class="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[10px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+    >
         {formatTime(currentTime)}
     </div>
 </div>
