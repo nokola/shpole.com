@@ -21,7 +21,7 @@ export function getMarkerSymbol(type: Marker["type"]): string {
         case "comment":
             return "💬";
         case "move":
-            return "◆";
+            return ""; //"◆";
         case "pause":
             return "⏸";
         case "like":
