@@ -239,7 +239,7 @@
 
 <!-- VideoScrub component -->
 <div
-    class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-lg"
+    class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#222]"
     style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
@@ -286,23 +286,17 @@
         </div>
 
         <!-- Track background line -->
-        <div class="absolute top-[26px] left-0 right-0 h-[4px] bg-white/20 rounded-full z-10"></div>
-
-        <!-- Progress fill (from 0 to currentTime) -->
-        <div
-            class="absolute top-[26px] left-0 h-[4px] bg-white/60 rounded-full pointer-events-none z-10"
-            style="width: {currentTime * pixelsPerSecond}px;"
-        ></div>
+        <div class="absolute top-[24px] left-0 right-0 h-[4px] bg-white/20 rounded-full z-10"></div>
 
         <!-- Move segment highlights -->
         {#each moveSegments as seg}
             <div
-                class="absolute top-[20px] h-3 bg-blue-400/50 rounded-full pointer-events-none z-10"
+                class="absolute top-[20px] h-3 bg-blue-400 rounded-sm pointer-events-none z-10"
                 style="left: {seg.start * pixelsPerSecond}px; width: {(seg.end - seg.start) * pixelsPerSecond}px;"
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
                     <span
-                        class="absolute bottom-[calc(100%+2px)] -left-0.5 text-[8px] text-white/80 bg-black/50 px-1 py-px rounded-sm whitespace-nowrap pointer-events-none font-medium"
+                        class="absolute bottom-[calc(100%+2px)] text-[8px] text-white bg-black px-1 py-px rounded-sm whitespace-nowrap pointer-events-none font-medium"
                         >{seg.text}</span
                     >
                 {/if}
