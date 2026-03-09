@@ -8,10 +8,19 @@
         currentTime: number;
         markers?: Marker[];
         moveSegments?: MoveSegment[];
+        showThumbnails?: boolean;
         onSeek: (time: number) => void;
     }
 
-    let { videoUrl, duration, currentTime, markers = [], moveSegments = [], onSeek }: Props = $props();
+    let {
+        videoUrl,
+        duration,
+        currentTime,
+        markers = [],
+        moveSegments = [],
+        showThumbnails = false,
+        onSeek,
+    }: Props = $props();
 
     // ─── Zoom state ───
     const MIN_PX_PER_SEC = 5; // fully zoomed out
@@ -197,7 +206,14 @@
     let currentThumbCount = $state(0);
 
     $effect(() => {
-        if (!videoUrl || duration <= 0) return;
+        if (!videoUrl || duration <= 0 || !showThumbnails) {
+            if (thumbnails.length > 0) {
+                releaseThumbnails(thumbnails);
+                thumbnails = [];
+                currentThumbCount = 0;
+            }
+            return;
+        }
 
         // Dependency on pixelsPerSecond to trigger re-extraction on zoom
         // but we'll debounce it to avoid constant processing.
@@ -206,8 +222,9 @@
         let active = true;
         const timeout = setTimeout(() => {
             // Calculate ideal count based on zoom level
-            // We want roughly one thumbnail every 120 pixels of track
-            const idealCount = Math.ceil((duration * pixelsPerSecond) / 120);
+            // We want roughly one thumbnail every REPEAT_PIX pixels of track
+            const REPEAT_PIX = 120;
+            const idealCount = Math.ceil((duration * pixelsPerSecond) / REPEAT_PIX);
             const count = Math.min(60, Math.max(10, idealCount));
 
             extractThumbnails(videoUrl, count, 160).then((ts) => {
@@ -272,18 +289,22 @@
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
         <!-- Thumbnails background -->
-        <div class="absolute top-[36px] bottom-[32px] left-0 right-0 pointer-events-none select-none overflow-hidden">
-            {#each thumbnails as thumb, i}
-                {@const interval = duration / currentThumbCount}
-                {@const time = i * interval + interval / 2}
-                <img
-                    src={thumb}
-                    alt=""
-                    class="h-full object-contain absolute top-0 -translate-x-1/2"
-                    style="left: {time * pixelsPerSecond}px;"
-                />
-            {/each}
-        </div>
+        {#if showThumbnails}
+            <div
+                class="absolute top-[36px] bottom-[32px] left-0 right-0 pointer-events-none select-none overflow-hidden"
+            >
+                {#each thumbnails as thumb, i}
+                    {@const interval = duration / currentThumbCount}
+                    {@const time = i * interval + interval / 2}
+                    <img
+                        src={thumb}
+                        alt=""
+                        class="h-full object-contain absolute top-0 -translate-x-1/2"
+                        style="left: {time * pixelsPerSecond}px;"
+                    />
+                {/each}
+            </div>
+        {/if}
 
         <!-- Track background line -->
         <div class="absolute top-[24px] left-0 right-0 h-[4px] bg-white/20 rounded-full z-10"></div>
