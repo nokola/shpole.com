@@ -279,8 +279,8 @@
                 <img
                     src={thumb}
                     alt=""
-                    class="h-full object-cover absolute top-0 -translate-x-1/2"
-                    style="left: {time * pixelsPerSecond}px; width: 120px"
+                    class="h-full object-contain absolute top-0 -translate-x-1/2"
+                    style="left: {time * pixelsPerSecond}px;"
                 />
             {/each}
         </div>
