@@ -239,7 +239,7 @@
 
 <!-- VideoScrub component -->
 <div
-    class="relative w-full h-16 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-md"
+    class="relative w-full h-32 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-lg"
     style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
@@ -272,7 +272,9 @@
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
         <!-- Thumbnails background -->
-        <div class="absolute inset-0 pointer-events-none opacity-100 select-none overflow-hidden">
+        <div
+            class="absolute top-[40px] bottom-[24px] left-0 right-0 pointer-events-none opacity-100 select-none overflow-hidden"
+        >
             {#each thumbnails as thumb, i}
                 {@const interval = duration / currentThumbCount}
                 {@const time = i * interval + interval / 2}
@@ -286,18 +288,18 @@
         </div>
 
         <!-- Track background line -->
-        <div class="absolute top-[22px] left-0 right-0 h-[3px] bg-white/20 rounded-sm"></div>
+        <div class="absolute top-[26px] left-0 right-0 h-[4px] bg-white/20 rounded-full z-10"></div>
 
         <!-- Progress fill (from 0 to currentTime) -->
         <div
-            class="absolute top-[22px] left-0 h-[3px] bg-white/50 rounded-sm pointer-events-none"
+            class="absolute top-[26px] left-0 h-[4px] bg-white/60 rounded-full pointer-events-none z-10"
             style="width: {currentTime * pixelsPerSecond}px;"
         ></div>
 
         <!-- Move segment highlights -->
         {#each moveSegments as seg}
             <div
-                class="absolute top-[18px] h-2.5 bg-blue-400/50 rounded-full pointer-events-none"
+                class="absolute top-[20px] h-3 bg-blue-400/50 rounded-full pointer-events-none z-10"
                 style="left: {seg.start * pixelsPerSecond}px; width: {(seg.end - seg.start) * pixelsPerSecond}px;"
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
@@ -313,7 +315,7 @@
         {#each visibleMarkers as marker (marker.id)}
             <button
                 type="button"
-                class="absolute top-[14px] -translate-x-1/2 text-xs cursor-pointer bg-transparent border-none p-0.5 z-5 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
+                class="absolute top-[14px] -translate-x-1/2 text-sm cursor-pointer bg-transparent border-none p-0.5 z-20 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
                     marker,
                 )}"
                 style="left: {marker.time * pixelsPerSecond}px;"
@@ -329,9 +331,9 @@
 
         <!-- Time ticks & labels -->
         {#each ticks as tick}
-            <div class="absolute top-[30px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
+            <div class="absolute bottom-[2px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
                 <span
-                    class="block text-[9px] text-white/50 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
+                    class="block text-[9px] text-white/40 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
                     >{formatTime(tick.time)}</span
                 >
             </div>

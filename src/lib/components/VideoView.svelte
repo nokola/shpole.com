@@ -237,7 +237,9 @@
         ></button>
 
         <!-- Status Labels (Center) -->
-        <div class="absolute bottom-43 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center">
+        <div
+            class="absolute bottom-43 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
+        >
             {#if activeMoveName}
                 <div
                     class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
@@ -276,43 +278,7 @@
             <VideoScrub {videoUrl} {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
 
             <!-- Controls Row -->
-            <div class="flex items-center justify-between mt-3 px-4">
-                <!-- Left: Play/Pause + Time -->
-                <div class="flex items-center gap-3">
-                    <!-- Play/Pause -->
-                    <button
-                        type="button"
-                        class="w-10 h-10 flex items-center justify-center rounded-full bg-white/20 hover:bg-white/30 transition-colors"
-                        onclick={togglePlay}
-                        aria-label={isPlaying ? "Pause" : "Play"}
-                    >
-                        {#if isPlaying}
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
-                            </svg>
-                        {:else}
-                            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M8 5v14l11-7z" />
-                            </svg>
-                        {/if}
-                    </button>
-
-                    <!-- Time Display -->
-                    <div class="text-sm text-white/90">
-                        {formatTime(currentTime)}
-                        <span class="text-white/50">/ {formatTime(duration)}</span>
-                    </div>
-                </div>
-
-                <!-- Right: Add Annotation Button -->
-                <button
-                    type="button"
-                    class="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-white/90 transition-colors"
-                    aria-label="Add Comment"
-                >
-                    Add Comment
-                </button>
-            </div>
+            <div class="flex items-center justify-between mt-3 px-4"></div>
         </div>
     </div>
 
