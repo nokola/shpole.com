@@ -322,13 +322,19 @@
         {/each}
 
         <!-- Time ticks & labels -->
-        {#each ticks as tick}
+        {#each ticks as tick, i}
             <div class="absolute bottom-[16px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
                 <span
                     class="block text-[9px] text-white/40 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
                     >{formatTime(tick.time)}</span
                 >
             </div>
+            {#if i < ticks.length - 1}
+                <div
+                    class="absolute bottom-[21px] w-0.5 h-0.5 bg-white/20 rounded-full -translate-x-1/2 pointer-events-none"
+                    style="left: {(tick.x + ticks[i + 1].x) / 2}px;"
+                ></div>
+            {/if}
         {/each}
     </div>
 
