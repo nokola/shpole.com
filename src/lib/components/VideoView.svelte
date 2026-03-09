@@ -257,7 +257,7 @@
         </div>
 
         <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent pb-4 pt-8">
+        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent pb-0 pt-8">
             <!-- Active Marker Comment Bubble -->
             {#if activeMarker}
                 <div class="flex justify-center items-center gap-1.5 mb-0.5 z-40">

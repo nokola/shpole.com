@@ -342,7 +342,7 @@
 
     <!-- Fixed center playhead line -->
     <div
-        class="absolute top-0 left-1/2 w-0.5 bottom-8 bg-white -translate-x-1/2 pointer-events-none z-10 rounded-sm"
+        class="absolute top-0 left-1/2 w-0.5 bottom-2 bg-white -translate-x-1/2 pointer-events-none z-10 rounded-sm"
     ></div>
 
     <!-- Current time label at playhead -->
