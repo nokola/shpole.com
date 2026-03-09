@@ -6,6 +6,7 @@
 -- voiceover add/edit
     -- add comments/annotations/etc.
     -- voice each comment if you'd like
+    -- bulk move audios around
 
 -- for comments - see SoundCloud list
 
