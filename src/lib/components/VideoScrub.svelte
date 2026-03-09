@@ -239,7 +239,7 @@
 
 <!-- VideoScrub component -->
 <div
-    class="relative w-full h-32 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-lg"
+    class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-black/60 backdrop-blur-lg"
     style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
@@ -272,9 +272,7 @@
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
         <!-- Thumbnails background -->
-        <div
-            class="absolute top-[40px] bottom-[24px] left-0 right-0 pointer-events-none opacity-100 select-none overflow-hidden"
-        >
+        <div class="absolute top-[36px] bottom-[32px] left-0 right-0 pointer-events-none select-none overflow-hidden">
             {#each thumbnails as thumb, i}
                 {@const interval = duration / currentThumbCount}
                 {@const time = i * interval + interval / 2}
@@ -331,7 +329,7 @@
 
         <!-- Time ticks & labels -->
         {#each ticks as tick}
-            <div class="absolute bottom-[2px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
+            <div class="absolute bottom-[16px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
                 <span
                     class="block text-[9px] text-white/40 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
                     >{formatTime(tick.time)}</span
