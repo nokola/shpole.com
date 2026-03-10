@@ -100,11 +100,12 @@
 
     // ─── Single-finger / mouse drag ───
     let isDragging = $state(false);
-    let dragStartX = $state(0);
+    let dragStartX = 0;
+    let dragStartY = 0;
     let lastDragX = 0;
     let lastDragTime = 0;
     let dragVelocity = 0; // pixels per ms
-    let dragStartTime = $state(0);
+    let dragStartTime = 0;
     let animationFrameId: number | null = null;
 
     function stopInertia() {
@@ -153,17 +154,30 @@
         stopInertia();
         isDragging = true;
         dragStartX = e.clientX;
+        dragStartY = e.clientY;
         dragStartTime = currentTime;
         lastDragX = e.clientX;
         lastDragTime = e.timeStamp;
         dragVelocity = 0;
-
-        (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
     }
 
     function handlePointerMove(e: PointerEvent) {
         if (!isDragging) return;
         if (activeTouches.size > 1) return; // pinching, skip drag
+
+        // Set pointer capture only after we're sure it's a horizontal movement
+        if (containerEl && !containerEl.hasPointerCapture(e.pointerId)) {
+            const dx = Math.abs(e.clientX - dragStartX);
+            const dy = Math.abs(e.clientY - dragStartY);
+            if (dx > 5 && dx > dy) {
+                containerEl.setPointerCapture(e.pointerId);
+            } else if (dy > 5) {
+                isDragging = false;
+                return;
+            } else {
+                return; // Not enough movement yet
+            }
+        }
 
         const now = e.timeStamp;
         const dt = now - lastDragTime;
@@ -324,7 +338,7 @@
 <!-- VideoScrub component -->
 <div
     class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#222]"
-    style="touch-action: none;"
+    style="touch-action: pan-y;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
     onpointerdown={handlePointerDown}
