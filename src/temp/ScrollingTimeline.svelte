@@ -20,7 +20,7 @@
 	const totalPx = $derived(duration * PX_PER_SEC);
 	const stripOffset = $derived((containerW / 2) - currentTime * PX_PER_SEC);
 
-	const overlayMarkers = $derived(markers.filter((m) => m.type !== "move" && m.type !== "hide" && m.type !== "pause"));
+	const overlayMarkers = $derived(markers.filter((m) => m.type !== "move" && m.type !== "pause"));
 	const pauseMarkers = $derived(markers.filter((m) => m.type === "pause"));
 
 	// Ticks every 1s

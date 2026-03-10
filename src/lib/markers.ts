@@ -3,10 +3,11 @@
 export interface Marker {
     id: string;
     time: number;
-    type: "comment" | "move" | "pause" | "like" | "hide" | "tip";
+    type: "comment" | "move" | "pause" | "like" | "tip";
     text?: string;
     color?: string;
     username?: string;
+    end?: number; // End time for "move" segments
 }
 
 export interface MoveSegment {
@@ -26,8 +27,6 @@ export function getMarkerSymbol(type: Marker["type"]): string {
             return "⏸";
         case "like":
             return "❤️";
-        case "hide":
-            return "|";
         case "tip":
             return "💡";
         default:
@@ -47,8 +46,6 @@ export function getMarkerColorClass(marker: Marker): string {
             return "text-orange-500";
         case "like":
             return "text-rose-500";
-        case "hide":
-            return "text-blue-400";
         case "tip":
             return "text-amber-400";
         default:

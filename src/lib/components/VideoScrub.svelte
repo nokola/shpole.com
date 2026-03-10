@@ -279,8 +279,8 @@
         pixelsPerSecond = clamp(pixelsPerSecond * zoomFactor, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
     }
 
-    // ─── Visible markers (exclude "hide") ───
-    let visibleMarkers = $derived(markers.filter((m) => m.type !== "hide"));
+    // ─── Visible markers ───
+    let visibleMarkers = $derived(markers);
 
     // ─── Thumbnails ───
     let thumbnails = $state<string[]>([]);

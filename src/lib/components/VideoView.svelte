@@ -154,57 +154,31 @@
     // Find active marker for the comment bubble (within 1 second of current time)
     let activeMarker = $derived.by(() => {
         const m = playheadMarker;
-        if (!m || m.type === "move" || m.type === "hide") return null;
-        if (m.type === "pause") return m.text ? m : null;
+        if (!m || m.type === "move") return null;
         return m.text ? m : null;
     });
 
     // Find current active move name
     let activeMoveName = $derived.by(() => {
-        // Find the latest marker of type 'move' or 'hide' that has already happened
-        const lastRelevantMarker = [...markers]
-            .filter((m) => (m.type === "move" || m.type === "hide") && m.time <= currentTime)
-            .sort((a, b) => b.time - a.time)[0];
-
-        if (lastRelevantMarker?.type === "move") {
-            return lastRelevantMarker.text;
-        }
-        return null;
+        // Find a 'move' marker whose range includes current time
+        const activeMove = markers.find(
+            (m) => m.type === "move" && currentTime >= m.time && (m.end === undefined || currentTime <= m.end),
+        );
+        return activeMove?.text || null;
     });
 
-    // Visible markers sorted by time (excluding 'hide' markers)
-    let sortedVisibleMarkers = $derived([...markers].filter((m) => m.type !== "hide").sort((a, b) => a.time - b.time));
+    // Visible markers sorted by time
+    let sortedVisibleMarkers = $derived([...markers].sort((a, b) => a.time - b.time));
 
     // All move segments for highlighting on the timeline
     let moveSegments = $derived.by(() => {
-        if (duration <= 0) return [];
-        const sorted = [...markers]
-            .filter((m) => m.type === "move" || m.type === "hide")
-            .sort((a, b) => a.time - b.time);
-
-        const segments: { start: number; end: number; text: string | null }[] = [];
-        let currentStartTime: number | null = null;
-        let currentText: string | null = null;
-
-        for (const m of sorted) {
-            if (m.type === "move") {
-                if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
-                }
-                currentStartTime = m.time;
-                currentText = m.text || null;
-            } else if (m.type === "hide") {
-                if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
-                    currentStartTime = null;
-                    currentText = null;
-                }
-            }
-        }
-        if (currentStartTime !== null) {
-            segments.push({ start: currentStartTime, end: duration, text: currentText });
-        }
-        return segments;
+        return markers
+            .filter((m) => m.type === "move")
+            .map((m) => ({
+                start: m.time,
+                end: m.end ?? duration,
+                text: m.text ?? null,
+            }));
     });
 </script>
 
