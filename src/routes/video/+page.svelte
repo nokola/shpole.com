@@ -10,16 +10,32 @@
         thumbnail: "/Meix_final_small.jpg",
         duration: 474.261924,
         markers: [
-            { id: "0", time: 0, type: "move" as const, text: "Cup split grip" },
-            { id: "21", time: 1, type: "comment" as const, text: "Nice transition!", username: "someone.poles" },
-            { id: "10", time: 3, type: "hide" as const },
-            { id: "1", time: 5.32, type: "move" as const, text: "Layout (cup grip)" },
-            { id: "2", time: 15.12, type: "comment" as const, text: "Nice transition!", username: "someone.poles" },
-            { id: "11", time: 17, type: "hide" as const },
-            { id: "3", time: 30.23, type: "pause" as const, text: "Practice point: try to hold here" },
-            { id: "6", time: 35.5, type: "tip" as const, text: "Tip: arch back", username: "nikola" },
-            { id: "4", time: 40.12, type: "like" as const, text: "🔥", username: "sarah" },
-            { id: "5", time: 45.12, type: "comment" as const, text: "bye", username: "nokola" },
+            /* add markers for:
+Pole walk
+Pirouettes
+Bridge bodywave
+Plie
+Backslide
+Carousel spin
+Sexy standup
+*/
+            // { id: "0", time: 0, type: "move", text: "Pole walk" },
+            // { id: "1", time: 1, type: "move", text: "Pirouettes" },
+            // { id: "2", time: 2, type: "move", text: "Bridge bodywave" },
+            // { id: "3", time: 3, type: "move", text: "Plie" },
+            // { id: "4", time: 4, type: "move", text: "Backslide" },
+            // { id: "5", time: 5, type: "move", text: "Carousel spin" },
+            // { id: "6", time: 6, type: "move", text: "Sexy standup" },
+            { id: "0", time: 0, type: "move", text: "Cup split grip" },
+            { id: "21", time: 1, type: "comment", text: "Nice transition!", username: "someone.poles" },
+            { id: "10", time: 3, type: "hide" },
+            { id: "1", time: 5.32, type: "move", text: "Layout (cup grip)" },
+            { id: "2", time: 15.12, type: "comment", text: "Nice transition!", username: "someone.poles" },
+            { id: "11", time: 17, type: "hide" },
+            { id: "3", time: 30.23, type: "pause", text: "Practice point: try to hold here" },
+            { id: "6", time: 35.5, type: "tip", text: "Tip: arch back", username: "nikola" },
+            { id: "4", time: 40.12, type: "like", text: "🔥", username: "sarah" },
+            { id: "5", time: 45.12, type: "comment", text: "bye", username: "nokola" },
         ],
         cover: false,
     };
