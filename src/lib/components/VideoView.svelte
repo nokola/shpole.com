@@ -9,10 +9,11 @@
         duration: number;
         markers?: Marker[];
         onMarkerAdd?: (marker: Marker) => void;
+        cover?: boolean;
         children?: Snippet;
     }
 
-    let { videoUrl, duration, markers = $bindable([]), onMarkerAdd, children }: Props = $props();
+    let { videoUrl, duration, markers = $bindable([]), onMarkerAdd, cover = false, children }: Props = $props();
 
     // State
     let videoEl: HTMLVideoElement | null = $state(null);
@@ -215,7 +216,7 @@
         <video
             bind:this={videoEl}
             src={videoUrl}
-            class="w-full max-h-full object-contain"
+            class="w-full {cover ? 'h-full object-cover' : 'h-[calc(100%-7.5rem)] object-contain'}"
             ontimeupdate={handleTimeUpdate}
             onloadedmetadata={handleLoadedMetadata}
             ondurationchange={handleDurationChange}

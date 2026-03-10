@@ -21,6 +21,7 @@
             { id: "4", time: 40.12, type: "like" as const, text: "🔥", username: "sarah" },
             { id: "5", time: 45.12, type: "comment" as const, text: "bye", username: "nokola" },
         ],
+        cover: false,
     };
 
     function handleMarkerAdd(marker: { id: string; time: number; type: string; text?: string }) {
@@ -39,6 +40,7 @@
         videoUrl={videoMeix.url}
         duration={videoMeix.duration}
         markers={videoMeix.markers}
+        cover={videoMeix.cover}
         onMarkerAdd={handleMarkerAdd}
     />
 </div>
