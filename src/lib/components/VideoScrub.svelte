@@ -15,7 +15,7 @@
         onShowMoves?: () => void;
         onDrawerDragStart?: () => void;
         onDrawerDrag?: (deltaY: number) => void;
-        onDrawerDragEnd?: () => void;
+        onDrawerDragEnd?: (velocityY: number) => void;
         isMovesOpen?: boolean;
     }
 
@@ -133,8 +133,10 @@
     let dragStartX = 0;
     let dragStartY = 0;
     let lastDragX = 0;
+    let lastDragY = 0;
     let lastDragTime = 0;
     let dragVelocity = 0; // pixels per ms
+    let dragVelocityY = 0; // pixels per ms
     let dragStartTime = 0;
     let isVerticalDragging = $state(false);
     let animationFrameId: number | null = null;
@@ -190,14 +192,28 @@
         dragStartY = e.clientY;
         dragStartTime = currentTime;
         lastDragX = e.clientX;
+        lastDragY = e.clientY;
         lastDragTime = e.timeStamp;
         dragVelocity = 0;
+        dragVelocityY = 0;
         onScrubStart?.();
     }
 
     function handlePointerMove(e: PointerEvent) {
         if (!isDragging) return;
         if (activeTouches.size > 1) return; // pinching, skip drag
+
+        const now = e.timeStamp;
+        const dt = now - lastDragTime;
+        if (dt > 0) {
+            const dx_frame = e.clientX - lastDragX;
+            const dy_frame = e.clientY - lastDragY;
+            dragVelocity = dx_frame / dt;
+            dragVelocityY = dy_frame / dt;
+            lastDragX = e.clientX;
+            lastDragY = e.clientY;
+            lastDragTime = now;
+        }
 
         const dx = Math.abs(e.clientX - dragStartX);
         const deltaY = e.clientY - dragStartY;
@@ -222,15 +238,6 @@
             return;
         }
 
-        const now = e.timeStamp;
-        const dt = now - lastDragTime;
-        if (dt > 0) {
-            const dx = e.clientX - lastDragX;
-            dragVelocity = dx / dt;
-            lastDragX = e.clientX;
-            lastDragTime = now;
-        }
-
         const deltaX = e.clientX - dragStartX;
         // Moving finger right = scrolling timeline right = going back in time
         const deltaTime = -deltaX / pixelsPerSecond;
@@ -241,21 +248,22 @@
     function handlePointerUp(e: PointerEvent) {
         if (!isDragging) return;
 
+        // If the movement stopped or slowed down significantly before releasing, clear velocity
+        const timeSinceLastMove = e.timeStamp - lastDragTime;
+        if (timeSinceLastMove > 100) {
+            dragVelocity = 0;
+            dragVelocityY = 0;
+        }
+
         if (isVerticalDragging) {
             isVerticalDragging = false;
             isDragging = false;
-            onDrawerDragEnd?.();
+            onDrawerDragEnd?.(dragVelocityY);
             (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
             return;
         }
 
         isDragging = false;
-
-        // If the movement stopped or slowed down significantly before releasing, clear velocity
-        const timeSinceLastMove = e.timeStamp - lastDragTime;
-        if (timeSinceLastMove > 100) {
-            dragVelocity = 0;
-        }
 
         if (Math.abs(dragVelocity) > 0.1) {
             startInertia();

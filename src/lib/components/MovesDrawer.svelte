@@ -28,7 +28,7 @@
            opacity: {progress > 0.01 ? 1 : 0};
            visibility: {progress > 0.01 ? 'visible' : 'hidden'};
            pointer-events: {progress > 0.1 ? 'auto' : 'none'};
-           transition: {!isDragging ? 'height 450ms cubic-bezier(0.32, 0.72, 0, 1), opacity 300ms' : 'none'};"
+           transition: {!isDragging ? 'opacity 300ms' : 'none'};"
 >
     <!-- Border handled as an absolute line to avoid layout shifts -->
     {#if progress > 0}

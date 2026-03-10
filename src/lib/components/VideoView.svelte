@@ -23,7 +23,70 @@
     let drawerProgress = $state(0);
     let isDrawerDragging = $state(false);
     let startDrawerProgress = 0;
-    let isMovesMode = $state(false);
+
+    // Physics variables
+    let drawerRafId: number | null = null;
+    let drawerVelocity = 0; // progress / frame
+    let drawerTarget: number | null = null;
+
+    function startDrawerPhysics(target: number | null, initialVelocity: number) {
+        if (drawerRafId !== null) {
+            cancelAnimationFrame(drawerRafId);
+        }
+        drawerTarget = target;
+        drawerVelocity = initialVelocity;
+        let lastTime = performance.now();
+
+        // Critical damped spring or slightly under-damped.
+        const stiffness = 0.05;
+        const damping = 0.7;
+        const friction = 0.95;
+
+        function loop(time: number) {
+            const dt = Math.min(time - lastTime, 32);
+            let frames = dt / 16.666;
+            if (frames < 0.1) frames = 0.1;
+            lastTime = time;
+
+            for (let i = 0; i < Math.max(1, Math.floor(frames)); i++) {
+                if (drawerTarget !== null) {
+                    const force = (drawerTarget - drawerProgress) * stiffness;
+                    drawerVelocity += force;
+                    drawerVelocity *= damping;
+                } else {
+                    drawerVelocity *= friction;
+                }
+                drawerProgress += drawerVelocity;
+
+                // Hard boundary collisions for satisfying shut
+                if (drawerProgress <= 0) {
+                    drawerProgress = 0;
+                    drawerVelocity = 0;
+                } else if (drawerProgress >= 1) {
+                    drawerProgress = 1;
+                    drawerVelocity = 0;
+                }
+            }
+
+            if (drawerTarget !== null) {
+                if (Math.abs(drawerProgress - drawerTarget) < 0.0005 && Math.abs(drawerVelocity) < 0.0005) {
+                    drawerProgress = drawerTarget;
+                    drawerRafId = null;
+                    return;
+                }
+            } else {
+                if (Math.abs(drawerVelocity) < 0.0001) {
+                    drawerRafId = null;
+                    return;
+                }
+            }
+
+            drawerRafId = requestAnimationFrame(loop);
+        }
+        drawerRafId = requestAnimationFrame(loop);
+    }
+
+    let isMovesMode = $derived(drawerProgress > 0.5);
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
     let wasPlayingBeforeScrub = false;
@@ -216,11 +279,14 @@
     }
 
     function handleShowMoves() {
-        isMovesMode = !isMovesMode;
-        drawerProgress = isMovesMode ? 1 : 0;
+        startDrawerPhysics(isMovesMode ? 0 : 1, 0);
     }
 
     function handleDrawerDragStart() {
+        if (drawerRafId !== null) {
+            cancelAnimationFrame(drawerRafId);
+            drawerRafId = null;
+        }
         startDrawerProgress = drawerProgress;
         isDrawerDragging = true;
     }
@@ -235,12 +301,24 @@
         drawerProgress = Math.max(0, Math.min(1, startDrawerProgress + deltaProgress));
     }
 
-    function handleDrawerDragEnd() {
+    function handleDrawerDragEnd(velocityY: number = 0) {
         isDrawerDragging = false;
-        // Snap if close to ends
-        if (drawerProgress < 0.05) drawerProgress = 0;
-        if (drawerProgress > 0.95) drawerProgress = 1;
-        isMovesMode = drawerProgress > 0.5;
+
+        if (!outerContainerEl) return;
+        const totalHeight = outerContainerEl.clientHeight;
+        const maxDrawerDelta = totalHeight * 0.55;
+
+        // Velocity from px/ms to progress/ms
+        let vy = -velocityY / maxDrawerDelta;
+
+        // Convert velocity to per-frame velocity for the physics engine
+        const frameVelocity = vy * 16.666;
+
+        // amplify throwing velocity for extra satisfying effect
+        const amplifiedVelocity = frameVelocity * 1.5;
+
+        // pure inertia
+        startDrawerPhysics(null, amplifiedVelocity);
     }
 
     // Find the marker currently under the playhead (within 1 second)
@@ -284,9 +362,7 @@
     <!-- Video + Controls section - dynamic height based on drawer -->
     <div
         class="relative w-full bg-black text-white flex flex-col overflow-hidden"
-        style="height: {100 - drawerProgress * 55}dvh; transition: {!isDrawerDragging
-            ? 'height 450ms cubic-bezier(0.32, 0.72, 0, 1)'
-            : 'none'};"
+        style="height: {100 - drawerProgress * 55}dvh;"
     >
         <div class="relative flex-1 min-h-0 w-full overflow-hidden">
             <video
