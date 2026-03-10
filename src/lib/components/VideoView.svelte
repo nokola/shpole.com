@@ -284,14 +284,8 @@
             <button
                 type="button"
                 class="absolute inset-0 cursor-pointer overflow-hidden flex flex-col items-center justify-center p-6"
-                onclick={() => {
-                    if (isMovesMode) {
-                        isMovesMode = false;
-                    } else {
-                        togglePlay();
-                    }
-                }}
-                aria-label={isMovesMode ? "Close moves list" : isPlaying ? "Pause" : "Play"}
+                onclick={togglePlay}
+                aria-label={isPlaying ? "Pause" : "Play"}
             ></button>
         </div>
 
