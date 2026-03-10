@@ -1,5 +1,4 @@
 
--- VideoView assumes it's exactly full page height
 -- Add < Back button in top left corner
 
 -- Crescent moon issue in shpole
@@ -16,7 +15,6 @@
 -- Thumbnail
 -- camera Record
 
-DONE -- video auto pause at key moments to try the move so far
 -- badges can be used for rewards - maybe one per move?
 -- move-specific badges - side effect
 
@@ -30,6 +28,8 @@ DONE -- video auto pause at key moments to try the move so far
     -- rate the move
 
 -- terms of use and contributing
+
+DONE -- video auto pause at key moments to try the move so far
 
 TEST:
 -- can folks discover zooming the scrub bar?

@@ -317,7 +317,7 @@
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
                     <span
-                        class="absolute bottom-[calc(100%+2px)] text-[8px] text-white bg-black px-1 py-px rounded-sm whitespace-nowrap pointer-events-none font-medium"
+                        class="absolute top-[calc(100%+4px)] text-sm text-white py-0.5 whitespace-nowrap pointer-events-none z-10"
                         >{seg.text}</span
                     >
                 {/if}
