@@ -17,7 +17,9 @@
 
     // State
     let videoEl: HTMLVideoElement | null = $state(null);
+    let outerContainerEl: HTMLDivElement | null = $state(null);
     let currentTime = $state(0);
+    let isMovesMode = $state(false);
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
     let wasPlayingBeforeScrub = false;
@@ -209,6 +211,16 @@
         seekTo(currentTime + 10);
     }
 
+    function handleShowMoves() {
+        isMovesMode = !isMovesMode;
+        if (outerContainerEl) {
+            outerContainerEl.scrollTo({
+                top: 0,
+                behavior: "smooth",
+            });
+        }
+    }
+
     // Find the marker currently under the playhead (within 1 second)
     let playheadMarker = $derived(markers.find((m) => Math.abs(m.time - currentTime) < 1) || null);
 
@@ -244,14 +256,22 @@
 </script>
 
 <!-- Outer scrollable container (div1) -->
-<div class="w-full h-full overflow-y-auto">
+<div class="w-full h-full overflow-y-auto" bind:this={outerContainerEl}>
     <!-- Video + Controls section - exactly viewport height (div2) -->
-    <div class="relative w-full h-dvh bg-black text-white">
+    <div
+        class="relative w-full bg-black text-white transition-[height] duration-500 ease-in-out {isMovesMode
+            ? 'h-[45dvh]'
+            : 'h-dvh'}"
+    >
         <!-- Video - fills entire section -->
         <video
             bind:this={videoEl}
             src={videoUrl}
-            class="w-full {cover ? 'h-full object-cover' : 'h-[calc(100%-7.5rem)] object-contain'}"
+            class="w-full transition-all duration-500 {isMovesMode
+                ? 'h-full object-contain pb-2'
+                : cover
+                  ? 'h-full object-cover'
+                  : 'h-[calc(100%-7.5rem)] object-contain'}"
             ontimeupdate={handleTimeUpdate}
             onloadedmetadata={handleLoadedMetadata}
             ondurationchange={handleDurationChange}
@@ -275,7 +295,9 @@
 
         <!-- Status Labels (Center) -->
         <div
-            class="absolute bottom-43 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
+            class="absolute {isMovesMode
+                ? 'bottom-32'
+                : 'bottom-43'} left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
         >
             {#if !isPlaying && playheadMarker?.type === "pause"}
                 <div
@@ -321,6 +343,7 @@
                 onSeek={handleScrub}
                 onScrubStart={handleScrubStart}
                 onScrubEnd={handleScrubEnd}
+                onShowMoves={handleShowMoves}
             />
         </div>
     </div>

@@ -12,6 +12,7 @@
         onSeek: (time: number) => void;
         onScrubStart?: () => void;
         onScrubEnd?: () => void;
+        onShowMoves?: () => void;
     }
 
     let {
@@ -24,6 +25,7 @@
         onSeek,
         onScrubStart,
         onScrubEnd,
+        onShowMoves,
     }: Props = $props();
 
     // ─── Zoom state ───
@@ -306,6 +308,11 @@
     // ─── Visible markers ───
     let visibleMarkers = $derived(markers);
 
+    // ─── Counts for status buttons ───
+    let moveCount = $derived(markers.filter((m) => m.type === "move").length);
+    let commentCount = $derived(markers.filter((m) => m.type === "comment").length);
+    let likeCount = $derived(markers.filter((m) => m.type === "like").length);
+
     // ─── Thumbnails ───
     let thumbnails = $state<string[]>([]);
     let currentThumbCount = $state(0);
@@ -405,6 +412,30 @@
             : 'opacity-0'}"
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
+        <!-- Start-of-video status buttons -->
+        <div class="absolute right-full top-0 h-full flex flex-col items-center justify-center pr-8 gap-1.5">
+            <button
+                type="button"
+                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-full transition-colors whitespace-nowrap shadow-lg active:scale-95"
+                onclick={(e) => {
+                    e.stopPropagation();
+                    onShowMoves?.();
+                }}
+            >
+                Moves ({moveCount})
+            </button>
+            <div class="flex gap-3 text-white/70">
+                <div class="flex items-center gap-1 text-[11px] font-medium leading-none">
+                    <span>{getMarkerSymbol("comment")}</span>
+                    <span>{commentCount}</span>
+                </div>
+                <div class="flex items-center gap-1 text-[11px] font-medium leading-none">
+                    <span>{getMarkerSymbol("like")}</span>
+                    <span>{likeCount}</span>
+                </div>
+            </div>
+        </div>
+
         <!-- Thumbnails background -->
         {#if showThumbnails}
             <div
