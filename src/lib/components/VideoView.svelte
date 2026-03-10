@@ -289,8 +289,14 @@
         <button
             type="button"
             class="absolute inset-0 cursor-pointer"
-            onclick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
+            onclick={() => {
+                if (isMovesMode) {
+                    isMovesMode = false;
+                } else {
+                    togglePlay();
+                }
+            }}
+            aria-label={isMovesMode ? "Close moves list" : isPlaying ? "Pause" : "Play"}
         ></button>
 
         <!-- Status Labels (Center) -->
