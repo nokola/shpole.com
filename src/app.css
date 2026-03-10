@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* Custom CSS Variables for Shpole Theme */
 :root {
   /* Brand Colors - Vibrant purple/magenta for pole dancing energy */

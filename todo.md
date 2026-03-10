@@ -7,6 +7,7 @@
     -- add comments/annotations/etc.
     -- voice each comment if you'd like
     -- bulk move audios around
+    -- fade in and out BG music with talking
 
 -- for comments - see SoundCloud list
 

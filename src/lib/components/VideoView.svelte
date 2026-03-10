@@ -215,7 +215,7 @@
         <video
             bind:this={videoEl}
             src={videoUrl}
-            class="w-full h-full object-contain"
+            class="w-full max-h-full object-contain"
             ontimeupdate={handleTimeUpdate}
             onloadedmetadata={handleLoadedMetadata}
             ondurationchange={handleDurationChange}
@@ -281,7 +281,7 @@
 
     <!-- Annotations List -->
     <div class="max-w-3xl mx-auto px-6 py-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100 mb-6 flex items-center gap-2">
+        <h2 class="text-xl font-bold text-gray-900 dark:text-red-400 mb-6 flex items-center gap-2">
             Annotations
             <span class="text-sm font-normal text-gray-500">({sortedVisibleMarkers.length})</span>
         </h2>
