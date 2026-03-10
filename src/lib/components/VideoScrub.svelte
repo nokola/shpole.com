@@ -461,9 +461,9 @@
             <!-- Moves button -->
             <button
                 type="button"
-                class="flex items-center gap-2 px-3.5 py-2 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 cursor-pointer backdrop-blur-xl shadow-lg active:scale-95 whitespace-nowrap {isMovesOpen
+                class="flex items-center gap-2 px-3.5 py-2 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 cursor-pointer backdrop-blur-xl shadow-lg shadow-black/60 active:scale-95 whitespace-nowrap {isMovesOpen
                     ? 'bg-blue-600/20 border-blue-400/40 text-blue-300'
-                    : 'bg-white/8 border-white/12 text-white'}"
+                    : 'bg-black/40 border-white/25 text-white'}"
                 onclick={(e) => {
                     e.stopPropagation();
                     onShowMoves?.();
@@ -495,7 +495,7 @@
             <!-- Comments & Likes row -->
             <div class="flex gap-1.5">
                 <button
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/6 border border-white/8 rounded-lg text-[12px] text-white/55 cursor-pointer backdrop-blur-xl hover:bg-white/10 transition-colors"
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/40 border border-white/20 rounded-lg shadow-md shadow-black/50 text-[12px] text-white/60 cursor-pointer backdrop-blur-xl hover:bg-black/60 hover:border-white/30 active:scale-95 transition-all"
                 >
                     <svg
                         width="14"
@@ -513,7 +513,7 @@
                 </button>
 
                 <button
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/6 border border-white/8 rounded-lg text-[12px] text-white/55 cursor-pointer backdrop-blur-xl hover:bg-white/10 transition-colors"
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/40 border border-white/20 rounded-lg shadow-md shadow-black/50 text-[12px] text-white/60 cursor-pointer backdrop-blur-xl hover:bg-black/60 hover:border-white/30 active:scale-95 transition-all"
                 >
                     <svg
                         width="14"
