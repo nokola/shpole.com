@@ -191,17 +191,30 @@
         if (!isDragging) return;
         if (activeTouches.size > 1) return; // pinching, skip drag
 
+        const dx = Math.abs(e.clientX - dragStartX);
+        const deltaY = e.clientY - dragStartY;
+        const dy = Math.abs(deltaY);
+
+        // Priority 1: Swipe to toggle moves drawer
+        const toggleThreshold = 15;
+        if (dy > toggleThreshold && dy > dx) {
+            if ((!isMovesOpen && deltaY < -toggleThreshold) || (isMovesOpen && deltaY > toggleThreshold)) {
+                isDragging = false;
+                onShowMoves?.();
+                return;
+            }
+        }
+
         // Set pointer capture only after we're sure it's a horizontal movement
         if (containerEl && !containerEl.hasPointerCapture(e.pointerId)) {
-            const dx = Math.abs(e.clientX - dragStartX);
-            const dy = Math.abs(e.clientY - dragStartY);
-            if (dx > 5 && dx > dy) {
+            if (dx > 8 && dx > dy) {
                 containerEl.setPointerCapture(e.pointerId);
-            } else if (dy > 5) {
+            } else if (dy > 40 || (deltaY > 15 && !isMovesOpen)) {
+                // Clearly vertical but didn't trigger swipe-up, or swiping down while closed
                 isDragging = false;
                 return;
             } else {
-                return; // Not enough movement yet
+                return; // Not enough movement yet or still potentially a swipe
             }
         }
 
@@ -371,7 +384,7 @@
 <!-- VideoScrub component -->
 <div
     class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#222]"
-    style="touch-action: pan-y;"
+    style="touch-action: none;"
     bind:this={containerEl}
     bind:clientWidth={containerWidth}
     onpointerdown={handlePointerDown}
