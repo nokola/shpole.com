@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import VideoScrub from "./VideoScrub.svelte";
-    import { type Marker, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
+    import { type Marker, getMarkerColorClass, getMarkerSymbol, TYPE_CONFIG } from "$lib/markers";
 
     // Props
     interface Props {
@@ -288,6 +288,7 @@
 
         <div class="space-y-1">
             {#each sortedVisibleMarkers as marker (marker.id)}
+                {@const cfg = TYPE_CONFIG[marker.type] ?? TYPE_CONFIG.comment}
                 <button
                     type="button"
                     class="w-full flex items-start gap-4 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group text-left"
@@ -303,8 +304,11 @@
                     <!-- Content -->
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-sm {getMarkerColorClass(marker)}">
-                                {getMarkerSymbol(marker.type)}
+                            <span
+                                class="w-5 h-5 flex items-center justify-center rounded-full text-[10px] text-white"
+                                style="background: {cfg.iconBg}; border: 1.5px solid {cfg.color};"
+                            >
+                                {cfg.icon}
                             </span>
                             <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
                                 {marker.type}

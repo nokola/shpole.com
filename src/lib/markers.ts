@@ -15,24 +15,25 @@ export interface MoveSegment {
     text: string | null;
 }
 
+export interface TypeConfig {
+    color: string;
+    icon: string;
+    label: string;
+    iconBg: string;
+}
+
+export const TYPE_CONFIG: Record<string, TypeConfig> = {
+    move: { color: "#6C8EEF", icon: "M", label: "Move", iconBg: "#6C8EEF" },
+    hide: { color: "#555", icon: "H", label: "Hidden", iconBg: "#555" },
+    comment: { color: "#8B9DC3", icon: "💬", label: "Comment", iconBg: "#3A4A6B" },
+    tip: { color: "#F0C040", icon: "💡", label: "Tip", iconBg: "#5C4A1A" },
+    pause: { color: "#FF6B6B", icon: "⏸", label: "Pause", iconBg: "#5C2020" },
+    like: { color: "#FF8C42", icon: "❤️", label: "Like", iconBg: "#5C3018" }
+};
+
 /** Returns an emoji/symbol for the given marker type. */
 export function getMarkerSymbol(type: Marker["type"]): string {
-    switch (type) {
-        case "comment":
-            return "💬";
-        case "move":
-            return ""; //"◆";
-        case "pause":
-            return "⏸";
-        case "like":
-            return "❤️";
-        case "hide":
-            return "|";
-        case "tip":
-            return "💡";
-        default:
-            return "•";
-    }
+    return TYPE_CONFIG[type]?.icon ?? TYPE_CONFIG.comment.icon;
 }
 
 /** Returns a Tailwind text-color class for the given marker (used in class= contexts). */
@@ -55,3 +56,4 @@ export function getMarkerColorClass(marker: Marker): string {
             return "text-white";
     }
 }
+
