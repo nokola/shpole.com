@@ -199,7 +199,7 @@
     }
 
     // ─── Visible markers (exclude "hide") ───
-    let visibleMarkers = $derived(markers.filter((m) => m.type !== "hide" && m.type !== "move"));
+    let visibleMarkers = $derived(markers.filter((m) => m.type !== "hide"));
 
     // ─── Thumbnails ───
     let thumbnails = $state<string[]>([]);
