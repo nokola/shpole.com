@@ -140,6 +140,21 @@
     let dragStartTime = 0;
     let isVerticalDragging = $state(false);
     let animationFrameId: number | null = null;
+    let isScrubbingExternally = false;
+
+    function beginScrub() {
+        if (!isScrubbingExternally) {
+            isScrubbingExternally = true;
+            onScrubStart?.();
+        }
+    }
+
+    function endScrub() {
+        if (isScrubbingExternally) {
+            isScrubbingExternally = false;
+            onScrubEnd?.();
+        }
+    }
 
     function stopInertia() {
         if (animationFrameId !== null) {
@@ -173,7 +188,7 @@
                 animationFrameId = requestAnimationFrame(loop);
             } else {
                 animationFrameId = null;
-                onScrubEnd?.();
+                endScrub();
             }
         };
         animationFrameId = requestAnimationFrame(loop);
@@ -196,7 +211,6 @@
         lastDragTime = e.timeStamp;
         dragVelocity = 0;
         dragVelocityY = 0;
-        onScrubStart?.();
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -228,6 +242,7 @@
                 containerEl?.setPointerCapture(e.pointerId);
             } else if (dx > threshold && dx > dy) {
                 containerEl?.setPointerCapture(e.pointerId);
+                beginScrub();
             } else {
                 return; // Wait for more movement
             }
@@ -237,6 +252,8 @@
             onDrawerDrag?.(deltaY);
             return;
         }
+
+        beginScrub();
 
         const deltaX = e.clientX - dragStartX;
         // Moving finger right = scrolling timeline right = going back in time
@@ -258,6 +275,7 @@
         if (isVerticalDragging) {
             isVerticalDragging = false;
             isDragging = false;
+            endScrub();
             onDrawerDragEnd?.(dragVelocityY);
             (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
             return;
@@ -268,7 +286,7 @@
         if (Math.abs(dragVelocity) > 0.1) {
             startInertia();
         } else {
-            onScrubEnd?.();
+            endScrub();
         }
 
         (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
@@ -297,7 +315,10 @@
         if (activeTouches.size === 2) {
             // Starting a pinch
             stopInertia();
-            isDragging = false; // cancel any drag
+            if (isDragging) {
+                isDragging = false; // cancel any drag
+                endScrub();
+            }
             pinchStartDist = getTouchDist(activeTouches);
             pinchStartPxPerSec = pixelsPerSecond;
             // Compute mid-point time for zoom centering

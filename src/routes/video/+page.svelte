@@ -50,7 +50,7 @@ Sexy standup
             // { id: "4", time: 40.12, type: "like", text: "🔥", username: "sarah" },
             // { id: "5", time: 45.12, type: "comment", text: "bye", username: "nokola" },
         ],
-        cover: false,
+        cover: true,
     };
 
     function handleMarkerAdd(marker: { id: string; time: number; type: string; text?: string }) {
