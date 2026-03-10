@@ -317,9 +317,10 @@
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
                     <span
-                        class="absolute top-[calc(100%+4px)] text-sm text-white py-0.5 whitespace-nowrap pointer-events-none z-10"
-                        >{seg.text}</span
+                        class="absolute top-[calc(100%+4px)] left-0 w-full text-sm text-white py-0.5 truncate text-center pointer-events-none z-10"
                     >
+                        {seg.text}
+                    </span>
                 {/if}
             </div>
         {/each}
