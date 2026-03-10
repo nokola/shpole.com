@@ -363,7 +363,7 @@
         <div class="w-9 h-1 bg-white/15 rounded-full mx-auto mb-5"></div>
 
         <div class="px-5">
-            <h3 class="text-white/45 text-[11px] font-semibold uppercase tracking-[1.5px] mb-4">Moves in this video</h3>
+            <h3 class="text-white/45 text-[11px] font-semibold uppercase tracking-[1.5px] mb-4">In this video</h3>
 
             <div class="flex flex-col gap-2">
                 {#each moves as move, i}
