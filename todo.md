@@ -18,19 +18,23 @@
 
 
 -- Meix feedback 3/10
+    -- scrubbing: show auto-pause/pirouette/comments in their own space so no jumping if one suddenly appears
+    -- show loading indicator
+    -- preload video somehow if small enough
+    -- fix jumpy when scrubbing
+
     - bubble - felt too thick like I want to push it (did not try pushing it)
     - Didn't get at first that timeline was going past screen
       - Nikola: maybe OK; 
     - didn't read text and figure out zoom in
-        -- start with more spread zoom
-    -- scrubbing: show auto-pause/pirouette/comments in their own space so no jumping if one suddenly appears
-    -- show loading indicator
-    -- preload video somehow if small enough
+        DONE -- start with more spread zoom
     - figured out the drawer
     - didn't see # of moves
-      -- improve contrast - likely black bg like Monster's screen shot
-    -- fix jumpy when scrubbing
+      DONE -- improve contrast - likely black bg like Monster's screen shot
 
+Meix feedback 3/10-2
+  -- taps everywhere on the move sections
+  -- slides drawer down, but not up to reveal moves
 
 -- grips with order
 -- order of videos
