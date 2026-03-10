@@ -32,7 +32,7 @@
     let containerWidth = $state(0);
 
     // Total track width in px
-    let trackWidth = $derived(Math.max(duration * pixelsPerSecond, containerWidth || 1));
+    let trackWidth = $derived(duration * pixelsPerSecond);
 
     // ─── Translate: position the track so currentTime sits at center ───
     // translateX: the CSS translateX for the inner track.
