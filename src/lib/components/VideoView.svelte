@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import VideoScrub from "./VideoScrub.svelte";
-    import MovesDrawer from "./MovesDrawer.svelte";
+    import MovesDrawer, { DRAWER_MAX_HEIGHT_DVH } from "./MovesDrawer.svelte";
     import { type Marker, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
 
     // Props
@@ -294,7 +294,7 @@
     function handleDrawerDrag(deltaY: number) {
         if (!outerContainerEl) return;
         const totalHeight = outerContainerEl.clientHeight;
-        const maxDrawerDelta = totalHeight * 0.55;
+        const maxDrawerDelta = totalHeight * (DRAWER_MAX_HEIGHT_DVH / 100);
         // deltaY is positive when moving down
         // 1.0 progress is fully open (moved up)
         const deltaProgress = -deltaY / maxDrawerDelta;
@@ -306,7 +306,7 @@
 
         if (!outerContainerEl) return;
         const totalHeight = outerContainerEl.clientHeight;
-        const maxDrawerDelta = totalHeight * 0.55;
+        const maxDrawerDelta = totalHeight * (DRAWER_MAX_HEIGHT_DVH / 100);
 
         // Velocity from px/ms to progress/ms
         let vy = -velocityY / maxDrawerDelta;
@@ -362,7 +362,7 @@
     <!-- Video + Controls section - dynamic height based on drawer -->
     <div
         class="relative w-full bg-black text-white flex flex-col overflow-hidden"
-        style="height: {100 - drawerProgress * 55}dvh;"
+        style="height: {100 - drawerProgress * DRAWER_MAX_HEIGHT_DVH}dvh;"
     >
         <div class="relative flex-1 min-h-0 w-full overflow-hidden">
             <video

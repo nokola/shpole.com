@@ -1,3 +1,7 @@
+<script module lang="ts">
+    export const DRAWER_MAX_HEIGHT_DVH = 50;
+</script>
+
 <script lang="ts">
     import type { Marker } from "$lib/markers";
 
@@ -24,7 +28,7 @@
 -->
 <div
     class="relative w-full bg-linear-to-b from-[#111118] to-[#0a0a0f] rounded-t-[20px] overflow-hidden z-5"
-    style="height: {progress * 55}dvh;
+    style="height: {progress * DRAWER_MAX_HEIGHT_DVH}dvh;
            opacity: {progress > 0.01 ? 1 : 0};
            visibility: {progress > 0.01 ? 'visible' : 'hidden'};
            pointer-events: {progress > 0.1 ? 'auto' : 'none'};
