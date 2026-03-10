@@ -1,8 +1,18 @@
 <script lang="ts">
   import "../app.css";
+  import { themeStore } from "$lib/stores";
   import type { Snippet } from "svelte";
 
   let { children }: { children: Snippet } = $props();
+
+  $effect(() => {
+    const unsub = themeStore.subscribe((t) => {
+      if (typeof window !== "undefined") {
+        document.documentElement.classList.toggle("dark", t === "dark");
+      }
+    });
+    return unsub;
+  });
 </script>
 
 <svelte:head>
