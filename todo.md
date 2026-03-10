@@ -9,7 +9,28 @@
     -- fade in and out BG music with talking
     -- ability to duplicate parts of the video and slow them down (perhaps in non-destructive way?)
 
+-- "comment or question" + likes etc. in the right side of screen
+-- video preload for fast access
+
+-- iPhone: first frame does not show
+
 -- for comments - see SoundCloud list
+
+
+-- Meix feedback 3/10
+    - bubble - felt too thick like I want to push it (did not try pushing it)
+    - Didn't get at first that timeline was going past screen
+      - Nikola: maybe OK; 
+    - didn't read text and figure out zoom in
+        -- start with more spread zoom
+    -- scrubbing: show auto-pause/pirouette/comments in their own space so no jumping if one suddenly appears
+    -- show loading indicator
+    -- preload video somehow if small enough
+    - figured out the drawer
+    - didn't see # of moves
+      -- improve contrast - likely black bg like Monster's screen shot
+    -- fix jumpy when scrubbing
+
 
 -- grips with order
 -- order of videos
