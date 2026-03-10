@@ -213,12 +213,7 @@
 
     function handleShowMoves() {
         isMovesMode = !isMovesMode;
-        if (outerContainerEl) {
-            outerContainerEl.scrollTo({
-                top: 0,
-                behavior: "smooth",
-            });
-        }
+        // No longer scrolling to top, the panel slides in.
     }
 
     // Find the marker currently under the playhead (within 1 second)
@@ -253,10 +248,12 @@
                 text: m.text ?? null,
             }));
     });
+
+    let moves = $derived(markers.filter((m) => m.type === "move"));
 </script>
 
 <!-- Outer scrollable container (div1) -->
-<div class="w-full h-full overflow-y-auto" bind:this={outerContainerEl}>
+<div class="w-full h-full overflow-hidden" bind:this={outerContainerEl}>
     <!-- Video + Controls section - exactly viewport height (div2) -->
     <div
         class="relative w-full bg-black text-white transition-[height] duration-500 ease-in-out {isMovesMode
@@ -288,7 +285,7 @@
         <!-- Tap to play/pause overlay -->
         <button
             type="button"
-            class="absolute inset-0 cursor-pointer"
+            class="absolute inset-0 cursor-pointer overflow-hidden flex flex-col items-center justify-center p-6"
             onclick={() => {
                 if (isMovesMode) {
                     isMovesMode = false;
@@ -350,59 +347,60 @@
                 onScrubStart={handleScrubStart}
                 onScrubEnd={handleScrubEnd}
                 onShowMoves={handleShowMoves}
+                isMovesOpen={isMovesMode}
             />
         </div>
     </div>
 
-    <!-- Annotations List -->
-    <div class="max-w-3xl mx-auto px-6 py-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-red-400 mb-6 flex items-center gap-2">
-            Annotations
-            <span class="text-sm font-normal text-gray-500">({sortedVisibleMarkers.length})</span>
-        </h2>
+    <!-- Moves panel — slides up from bottom -->
+    <div
+        class="absolute bottom-0 left-0 right-0 h-[55%] bg-linear-to-b from-[#111118] to-[#0a0a0f] border-t border-white/8 rounded-t-[20px] overflow-y-auto z-5 px-0 pt-5 pb-10 transition-transform duration-450"
+        style="transform: {isMovesMode
+            ? 'translateY(0)'
+            : 'translateY(100%)'}; transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);"
+    >
+        <!-- Drag indicator -->
+        <div class="w-9 h-1 bg-white/15 rounded-full mx-auto mb-5"></div>
 
-        <div class="space-y-1">
-            {#each sortedVisibleMarkers as marker (marker.id)}
-                <button
-                    type="button"
-                    class="w-full flex items-start gap-4 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group text-left"
-                    onclick={() => seekTo(marker.time)}
-                >
-                    <!-- Time Badge -->
-                    <span
-                        class="text-xs font-mono font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 min-w-14 text-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
+        <div class="px-5">
+            <h3 class="text-white/45 text-[11px] font-semibold uppercase tracking-[1.5px] mb-4">Moves in this video</h3>
+
+            <div class="flex flex-col gap-2">
+                {#each moves as move, i}
+                    <button
+                        type="button"
+                        class="flex items-center gap-3 bg-white/4 border border-white/6 rounded-xl p-3.5 cursor-pointer transition-all duration-200 hover:bg-white/8 text-left w-full active:scale-[0.98]"
+                        onclick={() => seekTo(move.time)}
                     >
-                        {formatTime(marker.time)}
-                    </span>
-
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-sm {getMarkerColorClass(marker)}">
-                                {getMarkerSymbol(marker.type)}
-                            </span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                                {marker.type}
-                            </span>
+                        <!-- Move number -->
+                        <div
+                            class="w-8 h-8 rounded-lg bg-blue-600/12 border border-blue-600/20 flex items-center justify-center text-blue-400 text-sm font-bold shrink-0"
+                        >
+                            {i + 1}
                         </div>
 
-                        {#if marker.text}
-                            <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                                {marker.text}
-                            </p>
-                        {/if}
+                        <div class="flex-1 min-w-0">
+                            <div class="text-white text-sm font-semibold leading-tight">
+                                {move.text}
+                            </div>
+                            <div class="text-white/35 text-[11px] mt-0.5">Beginner</div>
+                        </div>
 
-                        {#if marker.username}
-                            <span class="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                                — {marker.username}
-                            </span>
-                        {/if}
-                    </div>
-                </button>
-            {/each}
+                        <!-- Jump to timestamp -->
+                        <div class="flex items-center gap-1 text-white/40 text-xs shrink-0">
+                            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                                <polygon points="5 3 19 12 5 21 5 3" />
+                            </svg>
+                            {formatTime(move.time)}
+                        </div>
+                    </button>
+                {/each}
+            </div>
         </div>
     </div>
 
     <!-- Additional content slot (div3) - for comments, etc. -->
-    {@render children?.()}
+    <div class="relative z-0">
+        {@render children?.()}
+    </div>
 </div>

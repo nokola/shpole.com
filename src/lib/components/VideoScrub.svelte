@@ -13,6 +13,7 @@
         onScrubStart?: () => void;
         onScrubEnd?: () => void;
         onShowMoves?: () => void;
+        isMovesOpen?: boolean;
     }
 
     let {
@@ -26,6 +27,7 @@
         onScrubStart,
         onScrubEnd,
         onShowMoves,
+        isMovesOpen = false,
     }: Props = $props();
 
     // ─── Zoom state ───
@@ -412,27 +414,83 @@
             : 'opacity-0'}"
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
-        <!-- Start-of-video status buttons -->
-        <div class="absolute right-full top-0 h-full flex flex-col items-center justify-center pr-8 gap-1.5">
+        <!-- Start-of-video status buttons (Gutter UI) -->
+        <div
+            class="absolute right-full h-full flex flex-col justify-center pr-8 gap-2.5 transition-all duration-500 ease-in-out"
+        >
+            <!-- Moves button -->
             <button
                 type="button"
-                class="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold rounded-full transition-colors whitespace-nowrap shadow-lg active:scale-95"
+                class="flex items-center gap-2 px-3.5 py-2 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 cursor-pointer backdrop-blur-xl shadow-lg active:scale-95 whitespace-nowrap {isMovesOpen
+                    ? 'bg-blue-600/20 border-blue-400/40 text-blue-300'
+                    : 'bg-white/8 border-white/12 text-white'}"
                 onclick={(e) => {
                     e.stopPropagation();
                     onShowMoves?.();
                 }}
             >
-                Moves ({moveCount})
+                <span
+                    class="flex items-center justify-center min-w-[20px] px-1.5 py-0.5 rounded-md text-[12px] font-bold transition-all duration-200 {isMovesOpen
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-white/15 text-white/80'}"
+                >
+                    {moveCount}
+                </span>
+                Moves
+                <svg
+                    width="13"
+                    height="13"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="transition-transform duration-300 {isMovesOpen ? 'rotate-180' : ''}"
+                >
+                    <polyline points="6 9 12 15 18 9" />
+                </svg>
             </button>
-            <div class="flex gap-3 text-white/70">
-                <div class="flex items-center gap-1 text-[11px] font-medium leading-none">
-                    <span>{getMarkerSymbol("comment")}</span>
-                    <span>{commentCount}</span>
-                </div>
-                <div class="flex items-center gap-1 text-[11px] font-medium leading-none">
-                    <span>{getMarkerSymbol("like")}</span>
-                    <span>{likeCount}</span>
-                </div>
+
+            <!-- Comments & Likes row -->
+            <div class="flex gap-1.5">
+                <button
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/6 border border-white/8 rounded-lg text-[12px] text-white/55 cursor-pointer backdrop-blur-xl hover:bg-white/10 transition-colors"
+                >
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                    </svg>
+                    {commentCount}
+                </button>
+
+                <button
+                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-white/6 border border-white/8 rounded-lg text-[12px] text-white/55 cursor-pointer backdrop-blur-xl hover:bg-white/10 transition-colors"
+                >
+                    <svg
+                        width="14"
+                        height="14"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    >
+                        <path
+                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                        />
+                    </svg>
+                    {likeCount}
+                </button>
             </div>
         </div>
 
