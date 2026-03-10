@@ -23,8 +23,8 @@
     }: Props = $props();
 
     // ─── Zoom state ───
-    const MIN_PX_PER_SEC = 5; // fully zoomed out
-    const MAX_PX_PER_SEC = 80; // fully zoomed in for fine scrub
+    const MIN_PX_PER_SEC = 0.5; // fully zoomed out
+    const MAX_PX_PER_SEC = 100; // fully zoomed in for fine scrub
     let pixelsPerSecond = $state(20);
 
     // ─── Container refs & sizing ───
