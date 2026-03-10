@@ -1,6 +1,7 @@
 <script lang="ts">
     import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
     import { extractThumbnails, releaseThumbnails } from "$lib/video";
+    import NiceButton from "./NiceButton.svelte";
 
     interface Props {
         videoUrl: string;
@@ -459,11 +460,9 @@
             class="absolute right-full h-full flex flex-col justify-center pr-8 gap-2.5 transition-all duration-500 ease-in-out"
         >
             <!-- Moves button -->
-            <button
-                type="button"
-                class="flex items-center gap-2 px-3.5 py-2 rounded-[10px] border text-[13px] font-semibold transition-all duration-200 cursor-pointer backdrop-blur-xl shadow-lg shadow-black/60 active:scale-95 whitespace-nowrap {isMovesOpen
-                    ? 'bg-blue-600/20 border-blue-400/40 text-blue-300'
-                    : 'bg-black/40 border-white/25 text-white'}"
+            <NiceButton
+                size="md"
+                isActive={isMovesOpen}
                 onclick={(e) => {
                     e.stopPropagation();
                     onShowMoves?.();
@@ -490,13 +489,11 @@
                 >
                     <polyline points="6 9 12 15 18 9" />
                 </svg>
-            </button>
+            </NiceButton>
 
             <!-- Comments & Likes row -->
             <div class="flex gap-1.5">
-                <button
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/40 border border-white/20 rounded-lg shadow-md shadow-black/50 text-[12px] text-white/60 cursor-pointer backdrop-blur-xl hover:bg-black/60 hover:border-white/30 active:scale-95 transition-all"
-                >
+                <NiceButton size="sm">
                     <svg
                         width="14"
                         height="14"
@@ -510,11 +507,9 @@
                         <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                     </svg>
                     {commentCount}
-                </button>
+                </NiceButton>
 
-                <button
-                    class="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/40 border border-white/20 rounded-lg shadow-md shadow-black/50 text-[12px] text-white/60 cursor-pointer backdrop-blur-xl hover:bg-black/60 hover:border-white/30 active:scale-95 transition-all"
-                >
+                <NiceButton size="sm">
                     <svg
                         width="14"
                         height="14"
@@ -530,7 +525,7 @@
                         />
                     </svg>
                     {likeCount}
-                </button>
+                </NiceButton>
             </div>
         </div>
 
