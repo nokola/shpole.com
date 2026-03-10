@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol, TYPE_CONFIG } from "$lib/markers";
+    import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
     import { extractThumbnails, releaseThumbnails } from "$lib/video";
 
     interface Props {
@@ -327,23 +327,19 @@
 
         <!-- Markers -->
         {#each visibleMarkers as marker (marker.id)}
-            {@const cfg = TYPE_CONFIG[marker.type] ?? TYPE_CONFIG.comment}
             <button
                 type="button"
-                class="absolute top-[26px] w-[18px] h-[18px] rounded-full flex items-center justify-center text-[10px] cursor-pointer z-20 leading-none transition-transform duration-150 ease-in-out hover:scale-125 hover:-translate-x-1/2 -translate-x-1/2 -translate-y-1/2 shadow-md outline-none"
-                style="
-                    left: {marker.time * pixelsPerSecond}px;
-                    background: {cfg.iconBg};
-                    border: 1.5px solid {cfg.color};
-                    color: white;
-                "
+                class="absolute top-[14px] -translate-x-1/2 text-sm cursor-pointer bg-transparent border-none p-0.5 z-20 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
+                    marker,
+                )}"
+                style="left: {marker.time * pixelsPerSecond}px;"
                 title="{marker.type}: {marker.text}"
                 onclick={(e) => {
                     e.stopPropagation();
                     onSeek(marker.time);
                 }}
             >
-                {cfg.icon}
+                {getMarkerSymbol(marker.type)}
             </button>
         {/each}
 
