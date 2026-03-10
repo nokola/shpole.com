@@ -21,7 +21,9 @@ Sexy standup
 */
             { id: "0", time: 7.6, end: 59, type: "move", text: "Beginner Heel Sequence" },
 
-            // todo: add pauses after each of these
+            // todo: add "gorgeous" comment at 53.3
+            { id: "0.1", time: 53.2, type: "like", text: "😍😍😍" },
+
             { id: "1", time: 66, end: 146, type: "move", text: "Ankle warm-up" },
             { id: "1.1", time: 146, type: "pause", text: "Try now, then continue" },
 
@@ -29,6 +31,9 @@ Sexy standup
             { id: "2.1", time: 165, type: "pause", text: "Try now, then continue" },
 
             { id: "3", time: 169, end: 214, type: "move", text: "Pirouette" },
+            // add "watch top hand" at 2:53.9
+            { id: "3.01", time: 179, type: "tip", text: "Watch top hand" },
+
             { id: "3.1", time: 214, type: "pause", text: "Try now, then continue" },
 
             { id: "4", time: 234.8, end: 262, type: "move", text: "Bridge bodywave" },
