@@ -101,7 +101,48 @@
     // ─── Single-finger / mouse drag ───
     let isDragging = $state(false);
     let dragStartX = $state(0);
+    let lastDragX = 0;
+    let lastDragTime = 0;
+    let dragVelocity = 0; // pixels per ms
     let dragStartTime = $state(0);
+    let animationFrameId: number | null = null;
+
+    function stopInertia() {
+        if (animationFrameId !== null) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        dragVelocity = 0;
+    }
+
+    function startInertia() {
+        let lastTimestamp = performance.now();
+        let simulatedTime = currentTime;
+        const friction = 0.95;
+        const minVelocity = 0.04;
+
+        const loop = (now: number) => {
+            const dt = now - lastTimestamp;
+            lastTimestamp = now;
+
+            // Moving finger right (v > 0) means going back in time (time decreases)
+            const deltaX = dragVelocity * dt;
+            const deltaTime = -deltaX / pixelsPerSecond;
+            simulatedTime = clamp(simulatedTime + deltaTime, 0, duration);
+
+            onSeek(simulatedTime);
+
+            // Apply friction
+            dragVelocity *= friction;
+
+            if (Math.abs(dragVelocity) > minVelocity && simulatedTime > 0 && simulatedTime < duration) {
+                animationFrameId = requestAnimationFrame(loop);
+            } else {
+                animationFrameId = null;
+            }
+        };
+        animationFrameId = requestAnimationFrame(loop);
+    }
 
     function handlePointerDown(e: PointerEvent) {
         // Only handle primary button and single touches
@@ -109,9 +150,13 @@
         // Skip if pinching
         if (activeTouches.size > 0) return;
 
+        stopInertia();
         isDragging = true;
         dragStartX = e.clientX;
         dragStartTime = currentTime;
+        lastDragX = e.clientX;
+        lastDragTime = e.timeStamp;
+        dragVelocity = 0;
 
         (e.target as HTMLElement)?.setPointerCapture?.(e.pointerId);
     }
@@ -119,6 +164,15 @@
     function handlePointerMove(e: PointerEvent) {
         if (!isDragging) return;
         if (activeTouches.size > 1) return; // pinching, skip drag
+
+        const now = e.timeStamp;
+        const dt = now - lastDragTime;
+        if (dt > 0) {
+            const dx = e.clientX - lastDragX;
+            dragVelocity = dx / dt;
+            lastDragX = e.clientX;
+            lastDragTime = now;
+        }
 
         const deltaX = e.clientX - dragStartX;
         // Moving finger right = scrolling timeline right = going back in time
@@ -130,6 +184,17 @@
     function handlePointerUp(e: PointerEvent) {
         if (!isDragging) return;
         isDragging = false;
+
+        // If the movement stopped or slowed down significantly before releasing, clear velocity
+        const timeSinceLastMove = e.timeStamp - lastDragTime;
+        if (timeSinceLastMove > 100) {
+            dragVelocity = 0;
+        }
+
+        if (Math.abs(dragVelocity) > 0.1) {
+            startInertia();
+        }
+
         (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
     }
 
@@ -155,6 +220,7 @@
 
         if (activeTouches.size === 2) {
             // Starting a pinch
+            stopInertia();
             isDragging = false; // cancel any drag
             pinchStartDist = getTouchDist(activeTouches);
             pinchStartPxPerSec = pixelsPerSecond;
@@ -194,6 +260,7 @@
     // ─── Mouse wheel zoom ───
     function handleWheel(e: WheelEvent) {
         e.preventDefault();
+        stopInertia();
         const zoomFactor = 1 - e.deltaY * 0.002;
         pixelsPerSecond = clamp(pixelsPerSecond * zoomFactor, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
     }
@@ -276,8 +343,14 @@
     aria-valuemax={Math.round(duration)}
     tabindex="0"
     onkeydown={(e) => {
-        if (e.key === "ArrowLeft") onSeek(clamp(currentTime - 1, 0, duration));
-        if (e.key === "ArrowRight") onSeek(clamp(currentTime + 1, 0, duration));
+        if (e.key === "ArrowLeft") {
+            stopInertia();
+            onSeek(clamp(currentTime - 1, 0, duration));
+        }
+        if (e.key === "ArrowRight") {
+            stopInertia();
+            onSeek(clamp(currentTime + 1, 0, duration));
+        }
         if (e.key === "-") pixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
         if (e.key === "=" || e.key === "+")
             pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
@@ -336,6 +409,7 @@
                 title="{marker.type}: {marker.text}"
                 onclick={(e) => {
                     e.stopPropagation();
+                    stopInertia();
                     onSeek(marker.time);
                 }}
             >
