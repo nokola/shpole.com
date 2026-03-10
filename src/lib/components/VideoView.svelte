@@ -20,6 +20,7 @@
     let currentTime = $state(0);
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
+    let wasPlayingBeforeScrub = false;
 
     // Initials helper
     function getInitials(name?: string): string {
@@ -56,17 +57,67 @@
         }
     }
 
+    let pendingSeekTime = $state<number | null>(null);
+    let isWaitingForRAF = false;
+    let lastManualInteractionTime = 0;
+
     function seekTo(time: number) {
         if (!videoEl) return;
         const clamped = Math.max(0, Math.min(time, duration));
-        videoEl.currentTime = clamped;
-        currentTime = clamped; // Immediate update for responsive scrubbing
+
+        // Immediate update for responsive scrubbing (UI)
+        currentTime = clamped;
+        lastManualInteractionTime = Date.now();
         lastPausedMarkerId = null; // Clear trigger when seeking
+
+        // Skip actual seek if it's too close to current position
+        if (Math.abs(videoEl.currentTime - clamped) < 0.001) {
+            pendingSeekTime = null;
+            return;
+        }
+
+        pendingSeekTime = clamped;
+
+        if (isWaitingForRAF) return;
+
+        isWaitingForRAF = true;
+        requestAnimationFrame(() => {
+            isWaitingForRAF = false;
+            if (!videoEl || pendingSeekTime === null) return;
+
+            // If browser is still seeking from previous request,
+            // the handleSeeked will pick up the latest pendingSeekTime.
+            if (videoEl.seeking) return;
+
+            const timeToSeek = pendingSeekTime;
+            pendingSeekTime = null;
+            videoEl.currentTime = timeToSeek;
+        });
+    }
+
+    function handleSeeked() {
+        if (videoEl && pendingSeekTime !== null && !videoEl.seeking) {
+            const timeToSeek = pendingSeekTime;
+            pendingSeekTime = null;
+            videoEl.currentTime = timeToSeek;
+        }
     }
 
     // Sync current time and handle automated behaviors
     function syncTime(time?: number) {
         if (!videoEl) return;
+
+        // While manually scrubbing or just after manual seek, we treat
+        // user interaction as the source of truth to avoid jitter from stale
+        // video events. We only allow video updates if playing.
+        if (!isPlaying && Date.now() - lastManualInteractionTime < 500) {
+            return;
+        }
+
+        // Don't let stale video time updates overwrite our precise scrub position
+        // during active scrubbing or pending seeks.
+        if (pendingSeekTime !== null || videoEl.seeking) return;
+
         currentTime = time ?? videoEl.currentTime;
 
         // Auto-pause logic
@@ -132,10 +183,20 @@
         }
     });
 
-    // Scrub handler for VideoScrub component
+    // Scrub handlers for VideoScrub component
+    function handleScrubStart() {
+        wasPlayingBeforeScrub = isPlaying;
+        if (isPlaying) videoEl?.pause();
+    }
+
+    function handleScrubEnd() {
+        if (wasPlayingBeforeScrub) {
+            videoEl?.play();
+        }
+        wasPlayingBeforeScrub = false;
+    }
+
     function handleScrub(time: number) {
-        // pause video when scrubbing
-        videoEl?.pause();
         seekTo(time);
     }
 
@@ -197,6 +258,7 @@
             onloadeddata={handleLoadedMetadata}
             onplay={handlePlay}
             onpause={handlePause}
+            onseeked={handleSeeked}
             playsinline
             preload="metadata"
         >
@@ -250,7 +312,16 @@
             {/if}
 
             <!-- VideoScrub Timeline -->
-            <VideoScrub {videoUrl} {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
+            <VideoScrub
+                {videoUrl}
+                {duration}
+                {currentTime}
+                {markers}
+                {moveSegments}
+                onSeek={handleScrub}
+                onScrubStart={handleScrubStart}
+                onScrubEnd={handleScrubEnd}
+            />
         </div>
     </div>
 

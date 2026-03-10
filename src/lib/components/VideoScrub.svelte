@@ -10,6 +10,8 @@
         moveSegments?: MoveSegment[];
         showThumbnails?: boolean;
         onSeek: (time: number) => void;
+        onScrubStart?: () => void;
+        onScrubEnd?: () => void;
     }
 
     let {
@@ -20,6 +22,8 @@
         moveSegments = [],
         showThumbnails = false,
         onSeek,
+        onScrubStart,
+        onScrubEnd,
     }: Props = $props();
 
     // ─── Zoom state ───
@@ -156,6 +160,7 @@
                 animationFrameId = requestAnimationFrame(loop);
             } else {
                 animationFrameId = null;
+                onScrubEnd?.();
             }
         };
         animationFrameId = requestAnimationFrame(loop);
@@ -175,6 +180,7 @@
         lastDragX = e.clientX;
         lastDragTime = e.timeStamp;
         dragVelocity = 0;
+        onScrubStart?.();
     }
 
     function handlePointerMove(e: PointerEvent) {
@@ -223,6 +229,8 @@
 
         if (Math.abs(dragVelocity) > 0.1) {
             startInertia();
+        } else {
+            onScrubEnd?.();
         }
 
         (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
