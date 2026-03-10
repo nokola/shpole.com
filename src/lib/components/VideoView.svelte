@@ -1,7 +1,19 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
-    import VideoScrub from "./VideoScrub.svelte";
-    import { type Marker, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
+    import ScrollingTimeline from "./ScrollingTimeline.svelte";
+    import MarkerListItem from "./MarkerListItem.svelte";
+    import {
+        type Marker,
+        type MarkerType,
+        type Segment,
+        TYPE_CONFIG,
+        buildSegments,
+        getSegmentAt,
+        getMarkerColorClass,
+        getMarkerSymbol,
+        fmt,
+        fmtShort,
+    } from "$lib/markers";
 
     // Props
     interface Props {
@@ -19,17 +31,41 @@
     let currentTime = $state(0);
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
+    let panelOpen = $state(true);
+    let filterType = $state<"all" | MarkerType>("all");
 
-    // Initials helper
-    function getInitials(name?: string): string {
-        if (!name) return "U";
-        return name
-            .split(/\s+/)
-            .filter((part) => part.length > 0)
-            .map((part) => part[0].toUpperCase())
-            .join("")
-            .slice(0, 2);
-    }
+    // Derived
+    const segments = $derived(buildSegments(markers, duration));
+    const activeSegment = $derived(getSegmentAt(segments, currentTime));
+
+    // Panel markers (no "hide")
+    const panelMarkers = $derived.by(() => {
+        const visible = markers.filter((m) => m.type !== "hide");
+        const filtered = filterType === "all" ? visible : visible.filter((m) => m.type === filterType);
+        return [...filtered].sort((a, b) => a.time - b.time);
+    });
+
+    // Counts per type
+    const counts = $derived.by(() => {
+        const c: Record<string, number> = { all: 0, move: 0, comment: 0, tip: 0, pause: 0, like: 0 };
+        for (const m of markers) {
+            if (m.type === "hide") continue;
+            c.all++;
+            if (c[m.type] !== undefined) c[m.type]++;
+        }
+        return c;
+    });
+
+    const FILTER_TABS: { key: "all" | MarkerType; label: string }[] = [
+        { key: "all", label: "All" },
+        { key: "move", label: "Moves" },
+        { key: "comment", label: "Comments" },
+        { key: "tip", label: "Tips" },
+        { key: "pause", label: "Pauses" },
+        { key: "like", label: "Likes" },
+    ];
+
+    const visibleTabs = $derived(FILTER_TABS.filter((t) => counts[t.key] > 0));
 
     // Ensure duration is captured if video is already ready
     $effect(() => {
@@ -37,13 +73,6 @@
             duration = videoEl.duration;
         }
     });
-
-    // Format time as MM:SS
-    function formatTime(seconds: number): string {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, "0")}`;
-    }
 
     // Video controls
     function togglePlay() {
@@ -131,20 +160,24 @@
         }
     });
 
-    // Scrub handler for VideoScrub component
-    function handleScrub(time: number) {
-        // pause video when scrubbing
-        videoEl?.pause();
-        seekTo(time);
+    // UI helpers
+    function setFilter(key: "all" | MarkerType) {
+        filterType = key;
+        if (!panelOpen) panelOpen = true;
     }
 
-    // Skip forward/back
-    function skipBack() {
-        seekTo(currentTime - 10);
+    function pillColor(key: string, isActive: boolean): string {
+        const cfg = TYPE_CONFIG[key];
+        if (!isActive) return "rgba(255,255,255,0.04)";
+        if (key === "all") return "rgba(255,255,255,0.12)";
+        return (cfg?.color ?? "#fff") + "30";
     }
 
-    function skipForward() {
-        seekTo(currentTime + 10);
+    function pillBorder(key: string, isActive: boolean): string {
+        const cfg = TYPE_CONFIG[key];
+        if (!isActive) return "1px solid rgba(255,255,255,0.06)";
+        if (key === "all") return "1px solid rgba(255,255,255,0.15)";
+        return `1px solid ${cfg?.color ?? "#fff"}55`;
     }
 
     // Find the marker currently under the playhead (within 1 second)
@@ -154,180 +187,167 @@
     let activeMarker = $derived.by(() => {
         const m = playheadMarker;
         if (!m || m.type === "move" || m.type === "hide") return null;
-        if (m.type === "pause") return m.text ? m : null;
         return m.text ? m : null;
     });
 
-    // Find current active move name
-    let activeMoveName = $derived.by(() => {
-        // Find the latest marker of type 'move' or 'hide' that has already happened
-        const lastRelevantMarker = [...markers]
-            .filter((m) => (m.type === "move" || m.type === "hide") && m.time <= currentTime)
-            .sort((a, b) => b.time - a.time)[0];
-
-        if (lastRelevantMarker?.type === "move") {
-            return lastRelevantMarker.text;
-        }
-        return null;
-    });
-
-    // Visible markers sorted by time (excluding 'hide' markers)
-    let sortedVisibleMarkers = $derived([...markers].filter((m) => m.type !== "hide").sort((a, b) => a.time - b.time));
-
-    // All move segments for highlighting on the timeline
-    let moveSegments = $derived.by(() => {
-        if (duration <= 0) return [];
-        const sorted = [...markers]
-            .filter((m) => m.type === "move" || m.type === "hide")
-            .sort((a, b) => a.time - b.time);
-
-        const segments: { start: number; end: number; text: string | null }[] = [];
-        let currentStartTime: number | null = null;
-        let currentText: string | null = null;
-
-        for (const m of sorted) {
-            if (m.type === "move") {
-                if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
-                }
-                currentStartTime = m.time;
-                currentText = m.text || null;
-            } else if (m.type === "hide") {
-                if (currentStartTime !== null) {
-                    segments.push({ start: currentStartTime, end: m.time, text: currentText });
-                    currentStartTime = null;
-                    currentText = null;
-                }
-            }
-        }
-        if (currentStartTime !== null) {
-            segments.push({ start: currentStartTime, end: duration, text: currentText });
-        }
-        return segments;
-    });
+    // Initials helper
+    function getInitials(name?: string): string {
+        if (!name) return "U";
+        return name
+            .split(/\s+/)
+            .filter((part) => part.length > 0)
+            .map((part) => part[0].toUpperCase())
+            .join("")
+            .slice(0, 2);
+    }
 </script>
 
 <!-- Outer scrollable container (div1) -->
-<div class="w-full h-full overflow-y-auto">
-    <!-- Video + Controls section - exactly viewport height (div2) -->
-    <div class="relative w-full h-dvh bg-black text-white">
-        <!-- Video - fills entire section -->
-        <video
-            bind:this={videoEl}
-            src={videoUrl}
-            class="w-full max-h-full object-contain"
-            ontimeupdate={handleTimeUpdate}
-            onloadedmetadata={handleLoadedMetadata}
-            ondurationchange={handleDurationChange}
-            onloadeddata={handleLoadedMetadata}
-            onplay={handlePlay}
-            onpause={handlePause}
-            playsinline
-            preload="metadata"
-        >
-            <track kind="captions" />
-        </video>
+<div class="w-full h-full overflow-y-auto bg-[#111119]">
+    <!-- Video section - exactly viewport height minus some room if needed (div2) -->
+    <div class="relative w-full h-dvh bg-black text-white flex flex-col">
+        <!-- Video - fills available space -->
+        <div class="flex-1 relative overflow-hidden flex items-center justify-center">
+            <video
+                bind:this={videoEl}
+                src={videoUrl}
+                class="w-full h-full object-contain"
+                ontimeupdate={handleTimeUpdate}
+                onloadedmetadata={handleLoadedMetadata}
+                ondurationchange={handleDurationChange}
+                onloadeddata={handleLoadedMetadata}
+                onplay={handlePlay}
+                onpause={handlePause}
+                playsinline
+                preload="metadata"
+            >
+                <track kind="captions" />
+            </video>
 
-        <!-- Tap to play/pause overlay -->
-        <button
-            type="button"
-            class="absolute inset-0 cursor-pointer"
-            onclick={togglePlay}
-            aria-label={isPlaying ? "Pause" : "Play"}
-        ></button>
-
-        <!-- Status Labels (Center) -->
-        <div
-            class="absolute bottom-43 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
-        >
-            {#if activeMoveName}
-                <div
-                    class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                >
-                    {activeMoveName}
-                </div>
-            {/if}
-            {#if !isPlaying && playheadMarker?.type === "pause"}
-                <div
-                    class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                >
-                    ⏸ Auto-paused
-                </div>
-            {/if}
-        </div>
-
-        <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent pb-0 pt-8">
-            <!-- Active Marker Comment Bubble -->
-            {#if activeMarker}
-                <div class="flex justify-center items-center gap-1.5 mb-0.5 z-40">
-                    <!-- User Avatar (Initials) -->
+            <!-- Tap to play/pause overlay -->
+            <button
+                type="button"
+                class="absolute inset-0 cursor-pointer flex items-center justify-center"
+                onclick={togglePlay}
+                aria-label={isPlaying ? "Pause" : "Play"}
+            >
+                {#if !isPlaying}
                     <div
-                        class="w-6 h-6 flex items-center justify-center rounded-full bg-black/70 border border-white text-[10px] font-bold text-white shadow-lg shrink-0"
+                        class="w-[52px] h-[52px] rounded-full flex items-center justify-center bg-black/40 backdrop-blur-sm"
+                    >
+                        <svg width="20" height="24" viewBox="0 0 20 24" fill="none">
+                            <path d="M2 1L18 12L2 23V1Z" fill="white" />
+                        </svg>
+                    </div>
+                {/if}
+            </button>
+
+            <!-- Current move HUD (Bottom Left) -->
+            {#if activeSegment}
+                <div class="absolute bottom-4 left-4 right-4 flex items-center gap-2 pointer-events-none">
+                    <div
+                        class="w-2 h-2 rounded-full shrink-0"
+                        style="background: {activeSegment.color}; box-shadow: 0 0 10px {activeSegment.color}88;"
+                    ></div>
+                    <span class="text-sm font-semibold text-white drop-shadow-lg">
+                        {activeSegment.label}
+                    </span>
+                </div>
+            {/if}
+
+            <!-- Comment Bubble (Center-ish) -->
+            {#if activeMarker}
+                <div
+                    class="absolute bottom-16 left-1/2 -translate-x-1/2 flex items-center gap-2 z-40 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 shadow-xl pointer-events-none"
+                >
+                    <div
+                        class="w-6 h-6 flex items-center justify-center rounded-full bg-white/20 text-[10px] font-bold text-white shrink-0"
                     >
                         {getInitials(activeMarker.username)}
                     </div>
-                    <!-- Comment Bubble -->
-                    <div class="bg-black/70 text-white text-sm px-3 py-1 rounded-lg shadow-lg whitespace-nowrap">
+                    <div class="text-white text-sm whitespace-nowrap">
                         {activeMarker.text}
                     </div>
                 </div>
             {/if}
+        </div>
 
-            <!-- VideoScrub Timeline -->
-            <VideoScrub {videoUrl} {duration} {currentTime} {markers} {moveSegments} onSeek={handleScrub} />
+        <!-- Timeline section -->
+        <div class="pt-4 pb-2 bg-[#111119]">
+            <ScrollingTimeline {duration} {currentTime} {markers} {segments} onseek={seekTo} />
         </div>
     </div>
 
-    <!-- Annotations List -->
-    <div class="max-w-3xl mx-auto px-6 py-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-red-400 mb-6 flex items-center gap-2">
-            Annotations
-            <span class="text-sm font-normal text-gray-500">({sortedVisibleMarkers.length})</span>
-        </h2>
-
-        <div class="space-y-1">
-            {#each sortedVisibleMarkers as marker (marker.id)}
-                <button
-                    type="button"
-                    class="w-full flex items-start gap-4 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-white/5 transition-colors group text-left"
-                    onclick={() => seekTo(marker.time)}
+    <!-- Panel Content -->
+    <div class="max-w-2xl mx-auto px-4 pb-12">
+        <!-- Panel toggle + filter pills -->
+        <div class="pt-4">
+            <!-- Toggle header -->
+            <button
+                class="w-full flex items-center justify-between py-2 bg-transparent border-none cursor-pointer"
+                onclick={() => (panelOpen = !panelOpen)}
+            >
+                <span class="text-sm font-semibold text-white/60">
+                    Markers ({counts.all})
+                </span>
+                <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 16 16"
+                    fill="none"
+                    class="transition-transform duration-200 {panelOpen ? 'rotate-180' : ''}"
+                    style="opacity: 0.35;"
                 >
-                    <!-- Time Badge -->
-                    <span
-                        class="text-xs font-mono font-bold px-2 py-1 rounded bg-gray-100 dark:bg-white/10 text-gray-600 dark:text-gray-400 min-w-14 text-center group-hover:bg-blue-600 group-hover:text-white transition-colors"
-                    >
-                        {formatTime(marker.time)}
-                    </span>
+                    <path
+                        d="M4 6L8 10L12 6"
+                        stroke="white"
+                        stroke-width="1.5"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                    />
+                </svg>
+            </button>
 
-                    <!-- Content -->
-                    <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-0.5">
-                            <span class="text-sm {getMarkerColorClass(marker)}">
-                                {getMarkerSymbol(marker.type)}
-                            </span>
-                            <span class="text-sm font-semibold text-gray-900 dark:text-gray-100 capitalize">
-                                {marker.type}
-                            </span>
-                        </div>
-
-                        {#if marker.text}
-                            <p class="text-sm text-gray-600 dark:text-gray-300 line-clamp-2">
-                                {marker.text}
-                            </p>
-                        {/if}
-
-                        {#if marker.username}
-                            <span class="text-[11px] text-gray-400 dark:text-gray-500 font-medium">
-                                — {marker.username}
-                            </span>
-                        {/if}
-                    </div>
-                </button>
-            {/each}
+            <!-- Filter pills -->
+            {#if panelOpen}
+                <div class="flex gap-2 pb-4 overflow-x-auto scrollbar-none">
+                    {#each visibleTabs as tab (tab.key)}
+                        {@const isActive = filterType === tab.key}
+                        <button
+                            class="text-xs font-semibold px-3 py-1.5 rounded-lg cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0 transition-all duration-150"
+                            style="
+                                color: {isActive ? '#fff' : 'rgba(255,255,255,0.4)'};
+                                background: {pillColor(tab.key, isActive)};
+                                border: {pillBorder(tab.key, isActive)};
+                            "
+                            onclick={() => setFilter(tab.key)}
+                        >
+                            {tab.label}
+                            <span class="text-[10px] font-mono opacity-50">{counts[tab.key]}</span>
+                        </button>
+                    {/each}
+                </div>
+            {/if}
         </div>
+
+        <!-- Markers list -->
+        {#if panelOpen}
+            <div class="flex flex-col gap-2">
+                {#each panelMarkers as m (m.id)}
+                    {@const seg = segments.find((s) => s.label === m.text && s.startTime === m.time)}
+                    {@const isNearby = Math.abs(m.time - currentTime) < 2}
+                    <MarkerListItem marker={m} active={isNearby} segment={seg} onclick={() => seekTo(m.time)} />
+                {/each}
+
+                {#if panelMarkers.length === 0}
+                    <div class="py-12 text-center text-sm text-white/20">No markers of this type</div>
+                {/if}
+            </div>
+        {/if}
     </div>
 
-    <!-- Additional content slot (div3) - for comments, etc. -->
-    {@render children?.()}
+    <!-- Additional content slot -->
+    <div class="max-w-3xl mx-auto">
+        {@render children?.()}
+    </div>
 </div>

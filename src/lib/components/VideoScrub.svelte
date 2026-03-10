@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { type Marker, type MoveSegment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
+    import { type Marker, type Segment, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
     import { extractThumbnails, releaseThumbnails } from "$lib/video";
 
     interface Props {
@@ -7,7 +7,7 @@
         duration: number;
         currentTime: number;
         markers?: Marker[];
-        moveSegments?: MoveSegment[];
+        moveSegments?: Segment[];
         showThumbnails?: boolean;
         onSeek: (time: number) => void;
     }
@@ -313,13 +313,14 @@
         {#each moveSegments as seg}
             <div
                 class="absolute top-[20px] h-3 bg-blue-400 rounded-sm pointer-events-none z-10"
-                style="left: {seg.start * pixelsPerSecond}px; width: {(seg.end - seg.start) * pixelsPerSecond}px;"
+                style="left: {seg.startTime * pixelsPerSecond}px; width: {(seg.endTime - seg.startTime) *
+                    pixelsPerSecond}px;"
             >
-                {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
+                {#if seg.label && (seg.endTime - seg.startTime) * pixelsPerSecond > 30}
                     <span
                         class="absolute top-[calc(100%+4px)] left-0 w-full text-sm text-white py-0.5 truncate text-center pointer-events-none z-10"
                     >
-                        {seg.text}
+                        {seg.label}
                     </span>
                 {/if}
             </div>
