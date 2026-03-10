@@ -367,7 +367,7 @@
         <div class="relative flex-1 min-h-0 w-full overflow-hidden">
             <video
                 bind:this={videoEl}
-                src={videoUrl}
+                src={videoUrl + "#t=0.001"}
                 class="w-full h-full transition-all duration-500 {cover && !isMovesMode
                     ? 'absolute inset-0 object-cover'
                     : 'object-contain'}"
