@@ -1,7 +1,7 @@
 <script lang="ts">
     import type { Snippet } from "svelte";
     import VideoScrub from "./VideoScrub.svelte";
-    import MovesDrawer, { DRAWER_MAX_HEIGHT_DVH } from "./MovesDrawer.svelte";
+    import MovesDrawer, { DRAWER_MAX_HEIGHT_DVH, DRAWER_DEFAULT_HEIGHT_DVH } from "./MovesDrawer.svelte";
     import { type Marker, getMarkerColorClass, getMarkerSymbol } from "$lib/markers";
 
     // Props
@@ -279,7 +279,8 @@
     }
 
     function handleShowMoves() {
-        startDrawerPhysics(isMovesMode ? 0 : 1, 0);
+        const target = isMovesMode ? 0 : DRAWER_DEFAULT_HEIGHT_DVH / DRAWER_MAX_HEIGHT_DVH;
+        startDrawerPhysics(target, 0);
     }
 
     function handleDrawerDragStart() {

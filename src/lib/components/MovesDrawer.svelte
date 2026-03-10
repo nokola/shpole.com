@@ -1,4 +1,5 @@
 <script module lang="ts">
+    export const DRAWER_DEFAULT_HEIGHT_DVH = 35;
     export const DRAWER_MAX_HEIGHT_DVH = 50;
 </script>
 
