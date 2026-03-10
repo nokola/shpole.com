@@ -215,18 +215,18 @@
         <div
             class="absolute bottom-43 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
         >
-            {#if activeMoveName}
-                <div
-                    class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                >
-                    {activeMoveName}
-                </div>
-            {/if}
             {#if !isPlaying && playheadMarker?.type === "pause"}
                 <div
                     class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
                 >
                     ⏸ Auto-paused
+                </div>
+            {/if}
+            {#if activeMoveName}
+                <div
+                    class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                >
+                    {activeMoveName}
                 </div>
             {/if}
         </div>
