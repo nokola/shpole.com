@@ -13,6 +13,9 @@
         onScrubStart?: () => void;
         onScrubEnd?: () => void;
         onShowMoves?: () => void;
+        onDrawerDragStart?: () => void;
+        onDrawerDrag?: (deltaY: number) => void;
+        onDrawerDragEnd?: () => void;
         isMovesOpen?: boolean;
     }
 
@@ -27,6 +30,9 @@
         onScrubStart,
         onScrubEnd,
         onShowMoves,
+        onDrawerDragStart,
+        onDrawerDrag,
+        onDrawerDragEnd,
         isMovesOpen = false,
     }: Props = $props();
 
@@ -130,6 +136,7 @@
     let lastDragTime = 0;
     let dragVelocity = 0; // pixels per ms
     let dragStartTime = 0;
+    let isVerticalDragging = $state(false);
     let animationFrameId: number | null = null;
 
     function stopInertia() {
@@ -178,6 +185,7 @@
 
         stopInertia();
         isDragging = true;
+        isVerticalDragging = false;
         dragStartX = e.clientX;
         dragStartY = e.clientY;
         dragStartTime = currentTime;
@@ -195,27 +203,23 @@
         const deltaY = e.clientY - dragStartY;
         const dy = Math.abs(deltaY);
 
-        // Priority 1: Swipe to toggle moves drawer
-        const toggleThreshold = 15;
-        if (dy > toggleThreshold && dy > dx) {
-            if ((!isMovesOpen && deltaY < -toggleThreshold) || (isMovesOpen && deltaY > toggleThreshold)) {
-                isDragging = false;
-                onShowMoves?.();
-                return;
+        // Determine if it's a vertical or horizontal gesture if not yet determined
+        if (!isVerticalDragging && !containerEl?.hasPointerCapture(e.pointerId)) {
+            const threshold = 10;
+            if (dy > threshold && dy > dx) {
+                isVerticalDragging = true;
+                onDrawerDragStart?.();
+                containerEl?.setPointerCapture(e.pointerId);
+            } else if (dx > threshold && dx > dy) {
+                containerEl?.setPointerCapture(e.pointerId);
+            } else {
+                return; // Wait for more movement
             }
         }
 
-        // Set pointer capture only after we're sure it's a horizontal movement
-        if (containerEl && !containerEl.hasPointerCapture(e.pointerId)) {
-            if (dx > 8 && dx > dy) {
-                containerEl.setPointerCapture(e.pointerId);
-            } else if (dy > 40 || (deltaY > 15 && !isMovesOpen)) {
-                // Clearly vertical but didn't trigger swipe-up, or swiping down while closed
-                isDragging = false;
-                return;
-            } else {
-                return; // Not enough movement yet or still potentially a swipe
-            }
+        if (isVerticalDragging) {
+            onDrawerDrag?.(deltaY);
+            return;
         }
 
         const now = e.timeStamp;
@@ -236,6 +240,15 @@
 
     function handlePointerUp(e: PointerEvent) {
         if (!isDragging) return;
+
+        if (isVerticalDragging) {
+            isVerticalDragging = false;
+            isDragging = false;
+            onDrawerDragEnd?.();
+            (e.target as HTMLElement)?.releasePointerCapture?.(e.pointerId);
+            return;
+        }
+
         isDragging = false;
 
         // If the movement stopped or slowed down significantly before releasing, clear velocity

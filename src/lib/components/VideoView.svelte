@@ -19,6 +19,9 @@
     let videoEl: HTMLVideoElement | null = $state(null);
     let outerContainerEl: HTMLDivElement | null = $state(null);
     let currentTime = $state(0);
+    let drawerProgress = $state(0);
+    let isDrawerDragging = $state(false);
+    let startDrawerProgress = 0;
     let isMovesMode = $state(false);
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
@@ -213,7 +216,30 @@
 
     function handleShowMoves() {
         isMovesMode = !isMovesMode;
-        // No longer scrolling to top, the panel slides in.
+        drawerProgress = isMovesMode ? 1 : 0;
+    }
+
+    function handleDrawerDragStart() {
+        startDrawerProgress = drawerProgress;
+        isDrawerDragging = true;
+    }
+
+    function handleDrawerDrag(deltaY: number) {
+        if (!outerContainerEl) return;
+        const totalHeight = outerContainerEl.clientHeight;
+        const maxDrawerDelta = totalHeight * 0.55;
+        // deltaY is positive when moving down
+        // 1.0 progress is fully open (moved up)
+        const deltaProgress = -deltaY / maxDrawerDelta;
+        drawerProgress = Math.max(0, Math.min(1, startDrawerProgress + deltaProgress));
+    }
+
+    function handleDrawerDragEnd() {
+        isDrawerDragging = false;
+        // Snap if close to ends
+        if (drawerProgress < 0.05) drawerProgress = 0;
+        if (drawerProgress > 0.95) drawerProgress = 1;
+        isMovesMode = drawerProgress > 0.5;
     }
 
     // Find the marker currently under the playhead (within 1 second)
@@ -253,12 +279,13 @@
 </script>
 
 <!-- Outer scrollable container (div1) -->
-<div class="w-full h-full overflow-hidden" bind:this={outerContainerEl}>
-    <!-- Video + Controls section - exactly viewport height (div2) -->
+<div class="w-full h-full overflow-hidden flex flex-col" bind:this={outerContainerEl}>
+    <!-- Video + Controls section - dynamic height based on drawer -->
     <div
-        class="relative w-full bg-black text-white transition-[height] duration-500 ease-in-out flex flex-col {isMovesMode
-            ? 'h-[45dvh]'
-            : 'h-dvh'}"
+        class="relative w-full bg-black text-white flex flex-col overflow-hidden"
+        style="height: {100 - drawerProgress * 55}dvh; transition: {!isDrawerDragging
+            ? 'height 450ms cubic-bezier(0.32, 0.72, 0, 1)'
+            : 'none'};"
     >
         <div class="relative flex-1 min-h-0 w-full overflow-hidden">
             <video
@@ -345,17 +372,26 @@
                 onScrubStart={handleScrubStart}
                 onScrubEnd={handleScrubEnd}
                 onShowMoves={handleShowMoves}
+                onDrawerDragStart={handleDrawerDragStart}
+                onDrawerDrag={handleDrawerDrag}
+                onDrawerDragEnd={handleDrawerDragEnd}
                 isMovesOpen={isMovesMode}
             />
         </div>
     </div>
 
-    <!-- Moves panel — slides up from bottom -->
+    <!-- Moves panel — dynamic height, part of the flow so it stays below scrubber -->
     <div
-        class="absolute bottom-0 left-0 right-0 h-[55%] bg-linear-to-b from-[#111118] to-[#0a0a0f] border-t border-white/8 rounded-t-[20px] overflow-y-auto z-5 px-0 pt-5 pb-10 transition-transform duration-450"
-        style="transform: {isMovesMode
-            ? 'translateY(0)'
-            : 'translateY(100%)'}; transition-timing-function: cubic-bezier(0.32, 0.72, 0, 1);"
+        class="relative w-full bg-linear-to-b from-[#111118] to-[#0a0a0f] rounded-t-[20px] overflow-y-auto z-5 px-0 pb-10"
+        style="height: {drawerProgress * 55}dvh; 
+               border-top: {drawerProgress > 0 ? '1px solid rgba(255, 255, 255, 0.08)' : 'none'};
+               padding-top: {drawerProgress > 0 ? '1.25rem' : '0'};
+               opacity: {drawerProgress > 0 ? 1 : 0}; 
+               visibility: {drawerProgress > 0 ? 'visible' : 'hidden'};
+               pointer-events: {drawerProgress > 0 ? 'auto' : 'none'};
+               transition: {!isDrawerDragging
+            ? 'height 450ms cubic-bezier(0.32, 0.72, 0, 1), opacity 300ms, padding 300ms'
+            : 'none'};"
     >
         <!-- Drag indicator -->
         <div class="w-9 h-1 bg-white/15 rounded-full mx-auto mb-5"></div>
