@@ -1,3 +1,5 @@
+import type { Marker } from "./markers";
+
 export async function extractThumbnails(
     src: string,
     count: number,
@@ -44,5 +46,25 @@ export function releaseThumbnails(thumbnails: string[]) {
     thumbnails.forEach(URL.revokeObjectURL);
 }
 
-// for server-side thumbnail generation:
-// ffmpeg -i input.mp4 -vf "fps=1/3,scale=160:-1,tile=10x1" -frames:v 1 thumbstrip.jpg
+export interface VideoInfo {
+    id: string;
+    title: string;
+    description: string;
+    url: string;
+    thumbnail: string;
+    duration: number;
+    markers: Marker[];
+
+    /** true to cover the whole screen, false to fit in a box above markers */
+    cover: boolean;
+}
+
+
+/*
+for server-side thumbnail generation:
+ffmpeg -i input.mp4 -vf "fps=1/3,scale=160:-1,tile=10x1" -frames:v 1 thumbstrip.jpg
+
+ffmpeg encode small:
+ffmpeg -i Meix_final.mp4 -vf scale=720:1280 -c:v libx264 -b:v 500k -c:a aac -b:a 64k Meix_final_small.mp4
+
+*/
