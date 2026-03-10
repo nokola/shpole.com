@@ -25,7 +25,23 @@
     // ─── Zoom state ───
     const MIN_PX_PER_SEC = 0.5; // fully zoomed out
     const MAX_PX_PER_SEC = 100; // fully zoomed in for fine scrub
-    let pixelsPerSecond = $state(20);
+    let manualPixelsPerSecond = $state<number | null>(null);
+
+    // Initial/Auto-fit pixelsPerSecond calculation
+    let autoPixelsPerSecond = $derived.by(() => {
+        if (duration > 0 && containerWidth > 0) {
+            return clamp(containerWidth / duration, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        }
+        return 20; // Sensible default while loading
+    });
+
+    let pixelsPerSecond = $derived(manualPixelsPerSecond ?? autoPixelsPerSecond);
+
+    // Reset manual zoom when a new video is loaded
+    $effect(() => {
+        videoUrl;
+        manualPixelsPerSecond = null;
+    });
 
     // ─── Container refs & sizing ───
     let containerEl: HTMLDivElement | null = $state(null);
@@ -257,7 +273,7 @@
             const currentDist = getTouchDist(activeTouches);
             if (pinchStartDist > 0) {
                 const scale = currentDist / pinchStartDist;
-                pixelsPerSecond = clamp(pinchStartPxPerSec * scale, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+                manualPixelsPerSecond = clamp(pinchStartPxPerSec * scale, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
             }
         }
     }
@@ -276,7 +292,7 @@
         e.preventDefault();
         stopInertia();
         const zoomFactor = 1 - e.deltaY * 0.002;
-        pixelsPerSecond = clamp(pixelsPerSecond * zoomFactor, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        manualPixelsPerSecond = clamp(pixelsPerSecond * zoomFactor, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
     }
 
     // ─── Visible markers ───
@@ -365,14 +381,20 @@
             stopInertia();
             onSeek(clamp(currentTime + 1, 0, duration));
         }
-        if (e.key === "-") pixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
-        if (e.key === "=" || e.key === "+")
-            pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        if (e.key === "-") {
+            manualPixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        }
+        if (e.key === "=" || e.key === "+") {
+            manualPixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+        }
     }}
 >
     <!-- Scrolling inner track -->
     <div
-        class="absolute top-0 left-0 h-full will-change-transform"
+        class="absolute top-0 left-0 h-full will-change-transform transition-opacity duration-200 {duration > 0 &&
+        containerWidth > 0
+            ? 'opacity-100'
+            : 'opacity-0'}"
         style="width: {trackWidth}px; transform: translateX({translateX}px);"
     >
         <!-- Thumbnails background -->
