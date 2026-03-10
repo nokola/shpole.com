@@ -32,7 +32,7 @@
     let isPlaying = $state(false);
     let lastPausedMarkerId = $state<string | null>(null);
     let panelOpen = $state(true);
-    let filterType = $state<"all" | MarkerType>("all");
+    let filterType = $state<"all" | "move" | "comment">("all");
 
     // Derived
     const segments = $derived(buildSegments(markers, duration));
@@ -41,28 +41,36 @@
     // Panel markers (no "hide")
     const panelMarkers = $derived.by(() => {
         const visible = markers.filter((m) => m.type !== "hide");
-        const filtered = filterType === "all" ? visible : visible.filter((m) => m.type === filterType);
+        const filtered =
+            filterType === "all"
+                ? visible
+                : visible.filter((m) => {
+                      if (filterType === "move") return m.type === "move" || m.type === "tip" || m.type === "pause";
+                      if (filterType === "comment") return m.type === "comment" || m.type === "like";
+                      return false;
+                  });
         return [...filtered].sort((a, b) => a.time - b.time);
     });
 
     // Counts per type
     const counts = $derived.by(() => {
-        const c: Record<string, number> = { all: 0, move: 0, comment: 0, tip: 0, pause: 0, like: 0 };
+        const c: Record<string, number> = { all: 0, move: 0, comment: 0 };
         for (const m of markers) {
             if (m.type === "hide") continue;
             c.all++;
-            if (c[m.type] !== undefined) c[m.type]++;
+            if (m.type === "move" || m.type === "tip" || m.type === "pause") {
+                c.move++;
+            } else if (m.type === "comment" || m.type === "like") {
+                c.comment++;
+            }
         }
         return c;
     });
 
-    const FILTER_TABS: { key: "all" | MarkerType; label: string }[] = [
+    const FILTER_TABS: { key: "all" | "move" | "comment"; label: string }[] = [
         { key: "all", label: "All" },
         { key: "move", label: "Moves" },
         { key: "comment", label: "Comments" },
-        { key: "tip", label: "Tips" },
-        { key: "pause", label: "Pauses" },
-        { key: "like", label: "Likes" },
     ];
 
     const visibleTabs = $derived(FILTER_TABS.filter((t) => counts[t.key] > 0));
@@ -161,7 +169,7 @@
     });
 
     // UI helpers
-    function setFilter(key: "all" | MarkerType) {
+    function setFilter(key: "all" | "move" | "comment") {
         filterType = key;
         if (!panelOpen) panelOpen = true;
     }
