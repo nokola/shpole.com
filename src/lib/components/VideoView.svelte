@@ -256,85 +256,89 @@
 <div class="w-full h-full overflow-hidden" bind:this={outerContainerEl}>
     <!-- Video + Controls section - exactly viewport height (div2) -->
     <div
-        class="relative w-full bg-black text-white transition-[height] duration-500 ease-in-out {isMovesMode
+        class="relative w-full bg-black text-white transition-[height] duration-500 ease-in-out flex flex-col {isMovesMode
             ? 'h-[45dvh]'
             : 'h-dvh'}"
     >
-        <!-- Video - fills entire section -->
-        <video
-            bind:this={videoEl}
-            src={videoUrl}
-            class="w-full transition-all duration-500 {isMovesMode
-                ? 'h-full object-contain pb-2'
-                : cover
-                  ? 'h-full object-cover'
-                  : 'h-[calc(100%-7.5rem)] object-contain'}"
-            ontimeupdate={handleTimeUpdate}
-            onloadedmetadata={handleLoadedMetadata}
-            ondurationchange={handleDurationChange}
-            onloadeddata={handleLoadedMetadata}
-            onplay={handlePlay}
-            onpause={handlePause}
-            onseeked={handleSeeked}
-            playsinline
-            preload="metadata"
-        >
-            <track kind="captions" />
-        </video>
+        <div class="relative flex-1 min-h-0 w-full overflow-hidden">
+            <video
+                bind:this={videoEl}
+                src={videoUrl}
+                class="w-full h-full transition-all duration-500 {cover && !isMovesMode
+                    ? 'absolute inset-0 object-cover'
+                    : 'object-contain'}"
+                ontimeupdate={handleTimeUpdate}
+                onloadedmetadata={handleLoadedMetadata}
+                ondurationchange={handleDurationChange}
+                onloadeddata={handleLoadedMetadata}
+                onplay={handlePlay}
+                onpause={handlePause}
+                onseeked={handleSeeked}
+                playsinline
+                preload="metadata"
+            >
+                <track kind="captions" />
+            </video>
 
-        <!-- Tap to play/pause overlay -->
-        <button
-            type="button"
-            class="absolute inset-0 cursor-pointer overflow-hidden flex flex-col items-center justify-center p-6"
-            onclick={() => {
-                if (isMovesMode) {
-                    isMovesMode = false;
-                } else {
-                    togglePlay();
-                }
-            }}
-            aria-label={isMovesMode ? "Close moves list" : isPlaying ? "Pause" : "Play"}
-        ></button>
-
-        <!-- Status Labels (Center) -->
-        <div
-            class="absolute {isMovesMode
-                ? 'bottom-32'
-                : 'bottom-43'} left-1/2 -translate-x-1/2 flex flex-col items-center gap-1 pointer-events-none text-center"
-        >
-            {#if !isPlaying && playheadMarker?.type === "pause"}
-                <div
-                    class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                >
-                    ⏸ Auto-paused
-                </div>
-            {/if}
-            {#if activeMoveName}
-                <div
-                    class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                >
-                    {activeMoveName}
-                </div>
-            {/if}
+            <!-- Tap to play/pause overlay -->
+            <button
+                type="button"
+                class="absolute inset-0 cursor-pointer overflow-hidden flex flex-col items-center justify-center p-6"
+                onclick={() => {
+                    if (isMovesMode) {
+                        isMovesMode = false;
+                    } else {
+                        togglePlay();
+                    }
+                }}
+                aria-label={isMovesMode ? "Close moves list" : isPlaying ? "Pause" : "Play"}
+            ></button>
         </div>
 
-        <!-- Controls - overlaid at bottom of video section -->
-        <div class="absolute bottom-0 left-0 right-0 bg-linear-to-t from-black/80 to-transparent pb-0 pt-8">
-            <!-- Active Marker Comment Bubble -->
-            {#if activeMarker}
-                <div class="flex justify-center items-center gap-1.5 mb-0.5 z-40">
-                    <!-- User Avatar (Initials) -->
-                    <div
-                        class="w-6 h-6 flex items-center justify-center rounded-full bg-black/70 border border-white text-[10px] font-bold text-white shadow-lg shrink-0"
-                    >
-                        {getInitials(activeMarker.username)}
+        <!-- Controls - overlaid or stacked at bottom -->
+        <div
+            class="{cover && !isMovesMode
+                ? 'absolute bottom-0 left-0 right-0'
+                : 'relative'} bg-linear-to-t from-black/80 to-transparent"
+        >
+            <!-- Floating Labels Stack (Status + Comments) -->
+            <div
+                class="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col-reverse items-center gap-2 pb-4 pointer-events-none w-full"
+            >
+                <!-- Active Marker Comment Bubble -->
+                {#if activeMarker}
+                    <div class="flex items-center gap-1.5 z-40">
+                        <!-- User Avatar (Initials) -->
+                        <div
+                            class="w-6 h-6 flex items-center justify-center rounded-full bg-black/70 border border-white text-[10px] font-bold text-white shadow-lg shrink-0"
+                        >
+                            {getInitials(activeMarker.username)}
+                        </div>
+                        <!-- Comment Bubble -->
+                        <div class="bg-black/70 text-white text-sm px-3 py-1 rounded-lg shadow-lg whitespace-nowrap">
+                            {activeMarker.text}
+                        </div>
                     </div>
-                    <!-- Comment Bubble -->
-                    <div class="bg-black/70 text-white text-sm px-3 py-1 rounded-lg shadow-lg whitespace-nowrap">
-                        {activeMarker.text}
-                    </div>
+                {/if}
+
+                <!-- Status Labels (Pause / Move Name) -->
+                <div class="flex flex-col items-center gap-1 text-center">
+                    {#if !isPlaying && playheadMarker?.type === "pause"}
+                        <div
+                            class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                        >
+                            ⏸ Auto-paused
+                        </div>
+                    {/if}
+                    {#if activeMoveName}
+                        <div
+                            class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                        >
+                            {activeMoveName}
+                        </div>
+                    {/if}
                 </div>
-            {/if}
+            </div>
 
             <!-- VideoScrub Timeline -->
             <VideoScrub
