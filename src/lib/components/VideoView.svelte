@@ -402,8 +402,17 @@
         >
             <!-- Floating Labels Stack (Status + Comments) -->
             <div
-                class="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col-reverse items-center gap-2 pb-4 pointer-events-none w-full"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 pb-4 pointer-events-none w-full"
             >
+                <div class="flex flex-col items-center gap-1 text-center">
+                    {#if !isPlaying && playheadMarker?.type === "pause"}
+                        <div
+                            class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
+                        >
+                            ⏸ Auto-paused
+                        </div>
+                    {/if}
+                </div>
                 <!-- Active Marker Comment Bubble -->
                 {#if activeMarker}
                     <div class="flex items-center gap-1.5 z-40">
@@ -422,13 +431,6 @@
 
                 <!-- Status Labels (Pause / Move Name) -->
                 <div class="flex flex-col items-center gap-1 text-center">
-                    {#if !isPlaying && playheadMarker?.type === "pause"}
-                        <div
-                            class="text-xl font-bold text-white/90 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"
-                        >
-                            ⏸ Auto-paused
-                        </div>
-                    {/if}
                     {#if activeMoveName}
                         <div
                             class="text-xl font-bold text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] transition-opacity duration-300"

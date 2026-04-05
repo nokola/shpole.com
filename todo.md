@@ -9,6 +9,8 @@
     -- fade in and out BG music with talking
     -- ability to duplicate parts of the video and slow them down (perhaps in non-destructive way?)
 
+-- video zoom with canvas - use two fingers, move it around with one finger
+
 -- "comment or question" + likes etc. in the right side of screen
 -- video preload for fast access
 
