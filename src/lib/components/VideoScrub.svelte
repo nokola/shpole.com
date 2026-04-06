@@ -469,7 +469,7 @@
                 }}
             >
                 <span
-                    class="flex items-center justify-center min-w-[20px] px-1.5 py-0.5 rounded-md text-[12px] font-bold transition-all duration-200 {isMovesOpen
+                    class="flex items-center justify-center min-w-5 px-1.5 py-0.5 rounded-md text-[12px] font-bold transition-all duration-200 {isMovesOpen
                         ? 'bg-blue-600 text-white'
                         : 'bg-white/15 text-white/80'}"
                 >
@@ -532,7 +532,7 @@
         <!-- Thumbnails background -->
         {#if showThumbnails}
             <div
-                class="absolute top-[36px] bottom-[32px] left-0 right-0 pointer-events-none select-none overflow-hidden"
+                class="absolute top-9 bottom-8 left-0 right-0 pointer-events-none select-none overflow-hidden"
             >
                 {#each thumbnails as thumb, i}
                     {@const interval = duration / currentThumbCount}
@@ -548,12 +548,12 @@
         {/if}
 
         <!-- Track background line -->
-        <div class="absolute top-[24px] left-0 right-0 h-[4px] bg-white/20 rounded-full z-10"></div>
+        <div class="absolute top-6 left-0 right-0 h-1 bg-white/20 rounded-full z-10"></div>
 
         <!-- Move segment highlights -->
         {#each moveSegments as seg}
             <div
-                class="absolute top-[20px] h-3 bg-blue-400 rounded-sm pointer-events-none z-10"
+                class="absolute top-5 h-3 bg-blue-400 rounded-sm pointer-events-none z-10"
                 style="left: {seg.start * pixelsPerSecond}px; width: {(seg.end - seg.start) * pixelsPerSecond}px;"
             >
                 {#if seg.text && (seg.end - seg.start) * pixelsPerSecond > 30}
@@ -570,7 +570,7 @@
         {#each visibleMarkers as marker (marker.id)}
             <button
                 type="button"
-                class="absolute top-[14px] -translate-x-1/2 text-sm cursor-pointer bg-transparent border-none p-0.5 z-20 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
+                class="absolute top-3.5 -translate-x-1/2 text-sm cursor-pointer bg-transparent border-none p-0.5 z-20 drop-shadow-md transition-transform duration-150 ease-in-out hover:scale-140 hover:-translate-x-1/2 {getMarkerColorClass(
                     marker,
                 )}"
                 style="left: {marker.time * pixelsPerSecond}px;"
@@ -587,7 +587,7 @@
 
         <!-- Time ticks & labels -->
         {#each ticks as tick, i}
-            <div class="absolute bottom-[16px] -translate-x-px pointer-events-none" style="left: {tick.x}px;">
+            <div class="absolute bottom-4 -translate-x-px pointer-events-none" style="left: {tick.x}px;">
                 <span
                     class="block text-[9px] text-white/40 mt-0.5 -translate-x-1/2 whitespace-nowrap tabular-nums font-[Inter,monospace]"
                     >{formatTime(tick.time)}</span
@@ -595,7 +595,7 @@
             </div>
             {#if i < ticks.length - 1}
                 <div
-                    class="absolute bottom-[21px] w-0.5 h-0.5 bg-white/20 rounded-full -translate-x-1/2 pointer-events-none"
+                    class="absolute bottom-5.25 w-0.5 h-0.5 bg-white/20 rounded-full -translate-x-1/2 pointer-events-none"
                     style="left: {(tick.x + ticks[i + 1].x) / 2}px;"
                 ></div>
             {/if}
@@ -609,7 +609,7 @@
 
     <!-- Current time label at playhead -->
     <div
-        class="absolute bottom-[3px] left-1/2 -translate-x-1/2 text-[9px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+        class="absolute bottom-0.75 left-1/2 -translate-x-1/2 text-[9px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
     >
         {formatTime2(currentTime)}
     </div>
