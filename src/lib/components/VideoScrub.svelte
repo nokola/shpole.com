@@ -410,125 +410,127 @@
 </script>
 
 <!-- VideoScrub component -->
-<div
-    class="relative w-full h-30 overflow-hidden cursor-grab active:cursor-grabbing select-none bg-[#222]"
-    style="touch-action: none;"
-    bind:this={containerEl}
-    bind:clientWidth={containerWidth}
-    onpointerdown={handlePointerDown}
-    onpointermove={handlePointerMove}
-    onpointerup={handlePointerUp}
-    onpointercancel={handlePointerUp}
-    ontouchstart={handleTouchStart}
-    ontouchmove={handleTouchMove}
-    ontouchend={handleTouchEnd}
-    ontouchcancel={handleTouchEnd}
-    onwheel={handleWheel}
-    role="slider"
-    aria-label="Video timeline scrubber"
-    aria-valuenow={Math.round(currentTime)}
-    aria-valuemin={0}
-    aria-valuemax={Math.round(duration)}
-    tabindex="0"
-    onkeydown={(e) => {
-        if (e.key === "ArrowLeft") {
-            stopInertia();
-            onSeek(clamp(currentTime - 1, 0, duration));
-        }
-        if (e.key === "ArrowRight") {
-            stopInertia();
-            onSeek(clamp(currentTime + 1, 0, duration));
-        }
-        if (e.key === "-") {
-            pixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
-        }
-        if (e.key === "=" || e.key === "+") {
-            pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
-        }
-    }}
->
-    <!-- Scrolling inner track -->
-    <div
-        class="absolute top-0 left-0 h-full will-change-transform transition-opacity duration-200 {duration > 0 &&
-        containerWidth > 0
-            ? 'opacity-100'
-            : 'opacity-0'}"
-        style="width: {trackWidth}px; transform: translateX({translateX}px);"
-    >
-        <!-- Start-of-video status buttons (Gutter UI) -->
-        <div
-            class="absolute right-full h-full flex flex-col justify-center pr-8 gap-2.5 transition-all duration-500 ease-in-out"
+<div class="flex flex-col w-full bg-[#222]">
+    <!-- Toolbar right above the timeline -->
+    <div class="flex items-center gap-3 px-3 py-2 border-b border-white/10">
+        <!-- Moves button -->
+        <NiceButton
+            size="md"
+            isActive={isMovesOpen}
+            onclick={(e) => {
+                e.stopPropagation();
+                onShowMoves?.();
+            }}
         >
-            <!-- Moves button -->
-            <NiceButton
-                size="md"
-                isActive={isMovesOpen}
-                onclick={(e) => {
-                    e.stopPropagation();
-                    onShowMoves?.();
-                }}
+            <span
+                class="flex items-center justify-center min-w-5 px-1.5 py-0.5 rounded-md text-[12px] font-bold transition-all duration-200 {isMovesOpen
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-white/15 text-white/80'}"
             >
-                <span
-                    class="flex items-center justify-center min-w-5 px-1.5 py-0.5 rounded-md text-[12px] font-bold transition-all duration-200 {isMovesOpen
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white/15 text-white/80'}"
-                >
-                    {moveCount}
-                </span>
-                Moves
+                {moveCount}
+            </span>
+            Moves
+            <svg
+                width="13"
+                height="13"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="transition-transform duration-300 {isMovesOpen ? 'rotate-180' : ''}"
+            >
+                <polyline points="6 9 12 15 18 9" />
+            </svg>
+        </NiceButton>
+
+        <div class="flex-1"></div>
+
+        <!-- Comments & Likes -->
+        <div class="flex gap-1.5">
+            <NiceButton size="sm">
                 <svg
-                    width="13"
-                    height="13"
+                    width="14"
+                    height="14"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    stroke-width="2.5"
+                    stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                    class="transition-transform duration-300 {isMovesOpen ? 'rotate-180' : ''}"
                 >
-                    <polyline points="6 9 12 15 18 9" />
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                 </svg>
+                {commentCount}
             </NiceButton>
 
-            <!-- Comments & Likes row -->
-            <div class="flex gap-1.5">
-                <NiceButton size="sm">
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-                    </svg>
-                    {commentCount}
-                </NiceButton>
-
-                <NiceButton size="sm">
-                    <svg
-                        width="14"
-                        height="14"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="2"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                    >
-                        <path
-                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
-                        />
-                    </svg>
-                    {likeCount}
-                </NiceButton>
-            </div>
+            <NiceButton size="sm">
+                <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                >
+                    <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"
+                    />
+                </svg>
+                {likeCount}
+            </NiceButton>
         </div>
+    </div>
 
+    <!-- Timeline Scrubber -->
+    <div
+        class="relative w-full h-24 overflow-hidden cursor-grab active:cursor-grabbing select-none"
+        style="touch-action: none;"
+        bind:this={containerEl}
+        bind:clientWidth={containerWidth}
+        onpointerdown={handlePointerDown}
+        onpointermove={handlePointerMove}
+        onpointerup={handlePointerUp}
+        onpointercancel={handlePointerUp}
+        ontouchstart={handleTouchStart}
+        ontouchmove={handleTouchMove}
+        ontouchend={handleTouchEnd}
+        ontouchcancel={handleTouchEnd}
+        onwheel={handleWheel}
+        role="slider"
+        aria-label="Video timeline scrubber"
+        aria-valuenow={Math.round(currentTime)}
+        aria-valuemin={0}
+        aria-valuemax={Math.round(duration)}
+        tabindex="0"
+        onkeydown={(e) => {
+            if (e.key === "ArrowLeft") {
+                stopInertia();
+                onSeek(clamp(currentTime - 1, 0, duration));
+            }
+            if (e.key === "ArrowRight") {
+                stopInertia();
+                onSeek(clamp(currentTime + 1, 0, duration));
+            }
+            if (e.key === "-") {
+                pixelsPerSecond = clamp(pixelsPerSecond * 0.8, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+            }
+            if (e.key === "=" || e.key === "+") {
+                pixelsPerSecond = clamp(pixelsPerSecond * 1.25, MIN_PX_PER_SEC, MAX_PX_PER_SEC);
+            }
+        }}
+    >
+        <!-- Scrolling inner track -->
+        <div
+            class="absolute top-0 left-0 h-full will-change-transform transition-opacity duration-200 {duration > 0 &&
+            containerWidth > 0
+                ? 'opacity-100'
+                : 'opacity-0'}"
+            style="width: {trackWidth}px; transform: translateX({translateX}px);"
+        >
         <!-- Thumbnails background -->
         {#if showThumbnails}
             <div
@@ -612,5 +614,6 @@
         class="absolute bottom-0.75 left-1/2 -translate-x-1/2 text-[9px] font-semibold text-white pointer-events-none z-10 tabular-nums font-[Inter,monospace] drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
     >
         {formatTime2(currentTime)}
+    </div>
     </div>
 </div>
